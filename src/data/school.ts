@@ -1,10 +1,13 @@
-import logo from "@/assets/7.jpg.asset.json";
+import logo from "@/assets/logo.png.asset.json";
 import img1 from "@/assets/1.jpg.asset.json";
-import img2 from "@/assets/2.jpg.asset.json";
-import img3 from "@/assets/3.jpg.asset.json";
 import img4 from "@/assets/4.jpg.asset.json";
-import img5 from "@/assets/5.jpg.asset.json";
 import img6 from "@/assets/6.jpg.asset.json";
+import post1 from "@/assets/post1.jpg.asset.json";
+import post2 from "@/assets/post2.jpg.asset.json";
+import post3 from "@/assets/post3.jpg.asset.json";
+import post4 from "@/assets/post4.jpg.asset.json";
+import post5 from "@/assets/post5.jpg.asset.json";
+import post6 from "@/assets/post6.jpg.asset.json";
 import video1 from "@/assets/1.mp4.asset.json";
 
 export const school = {
@@ -17,9 +20,15 @@ export const school = {
   email: "contacto@eesn6lobos.edu.ar",
   instagram: "https://instagram.com/secundaria6lobos",
   instagramHandle: "@secundaria6lobos",
+  // Horarios oficiales — editables
   hours: {
-    morning: "07:30 a 12:30 hs",
-    afternoon: "13:00 a 18:00 hs",
+    entryGeneral: "13:14 hs (todos los cursos)",
+    entryException: "6.º año: miércoles y viernes ingresa a las 12:10 hs",
+    exitGeneral: "17:30 hs (todos los cursos)",
+    exitExceptions: [
+      "6.º año: los martes sale a las 18:30 hs",
+      "5.º año: tiene extensión horaria la mayoría de los días",
+    ],
   },
   mapEmbed:
     "https://www.google.com/maps?q=San+Martin+57,+Lobos,+Buenos+Aires,+Argentina&output=embed",
@@ -50,48 +59,49 @@ export type GalleryItem = {
   description: string;
 };
 
+// Publicaciones de Instagram (imagen limpia + título + descripción)
 export const gallery: GalleryItem[] = [
   {
-    url: img1.url,
+    url: post1.url,
     category: "Actos",
     title: "9 de Julio — Día de la Independencia",
     description:
-      "Estudiantes abanderados y escoltas participaron del acto por el Día de la Independencia representando a la institución.",
+      "¡Feliz Día de la Independencia! Estudiantes abanderados y escoltas representaron a la institución en el acto por una nueva conmemoración patria.",
   },
   {
-    url: img3.url,
+    url: post3.url,
     category: "Actos",
     title: "18 de Mayo — Día de la Escarapela",
     description:
-      "Conmemoración del Día de la Escarapela Nacional, símbolo patrio creado en 1812.",
+      "Conmemoramos la creación de la escarapela nacional, uno de los primeros símbolos patrios de nuestro país.",
   },
   {
-    url: img4.url,
+    url: post4.url,
     category: "Aniversarios",
     title: "224° Aniversario de Lobos",
     description:
       "Los estudiantes participaron de los festejos por un nuevo aniversario de la fundación de nuestra querida ciudad.",
   },
   {
-    url: img6.url,
+    url: post6.url,
     category: "Salidas Educativas",
     title: "Encuentro con Veteranos de Malvinas",
     description:
-      "5to 1ra visitó a los Veteranos de Malvinas de Lobos en el marco de la materia Comunicación, Cultura y Sociedad.",
+      "5.º 1.ª visitó a los Veteranos de Malvinas de Lobos en el marco de la materia Comunicación, Cultura y Sociedad.",
   },
   {
-    url: img2.url,
+    url: post2.url,
     category: "Proyectos",
     title: "Cuidados en Invierno",
     description:
-      "Campaña institucional con recomendaciones para cuidarnos durante los meses fríos.",
+      "Recomendaciones para cuidarnos con la llegada de las bajas temperaturas y disfrutar mejor de la estación.",
   },
   {
-    url: img5.url,
+    url: post5.url,
     category: "Comunicados",
     title: "Período de Intensificación",
     description:
-      "Información para las familias sobre el período de intensificación de aprendizajes.",
+      "Del 6/7 al 17/7 se lleva a cabo el período de intensificación de aprendizajes. Es muy importante la asistencia.",
   },
 ];
 
@@ -108,7 +118,7 @@ export const news = [
     date: "Junio, 2026",
     title: "Entrevista a Veteranos de Malvinas",
     excerpt:
-      "Estudiantes de 5to 1ra compartieron un encuentro con veteranos de nuestra ciudad, cargado de historias, valores y emoción.",
+      "Estudiantes de 5.º 1.ª compartieron un encuentro con veteranos de nuestra ciudad, cargado de historias, valores y emoción.",
   },
   {
     image: img4.url,
@@ -116,27 +126,6 @@ export const news = [
     title: "224° Aniversario de Lobos",
     excerpt:
       "Participamos de los festejos por un nuevo aniversario de la fundación de nuestra ciudad, honrando nuestra historia.",
-  },
-  {
-    image: img5.url,
-    date: "Junio, 2026",
-    title: "Período de Intensificación",
-    excerpt:
-      "Del 6/7 al 17/7 se lleva a cabo el período de intensificación. Es muy importante la asistencia.",
-  },
-  {
-    image: img2.url,
-    date: "22 de Junio, 2026",
-    title: "Comenzó el Invierno",
-    excerpt:
-      "Recomendaciones para cuidarnos con la llegada de las bajas temperaturas.",
-  },
-  {
-    image: img3.url,
-    date: "18 de Mayo, 2026",
-    title: "Día de la Escarapela",
-    excerpt:
-      "Conmemoramos la creación de la escarapela nacional, uno de los primeros símbolos patrios del país.",
   },
 ];
 
@@ -157,61 +146,50 @@ export const videos = [
 
 export type ChatOption = {
   id: string;
+  icon: string;
   question: string;
   answer: string;
 };
 
-export const chatbot: { greeting: string; options: ChatOption[] } = {
-  greeting:
-    "¡Hola! Soy Lobi 🐺, el asistente de la EES N.º 6. ¿En qué puedo ayudarte hoy? Elegí una opción 👇",
+// Chat institucional — Preguntas frecuentes (editable)
+export const chatbot: { title: string; subtitle: string; options: ChatOption[] } = {
+  title: "Preguntas frecuentes",
+  subtitle: "Elegí una consulta para ver la respuesta",
   options: [
     {
       id: "ubicacion",
+      icon: "📍",
       question: "¿Dónde está ubicada la escuela?",
       answer:
-        "📍 La escuela está ubicada en San Martín N.º 57, en la ciudad de Lobos, Provincia de Buenos Aires.",
-    },
-    {
-      id: "ciudad",
-      question: "¿En qué ciudad se encuentra?",
-      answer:
-        "🏙️ La EES N.º 6 se encuentra en la ciudad de Lobos, Provincia de Buenos Aires, Argentina.",
-    },
-    {
-      id: "direccion",
-      question: "¿Cuál es la dirección de la escuela?",
-      answer:
-        "🏫 La dirección es San Martín N.º 57, Lobos, Buenos Aires.",
-    },
-    {
-      id: "fundacion",
-      question: "¿Cuándo fue fundada / inaugurada?",
-      answer:
-        "🎉 La Escuela de Educación Secundaria N.º 6 fue inaugurada en el año 1980.",
+        "La escuela está ubicada en San Martín N.º 57, en la ciudad de Lobos, Provincia de Buenos Aires.",
     },
     {
       id: "horarios",
-      question: "¿Cuáles son los horarios de ingreso y salida?",
+      icon: "🕒",
+      question: "Horarios de ingreso y salida",
       answer:
-        "🕗 Turno mañana: 07:30 a 12:30 hs. Turno tarde: 13:00 a 18:00 hs.",
+        "Ingreso general: 13:14 hs para todos los cursos. Excepción: 6.º año ingresa los miércoles y viernes a las 12:10 hs.\n\nSalida general: 17:30 hs para todos los cursos. Excepciones: 6.º año sale los martes a las 18:30 hs. 5.º año tiene extensión horaria la mayoría de los días.",
+    },
+    {
+      id: "fundacion",
+      icon: "🏫",
+      question: "¿Cuándo fue inaugurada?",
+      answer:
+        "La Escuela de Educación Secundaria N.º 6 fue inaugurada en el año 1980.",
     },
     {
       id: "contacto",
-      question: "¿Cómo me comunico con la escuela?",
+      icon: "📞",
+      question: "Información de contacto",
       answer:
-        "📞 Podés acercarte a San Martín N.º 57, escribirnos a contacto@eesn6lobos.edu.ar o seguirnos en Instagram @secundaria6lobos.",
+        "Podés acercarte a San Martín N.º 57, Lobos. Teléfono: (02227) 42-0000. Correo: contacto@eesn6lobos.edu.ar. Instagram: @secundaria6lobos.",
     },
     {
-      id: "actividades",
-      question: "¿Qué actividades realiza la institución?",
+      id: "otras",
+      icon: "❓",
+      question: "Otras consultas frecuentes",
       answer:
-        "🎓 Realizamos actos patrios, salidas educativas, proyectos institucionales, encuentros con la comunidad, jornadas de convivencia y actividades culturales durante todo el año.",
-    },
-    {
-      id: "faq",
-      question: "Preguntas frecuentes",
-      answer:
-        "💬 Podés consultar nuestras redes o comunicarte directamente con la escuela para inscripciones, documentación y trámites académicos.",
+        "Para consultas sobre inscripciones, documentación o trámites académicos, comunicate directamente con la escuela en el horario de atención o seguinos en Instagram @secundaria6lobos para novedades.",
     },
   ],
 };
