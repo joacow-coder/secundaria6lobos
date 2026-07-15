@@ -51,7 +51,7 @@ function Header() {
           <img
             src={school.logo}
             alt="Logo EES N.º 6"
-            className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-brand-sky/60"
+            className="h-12 w-12 shrink-0 object-contain"
           />
           <div className="min-w-0 leading-tight">
             <div className="truncate text-sm font-bold text-brand-navy sm:text-base">
@@ -116,13 +116,11 @@ function Hero() {
         <div className="absolute inset-0 bg-gradient-hero opacity-90" />
       </div>
       <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-24 text-center text-primary-foreground sm:px-6 sm:py-32">
-        <div className="animate-float rounded-full bg-white p-3 shadow-elegant">
-          <img
-            src={school.logo}
-            alt="Logo EES N.º 6"
-            className="h-28 w-28 rounded-full object-cover sm:h-32 sm:w-32"
-          />
-        </div>
+        <img
+          src={school.logo}
+          alt="Logo EES N.º 6"
+          className="animate-float h-32 w-32 object-contain drop-shadow-2xl sm:h-40 sm:w-40"
+        />
         <div className="animate-fade-up space-y-4">
           <span className="inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ring-1 ring-white/30">
             Desde 1980 · Lobos, Buenos Aires
@@ -279,13 +277,13 @@ function Gallery() {
             </button>
           ))}
         </div>
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((g) => (
             <article
               key={g.title}
-              className="group overflow-hidden rounded-2xl bg-card shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
+              className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
             >
-              <div className="aspect-[4/3] overflow-hidden">
+              <div className="aspect-[4/5] overflow-hidden bg-muted">
                 <img
                   src={g.url}
                   alt={g.title}
@@ -293,12 +291,16 @@ function Gallery() {
                   loading="lazy"
                 />
               </div>
-              <div className="p-5">
-                <div className="text-xs font-semibold uppercase tracking-wider text-brand-sky">
+              <div className="flex flex-1 flex-col p-5">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-sky">
                   {g.category}
                 </div>
-                <h3 className="mt-1 font-bold text-brand-navy">{g.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{g.description}</p>
+                <h3 className="mt-2 text-base font-bold leading-snug text-brand-navy">
+                  {g.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {g.description}
+                </p>
               </div>
             </article>
           ))}
@@ -408,11 +410,7 @@ function Contact() {
               value={school.instagramHandle}
               href={school.instagram}
             />
-            <ContactItem
-              icon="🕗"
-              label="Horarios"
-              value={`Mañana: ${school.hours.morning} · Tarde: ${school.hours.afternoon}`}
-            />
+            <HoursCard />
           </div>
           <div className="overflow-hidden rounded-2xl shadow-card">
             <iframe
@@ -470,7 +468,7 @@ function Footer() {
           <img
             src={school.logo}
             alt="Logo"
-            className="h-14 w-14 rounded-full object-cover ring-2 ring-white/40"
+            className="h-14 w-14 object-contain"
           />
           <div>
             <div className="font-bold">{school.shortName}</div>
