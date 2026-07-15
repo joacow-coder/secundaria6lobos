@@ -8,6 +8,7 @@ import post3 from "@/assets/post3.jpg.asset.json";
 import post4 from "@/assets/post4.jpg.asset.json";
 import post5 from "@/assets/post5.jpg.asset.json";
 import post6 from "@/assets/post6.jpg.asset.json";
+import aa from "@/assets/aa.jpg.asset.json";
 import video1 from "@/assets/1.mp4.asset.json";
 
 export const school = {
@@ -83,7 +84,7 @@ export const gallery: GalleryItem[] = [
       "Los estudiantes participaron de los festejos por un nuevo aniversario de la fundación de nuestra querida ciudad.",
   },
   {
-    url: post6.url,
+    url: aa.url,
     category: "Salidas Educativas",
     title: "Encuentro con Veteranos de Malvinas",
     description:
