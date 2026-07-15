@@ -84,20 +84,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Sitio institucional de la Escuela de Educación Secundaria N.º 6 de Lobos. Historia, noticias, galería, eventos y contacto.",
       },
       { name: "author", content: "EES N.º 6 Lobos" },
-      { property: "og:title", content: "EES N.º 6 Lobos" },
+      { property: "og:title", content: "EES N.º 6 Lobos — Escuela de Educación Secundaria N.º 6" },
       {
         property: "og:description",
-        content: "Comunidad educativa de Lobos, Buenos Aires. Fundada en 1980.",
+        content: "Sitio institucional de la Escuela de Educación Secundaria N.º 6 de Lobos. Historia, noticias, galería, eventos y contacto.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "EES N.º 6 Lobos — Escuela de Educación Secundaria N.º 6" },
+      { name: "twitter:description", content: "Sitio institucional de la Escuela de Educación Secundaria N.º 6 de Lobos. Historia, noticias, galería, eventos y contacto." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Hun0zLGBd0XwXGMZ1r48iIPuwCG2/social-images/social-1784086221809-logo.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Hun0zLGBd0XwXGMZ1r48iIPuwCG2/social-images/social-1784086221809-logo.webp" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
