@@ -49,10 +49,10 @@ export type TimelineItem = {
 };
 
 export const history = {
-  eyebrow: "20.º Aniversario",
-  title: "20 años de historia, crecimiento y compromiso",
+  eyebrow: "Nuestra Escuela",
+  title: "Historia, misión y valores",
   intro:
-    "El 26 de mayo la institución celebra su 20.º aniversario, compartiendo su recorrido histórico junto a toda la comunidad educativa.",
+    "Con más de una década de trayectoria, la Escuela de Educación Secundaria N.º 6 acompaña a cada estudiante en su crecimiento académico y personal, construyendo proyectos junto a la comunidad de Lobos.",
   timeline: [
     {
       date: "26/05/2006",
@@ -74,7 +74,7 @@ export const history = {
     },
   ] as TimelineItem[],
   closing:
-    "Agradecemos profundamente a todo el personal, estudiantes y familias que han sido y continúan siendo parte fundamental de estos 20 años de historia, crecimiento y compromiso con la educación.",
+    "Agradecemos profundamente a todo el personal, estudiantes y familias que han sido y continúan siendo parte fundamental de esta historia, crecimiento y compromiso con la educación.",
   mission:
     "Brindar una educación pública, gratuita y de calidad que forme ciudadanos críticos, solidarios y comprometidos con su comunidad.",
   vision:
@@ -85,6 +85,13 @@ export const history = {
     { title: "Inclusión", desc: "Escuela abierta y para todos y todas." },
     { title: "Identidad", desc: "Orgullo por Lobos, su historia y su gente." },
   ],
+};
+
+export const anniversary = {
+  eyebrow: "20.º Aniversario",
+  title: "20 años de historia, crecimiento y compromiso",
+  text:
+    "El 26 de mayo de 2026 la institución celebró su 20.º aniversario, compartiendo su recorrido histórico junto a toda la comunidad educativa. Agradecemos a quienes fueron y son parte de estos años de dedicación, aprendizaje y valores.",
 };
 
 export type GalleryItem = {
