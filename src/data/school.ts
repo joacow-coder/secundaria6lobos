@@ -9,6 +9,8 @@ import post4 from "@/assets/post4.jpg.asset.json";
 import post5 from "@/assets/post5.jpg.asset.json";
 import post6 from "@/assets/post6.jpg.asset.json";
 import aa from "@/assets/aa.jpg.asset.json";
+import ss from "@/assets/ss.jpg.asset.json";
+import g from "@/assets/g.jpg.asset.json";
 import video1 from "@/assets/1.mp4.asset.json";
 
 export const school = {
@@ -70,14 +72,14 @@ export const gallery: GalleryItem[] = [
       "¡Feliz Día de la Independencia! Estudiantes abanderados y escoltas representaron a la institución en el acto por una nueva conmemoración patria.",
   },
   {
-    url: post3.url,
+    url: g.url,
     category: "Actos",
     title: "18 de Mayo — Día de la Escarapela",
     description:
       "Conmemoramos la creación de la escarapela nacional, uno de los primeros símbolos patrios de nuestro país.",
   },
   {
-    url: post4.url,
+    url: ss.url,
     category: "Aniversarios",
     title: "224° Aniversario de Lobos",
     description:
