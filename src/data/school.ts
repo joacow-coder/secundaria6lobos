@@ -84,7 +84,7 @@ export const gallery: GalleryItem[] = [
       "Los estudiantes participaron de los festejos por un nuevo aniversario de la fundación de nuestra querida ciudad.",
   },
   {
-    url: post6.url,
+    url: aa.url,
     category: "Salidas Educativas",
     title: "Encuentro con Veteranos de Malvinas",
     description:
