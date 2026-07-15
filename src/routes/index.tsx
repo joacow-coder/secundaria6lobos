@@ -591,10 +591,18 @@ function Footer() {
         <div className="text-sm opacity-90">
           <div className="font-semibold text-white">Seguinos</div>
           <a
+            href={school.facebook}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 block hover:text-brand-sky"
+          >
+            Facebook {school.facebookHandle}
+          </a>
+          <a
             href={school.instagram}
             target="_blank"
             rel="noreferrer"
-            className="mt-2 inline-block hover:text-brand-sky"
+            className="mt-1 block hover:text-brand-sky"
           >
             Instagram {school.instagramHandle}
           </a>
