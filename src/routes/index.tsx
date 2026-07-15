@@ -1,24 +1,504 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import {
+  school,
+  history,
+  gallery,
+  news,
+  events,
+  videos,
+  heroBackground,
+} from "@/data/school";
+import { Lobi } from "@/components/Lobi";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+const NAV = [
+  { href: "#inicio", label: "Inicio" },
+  { href: "#escuela", label: "Nuestra Escuela" },
+  { href: "#galeria", label: "Galería" },
+  { href: "#noticias", label: "Noticias" },
+  { href: "#eventos", label: "Eventos" },
+  { href: "#multimedia", label: "Multimedia" },
+  { href: "#contacto", label: "Contacto" },
+];
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background text-foreground">
+      <Header />
+      <Hero />
+      <About />
+      <Gallery />
+      <News />
+      <Events />
+      <Multimedia />
+      <Contact />
+      <Footer />
+      <Lobi />
     </div>
+  );
+}
+
+function Header() {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <a href="#inicio" className="flex min-w-0 items-center gap-3">
+          <img
+            src={school.logo}
+            alt="Logo EES N.º 6"
+            className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-brand-sky/60"
+          />
+          <div className="min-w-0 leading-tight">
+            <div className="truncate text-sm font-bold text-brand-navy sm:text-base">
+              {school.shortName}
+            </div>
+            <div className="truncate text-xs text-muted-foreground">Lobos, Bs. As.</div>
+          </div>
+        </a>
+        <nav className="hidden items-center gap-1 lg:flex">
+          {NAV.map((n) => (
+            <a
+              key={n.href}
+              href={n.href}
+              className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition hover:bg-brand-sky/30 hover:text-brand-navy"
+            >
+              {n.label}
+            </a>
+          ))}
+        </nav>
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="rounded-lg border border-border p-2 lg:hidden"
+          aria-label="Menú"
+        >
+          <div className="space-y-1">
+            <span className="block h-0.5 w-5 bg-foreground" />
+            <span className="block h-0.5 w-5 bg-foreground" />
+            <span className="block h-0.5 w-5 bg-foreground" />
+          </div>
+        </button>
+      </div>
+      {open && (
+        <div className="border-t border-border bg-background lg:hidden">
+          <nav className="mx-auto flex max-w-7xl flex-col px-4 py-2">
+            {NAV.map((n) => (
+              <a
+                key={n.href}
+                href={n.href}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/85 hover:bg-brand-sky/30"
+              >
+                {n.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function Hero() {
+  return (
+    <section id="inicio" className="relative overflow-hidden">
+      <div className="absolute inset-0">
+        <img
+          src={heroBackground}
+          alt=""
+          className="h-full w-full object-cover"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-hero opacity-90" />
+      </div>
+      <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-24 text-center text-primary-foreground sm:px-6 sm:py-32">
+        <div className="animate-float rounded-full bg-white p-3 shadow-elegant">
+          <img
+            src={school.logo}
+            alt="Logo EES N.º 6"
+            className="h-28 w-28 rounded-full object-cover sm:h-32 sm:w-32"
+          />
+        </div>
+        <div className="animate-fade-up space-y-4">
+          <span className="inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ring-1 ring-white/30">
+            Desde 1980 · Lobos, Buenos Aires
+          </span>
+          <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
+            {school.name}
+          </h1>
+          <p className="mx-auto max-w-2xl text-base text-white/85 sm:text-lg">
+            Una comunidad educativa que forma, acompaña e inspira. Bienvenidos a
+            la casa de todos y todas.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-3">
+          <a
+            href="#escuela"
+            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-navy shadow-elegant transition hover:scale-105"
+          >
+            Conocer la escuela
+          </a>
+          <a
+            href="#contacto"
+            className="rounded-full border-2 border-white/70 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            Consultar información
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  return (
+    <section id="escuela" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      <SectionTitle eyebrow="Nuestra Escuela" title={history.title} />
+      <div className="mt-10 grid gap-8 lg:grid-cols-2">
+        <div className="rounded-3xl bg-card p-8 shadow-card">
+          <p className="text-base leading-relaxed text-foreground/85">
+            {history.body}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-6 text-sm">
+            <Stat label="Año de fundación" value={String(school.foundedYear)} />
+            <Stat label="Localidad" value="Lobos, Bs. As." />
+            <Stat label="Dirección" value={school.address} />
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <InfoCard title="Misión" body={history.mission} tone="navy" />
+          <InfoCard title="Visión" body={history.vision} tone="sky" />
+          <div className="rounded-3xl bg-card p-6 shadow-card sm:col-span-2">
+            <h3 className="mb-4 text-lg font-bold text-brand-navy">
+              Nuestros valores
+            </h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {history.values.map((v) => (
+                <div
+                  key={v.title}
+                  className="flex gap-3 rounded-xl bg-brand-sky/20 p-3"
+                >
+                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-navy text-xs font-bold text-primary-foreground">
+                    ✓
+                  </div>
+                  <div>
+                    <div className="font-semibold text-brand-navy">{v.title}</div>
+                    <div className="text-sm text-muted-foreground">{v.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-2xl font-extrabold text-brand-navy">{value}</div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({
+  title,
+  body,
+  tone,
+}: {
+  title: string;
+  body: string;
+  tone: "navy" | "sky";
+}) {
+  const cls =
+    tone === "navy"
+      ? "bg-brand-navy text-primary-foreground"
+      : "bg-brand-sky text-brand-navy";
+  return (
+    <div className={`rounded-3xl p-6 shadow-card ${cls}`}>
+      <h3 className="mb-2 text-lg font-bold">{title}</h3>
+      <p className="text-sm leading-relaxed opacity-95">{body}</p>
+    </div>
+  );
+}
+
+function SectionTitle({
+  eyebrow,
+  title,
+  center = false,
+}: {
+  eyebrow: string;
+  title: string;
+  center?: boolean;
+}) {
+  return (
+    <div className={center ? "text-center" : ""}>
+      <div className="text-xs font-bold uppercase tracking-[0.2em] text-brand-sky">
+        {eyebrow}
+      </div>
+      <h2 className="mt-2 text-3xl font-extrabold text-brand-navy sm:text-4xl">
+        {title}
+      </h2>
+      <div className="mt-3 h-1 w-16 rounded-full bg-gradient-brand" />
+    </div>
+  );
+}
+
+function Gallery() {
+  const categories = useMemo(
+    () => ["Todas", ...Array.from(new Set(gallery.map((g) => g.category)))],
+    [],
+  );
+  const [active, setActive] = useState("Todas");
+  const items = gallery.filter((g) => active === "Todas" || g.category === active);
+  return (
+    <section id="galeria" className="bg-muted/40 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionTitle eyebrow="Galería" title="Momentos de nuestra comunidad" />
+        <div className="mt-8 flex flex-wrap gap-2">
+          {categories.map((c) => (
+            <button
+              key={c}
+              onClick={() => setActive(c)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                active === c
+                  ? "bg-brand-navy text-primary-foreground shadow-card"
+                  : "bg-card text-foreground/80 hover:bg-brand-sky/30"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((g) => (
+            <article
+              key={g.title}
+              className="group overflow-hidden rounded-2xl bg-card shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
+            >
+              <div className="aspect-[4/3] overflow-hidden">
+                <img
+                  src={g.url}
+                  alt={g.title}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-brand-sky">
+                  {g.category}
+                </div>
+                <h3 className="mt-1 font-bold text-brand-navy">{g.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{g.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function News() {
+  return (
+    <section id="noticias" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      <SectionTitle eyebrow="Noticias" title="Últimas novedades" />
+      <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {news.map((n) => (
+          <article
+            key={n.title}
+            className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
+          >
+            <div className="aspect-video overflow-hidden">
+              <img src={n.image} alt={n.title} className="h-full w-full object-cover" loading="lazy" />
+            </div>
+            <div className="flex flex-1 flex-col p-5">
+              <div className="text-xs font-semibold uppercase tracking-wider text-brand-sky">
+                {n.date}
+              </div>
+              <h3 className="mt-1 text-lg font-bold text-brand-navy">{n.title}</h3>
+              <p className="mt-2 flex-1 text-sm text-muted-foreground">{n.excerpt}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Events() {
+  return (
+    <section id="eventos" className="bg-gradient-hero py-20 text-primary-foreground">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="text-xs font-bold uppercase tracking-[0.2em] text-brand-sky">
+          Eventos
+        </div>
+        <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">
+          Calendario escolar
+        </h2>
+        <div className="mt-3 h-1 w-16 rounded-full bg-white/70" />
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {events.map((e) => (
+            <div
+              key={e.title}
+              className="rounded-2xl bg-white/10 p-5 backdrop-blur ring-1 ring-white/20 transition hover:bg-white/15"
+            >
+              <div className="text-3xl font-extrabold text-white">{e.date}</div>
+              <div className="mt-2 text-xs font-semibold uppercase tracking-wider text-brand-sky">
+                {e.type}
+              </div>
+              <div className="mt-1 font-semibold">{e.title}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Multimedia() {
+  return (
+    <section id="multimedia" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      <SectionTitle eyebrow="Multimedia" title="Videos institucionales" />
+      <div className="mt-10 grid gap-6 md:grid-cols-2">
+        {videos.map((v) => (
+          <div
+            key={v.url}
+            className="overflow-hidden rounded-2xl bg-card shadow-card"
+          >
+            <video
+              src={v.url}
+              controls
+              className="aspect-video w-full bg-black object-contain"
+              preload="metadata"
+            />
+            <div className="p-4">
+              <div className="font-semibold text-brand-navy">{v.title}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Contact() {
+  return (
+    <section id="contacto" className="bg-muted/40 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionTitle eyebrow="Contacto" title="Cómo encontrarnos" />
+        <div className="mt-10 grid gap-8 lg:grid-cols-2">
+          <div className="space-y-4">
+            <ContactItem icon="🏫" label="Institución" value={school.name} />
+            <ContactItem icon="📍" label="Dirección" value={`${school.address}, ${school.city}`} />
+            <ContactItem icon="📞" label="Teléfono" value={school.phone} />
+            <ContactItem icon="✉️" label="Correo" value={school.email} />
+            <ContactItem
+              icon="📷"
+              label="Instagram"
+              value={school.instagramHandle}
+              href={school.instagram}
+            />
+            <ContactItem
+              icon="🕗"
+              label="Horarios"
+              value={`Mañana: ${school.hours.morning} · Tarde: ${school.hours.afternoon}`}
+            />
+          </div>
+          <div className="overflow-hidden rounded-2xl shadow-card">
+            <iframe
+              title="Mapa EES N.º 6"
+              src={school.mapEmbed}
+              className="h-[420px] w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ContactItem({
+  icon,
+  label,
+  value,
+  href,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  const inner = (
+    <div className="flex items-start gap-4 rounded-2xl bg-card p-5 shadow-card transition hover:-translate-y-0.5">
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-sky/40 text-xl">
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </div>
+        <div className="mt-0.5 break-words font-semibold text-brand-navy">{value}</div>
+      </div>
+    </div>
+  );
+  return href ? (
+    <a href={href} target="_blank" rel="noreferrer">
+      {inner}
+    </a>
+  ) : (
+    inner
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-brand-navy text-primary-foreground">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
+        <div className="flex items-center gap-4">
+          <img
+            src={school.logo}
+            alt="Logo"
+            className="h-14 w-14 rounded-full object-cover ring-2 ring-white/40"
+          />
+          <div>
+            <div className="font-bold">{school.shortName}</div>
+            <div className="text-sm opacity-80">Lobos, Buenos Aires</div>
+          </div>
+        </div>
+        <div className="text-sm opacity-90">
+          <div className="font-semibold text-white">Contacto</div>
+          <div className="mt-2">{school.address}</div>
+          <div>{school.city}</div>
+          <div>{school.phone}</div>
+          <div>{school.email}</div>
+        </div>
+        <div className="text-sm opacity-90">
+          <div className="font-semibold text-white">Seguinos</div>
+          <a
+            href={school.instagram}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-block hover:text-brand-sky"
+          >
+            Instagram {school.instagramHandle}
+          </a>
+          <div className="mt-4 text-xs opacity-70">
+            © {new Date().getFullYear()} {school.name}. Todos los derechos reservados.
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }
