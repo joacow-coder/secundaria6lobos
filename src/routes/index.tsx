@@ -329,6 +329,22 @@ function Gallery() {
   );
 }
 
+function Anniversary() {
+  return (
+    <section id="aniversario" className="bg-muted/40 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionTitle
+          eyebrow={anniversary.eyebrow}
+          title={anniversary.title}
+        />
+        <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/85">
+          {anniversary.text}
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function News() {
   return (
     <section id="noticias" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
