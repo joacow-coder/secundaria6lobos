@@ -7,6 +7,7 @@ import {
   news,
   events,
   videos,
+  anniversary,
 } from "@/data/school";
 import { Lobi } from "@/components/Lobi";
 
@@ -18,8 +19,10 @@ const NAV = [
   { href: "#inicio", label: "Inicio" },
   { href: "#escuela", label: "Nuestra Escuela" },
   { href: "#galeria", label: "Galería" },
+  { href: "#aniversario", label: "Aniversario" },
   { href: "#noticias", label: "Noticias" },
   { href: "#eventos", label: "Eventos" },
+  { href: "#redes", label: "Redes" },
   { href: "#multimedia", label: "Multimedia" },
   { href: "#contacto", label: "Contacto" },
 ];
@@ -31,8 +34,10 @@ function Index() {
       <Hero />
       <About />
       <Gallery />
+      <Anniversary />
       <News />
       <Events />
+      <SocialNetworks />
       <Multimedia />
       <Contact />
       <Footer />
