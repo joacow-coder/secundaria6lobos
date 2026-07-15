@@ -460,6 +460,39 @@ function ContactItem({
   );
 }
 
+function HoursCard() {
+  return (
+    <div className="rounded-2xl bg-card p-5 shadow-card">
+      <div className="flex items-start gap-4">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-sky/40 text-xl">
+          🕒
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Horarios
+          </div>
+          <div className="mt-2 space-y-2 text-sm text-foreground/85">
+            <div>
+              <div className="font-semibold text-brand-navy">Ingreso</div>
+              <div>{school.hours.entryGeneral}</div>
+              <div className="text-muted-foreground">{school.hours.entryException}</div>
+            </div>
+            <div>
+              <div className="font-semibold text-brand-navy">Salida</div>
+              <div>{school.hours.exitGeneral}</div>
+              {school.hours.exitExceptions.map((e) => (
+                <div key={e} className="text-muted-foreground">
+                  {e}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Footer() {
   return (
     <footer className="bg-brand-navy text-primary-foreground">
