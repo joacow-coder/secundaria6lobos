@@ -23,6 +23,8 @@ export const school = {
   email: "secundaria6lobos@abc.gob.ar",
   instagram: "https://instagram.com/secundaria6lobos",
   instagramHandle: "@secundaria6lobos",
+  facebook: "https://www.facebook.com/share/1HS1fYYA6g/",
+  facebookHandle: "EES N.º 6 Lobos",
   // Horarios oficiales — editables
   hours: {
     entryGeneral: "13:14 hs (todos los cursos)",
