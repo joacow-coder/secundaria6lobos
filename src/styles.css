@@ -160,6 +160,22 @@
 @utility bg-gradient-hero {
   background: var(--gradient-hero);
 }
+@utility bg-gradient-cosmic {
+  background-color: #050b1f;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,0.9), transparent 60%),
+    radial-gradient(1px 1px at 28% 68%, rgba(255,255,255,0.7), transparent 60%),
+    radial-gradient(1.5px 1.5px at 45% 15%, rgba(173,216,255,0.9), transparent 60%),
+    radial-gradient(1px 1px at 63% 82%, rgba(255,255,255,0.8), transparent 60%),
+    radial-gradient(1.5px 1.5px at 78% 35%, rgba(200,225,255,0.9), transparent 60%),
+    radial-gradient(1px 1px at 88% 72%, rgba(255,255,255,0.75), transparent 60%),
+    radial-gradient(2px 2px at 20% 45%, rgba(255,255,255,0.6), transparent 65%),
+    radial-gradient(2px 2px at 70% 20%, rgba(180,210,255,0.6), transparent 65%),
+    radial-gradient(ellipse 60% 45% at 20% 30%, rgba(56,120,220,0.55), transparent 70%),
+    radial-gradient(ellipse 55% 40% at 80% 75%, rgba(96,180,240,0.4), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 50%, #0b1f4a, transparent 70%),
+    linear-gradient(135deg, #030820 0%, #0a1a44 45%, #0e2a6b 100%);
+}
 @utility bg-gradient-brand {
   background: var(--gradient-brand);
 }

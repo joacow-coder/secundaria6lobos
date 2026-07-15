@@ -7,7 +7,6 @@ import {
   news,
   events,
   videos,
-  heroBackground,
 } from "@/data/school";
 import { Lobi } from "@/components/Lobi";
 
@@ -105,16 +104,8 @@ function Header() {
 
 function Hero() {
   return (
-    <section id="inicio" className="relative overflow-hidden">
-      <div className="absolute inset-0">
-        <img
-          src={heroBackground}
-          alt=""
-          className="h-full w-full object-cover"
-          aria-hidden
-        />
-        <div className="absolute inset-0 bg-gradient-hero opacity-90" />
-      </div>
+    <section id="inicio" className="relative overflow-hidden bg-gradient-cosmic">
+      <div className="absolute inset-0 bg-gradient-cosmic" aria-hidden />
       <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-24 text-center text-primary-foreground sm:px-6 sm:py-32">
         <img
           src={school.logo}
@@ -155,14 +146,38 @@ function Hero() {
 function About() {
   return (
     <section id="escuela" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-      <SectionTitle eyebrow="Nuestra Escuela" title={history.title} />
+      <SectionTitle eyebrow={history.eyebrow} title={history.title} />
+      <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/85">
+        {history.intro}
+      </p>
+
+      <ol className="relative mt-10 space-y-6 border-l-2 border-brand-sky/60 pl-6">
+        {history.timeline.map((t) => (
+          <li key={t.date} className="relative">
+            <span className="absolute -left-[34px] top-1 grid h-6 w-6 place-items-center rounded-full bg-brand-navy text-[10px] font-bold text-primary-foreground ring-4 ring-background">
+              ●
+            </span>
+            <div className="rounded-2xl bg-card p-5 shadow-card">
+              <div className="text-xs font-bold uppercase tracking-widest text-brand-sky">
+                {t.date}
+              </div>
+              <h3 className="mt-1 text-lg font-bold text-brand-navy">{t.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/85">
+                {t.description}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-8 rounded-3xl bg-brand-sky/20 p-6 text-center text-brand-navy shadow-card">
+        <p className="text-base font-medium leading-relaxed">{history.closing}</p>
+      </div>
+
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
         <div className="rounded-3xl bg-card p-8 shadow-card">
-          <p className="text-base leading-relaxed text-foreground/85">
-            {history.body}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-6 text-sm">
-            <Stat label="Año de fundación" value={String(school.foundedYear)} />
+          <div className="flex flex-wrap gap-6 text-sm">
+            <Stat label="Aniversario" value="20 años" />
             <Stat label="Localidad" value="Lobos, Bs. As." />
             <Stat label="Dirección" value={school.address} />
           </div>
