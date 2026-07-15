@@ -20,7 +20,7 @@ export const school = {
   address: "San Martín N.º 57",
   foundedYear: 1980,
   phone: "(02227) 42-0000",
-  email: "contacto@eesn6lobos.edu.ar",
+  email: "secundaria6lobos@abc.gob.ar",
   instagram: "https://instagram.com/secundaria6lobos",
   instagramHandle: "@secundaria6lobos",
   // Horarios oficiales — editables
@@ -40,9 +40,39 @@ export const school = {
 
 export const heroBackground = img4.url;
 
+export type TimelineItem = {
+  date: string;
+  title: string;
+  description: string;
+};
+
 export const history = {
-  title: "Nuestra Historia",
-  body: `La Escuela de Educación Secundaria N.º 6 fue inaugurada en 1980 y forma parte activa de la comunidad educativa de Lobos. Desde entonces promueve la formación académica, el compromiso, el respeto, la inclusión y el desarrollo integral de sus estudiantes, acompañándolos en su tránsito hacia la vida adulta y ciudadana.`,
+  eyebrow: "20.º Aniversario",
+  title: "20 años de historia, crecimiento y compromiso",
+  intro:
+    "El 26 de mayo la institución celebra su 20.º aniversario, compartiendo su recorrido histórico junto a toda la comunidad educativa.",
+  timeline: [
+    {
+      date: "26/05/2006",
+      title: "Creación de la institución",
+      description:
+        "Se crea la institución bajo el nombre de Secundaria Básica N.º 2.",
+    },
+    {
+      date: "01/11/2014",
+      title: "Nueva denominación",
+      description:
+        "Luego de una reorganización institucional, pasa a denominarse Escuela de Educación Secundaria N.º 6.",
+    },
+    {
+      date: "Agosto de 2018",
+      title: "Nuevo edificio",
+      description:
+        "La escuela se traslada a su edificio actual, ubicado en San Martín 57, Lobos, Provincia de Buenos Aires, consolidando su espacio dentro de la comunidad educativa.",
+    },
+  ] as TimelineItem[],
+  closing:
+    "Agradecemos profundamente a todo el personal, estudiantes y familias que han sido y continúan siendo parte fundamental de estos 20 años de historia, crecimiento y compromiso con la educación.",
   mission:
     "Brindar una educación pública, gratuita y de calidad que forme ciudadanos críticos, solidarios y comprometidos con su comunidad.",
   vision:
@@ -185,7 +215,7 @@ export const chatbot: { title: string; subtitle: string; options: ChatOption[] }
       icon: "📞",
       question: "Información de contacto",
       answer:
-        "Podés acercarte a San Martín N.º 57, Lobos. Teléfono: (02227) 42-0000. Correo: contacto@eesn6lobos.edu.ar. Instagram: @secundaria6lobos.",
+        "Podés acercarte a San Martín N.º 57, Lobos. Teléfono: (02227) 42-0000. Correo: secundaria6lobos@abc.gob.ar. Instagram: @secundaria6lobos.",
     },
     {
       id: "otras",
