@@ -182,7 +182,6 @@ function About() {
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
         <div className="rounded-3xl bg-card p-8 shadow-card">
           <div className="flex flex-wrap gap-6 text-sm">
-            <Stat label="Aniversario" value="20 años" />
             <Stat label="Localidad" value="Lobos, Bs. As." />
             <Stat label="Dirección" value={school.address} />
           </div>
