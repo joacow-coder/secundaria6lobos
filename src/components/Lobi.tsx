@@ -1,104 +1,83 @@
 import { useState } from "react";
-import { chatbot } from "@/data/school";
-
-type Msg = { from: "bot" | "user"; text: string };
+import { chatbot, school } from "@/data/school";
 
 export function Lobi() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([
-    { from: "bot", text: chatbot.greeting },
-  ]);
-
-  const ask = (id: string) => {
-    const opt = chatbot.options.find((o) => o.id === id);
-    if (!opt) return;
-    setMessages((m) => [
-      ...m,
-      { from: "user", text: opt.question },
-      { from: "bot", text: opt.answer },
-    ]);
-  };
-
-  const reset = () =>
-    setMessages([{ from: "bot", text: chatbot.greeting }]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const active = chatbot.options.find((o) => o.id === activeId) ?? null;
 
   return (
     <div className="fixed bottom-5 right-5 z-50">
       {open && (
-        <div className="mb-3 flex w-[min(92vw,380px)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-elegant animate-fade-up">
-          <div className="flex items-center justify-between bg-gradient-brand px-4 py-3 text-primary-foreground">
-            <div className="flex items-center gap-2">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-white/20 text-lg">
-                🐺
+        <div className="animate-fade-up mb-3 flex w-[min(92vw,380px)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-elegant">
+          <div className="flex items-center justify-between gap-3 bg-gradient-brand px-4 py-3 text-primary-foreground">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-white p-1 shadow-sm">
+                <img src={school.logo} alt="EES N.º 6" className="h-full w-full object-contain" />
               </div>
               <div>
-                <div className="text-sm font-bold">Lobi</div>
-                <div className="text-xs opacity-80">Asistente EES N.º 6</div>
+                <div className="text-sm font-bold leading-tight">{chatbot.title}</div>
+                <div className="text-xs opacity-85">{chatbot.subtitle}</div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={reset}
-                className="rounded-full px-2 py-1 text-xs hover:bg-white/15"
-                title="Reiniciar"
-              >
-                ↻
-              </button>
-              <button
-                onClick={() => setOpen(false)}
-                className="rounded-full px-2 py-1 text-xs hover:bg-white/15"
-                title="Cerrar"
-              >
-                ✕
-              </button>
-            </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="rounded-full px-2 py-1 text-sm hover:bg-white/15"
+              aria-label="Cerrar"
+            >
+              ✕
+            </button>
           </div>
 
-          <div className="max-h-[45vh] space-y-3 overflow-y-auto bg-muted/40 p-4">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
-                    m.from === "user"
-                      ? "bg-brand-navy text-primary-foreground"
-                      : "bg-card text-card-foreground"
-                  }`}
+          <div className="max-h-[55vh] overflow-y-auto bg-muted/40 p-4">
+            {active ? (
+              <div className="space-y-3">
+                <button
+                  onClick={() => setActiveId(null)}
+                  className="text-xs font-semibold text-brand-navy hover:underline"
                 >
-                  {m.text}
+                  ← Volver a las preguntas
+                </button>
+                <div className="rounded-2xl bg-card p-4 shadow-sm">
+                  <div className="mb-2 flex items-center gap-2 text-sm font-bold text-brand-navy">
+                    <span className="text-lg">{active.icon}</span>
+                    <span>{active.question}</span>
+                  </div>
+                  <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85">
+                    {active.answer}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-
-          <div className="border-t border-border bg-card p-3">
-            <div className="mb-2 text-xs font-medium text-muted-foreground">
-              Elegí una pregunta:
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {chatbot.options.map((o) => (
-                <button
-                  key={o.id}
-                  onClick={() => ask(o.id)}
-                  className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-brand-sky/40"
-                >
-                  {o.question}
-                </button>
-              ))}
-            </div>
+            ) : (
+              <div className="space-y-2">
+                {chatbot.options.map((o) => (
+                  <button
+                    key={o.id}
+                    onClick={() => setActiveId(o.id)}
+                    className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 text-left text-sm font-medium text-foreground shadow-sm transition hover:-translate-y-0.5 hover:border-brand-sky hover:bg-brand-sky/15"
+                  >
+                    <span className="text-lg">{o.icon}</span>
+                    <span className="flex-1">{o.question}</span>
+                    <span className="text-brand-sky">→</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
 
       <button
         onClick={() => setOpen((o) => !o)}
-        className="group flex items-center gap-2 rounded-full bg-gradient-brand px-5 py-3 text-primary-foreground shadow-elegant transition hover:scale-105"
-        aria-label="Abrir chat con Lobi"
+        className="group flex items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 shadow-elegant ring-1 ring-border transition hover:scale-105"
+        aria-label="Abrir preguntas frecuentes"
       >
-        <span className="text-2xl">🐺</span>
-        <span className="font-semibold">{open ? "Cerrar" : "Hablá con Lobi"}</span>
+        <span className="grid h-10 w-10 place-items-center rounded-full bg-white p-1">
+          <img src={school.logo} alt="EES N.º 6" className="h-full w-full object-contain" />
+        </span>
+        <span className="text-sm font-semibold text-brand-navy">
+          {open ? "Cerrar" : "Preguntas frecuentes"}
+        </span>
       </button>
     </div>
   );
