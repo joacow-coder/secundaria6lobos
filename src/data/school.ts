@@ -18,7 +18,10 @@ export const school = {
   shortName: "EES N.º 6",
   city: "Lobos, Buenos Aires",
   address: "San Martín N.º 57",
-  foundedYear: 1980,
+  foundedYear: 2006,
+  foundedDate: "26 de mayo de 2006",
+  buildingNote:
+    "Actualmente funciona en San Martín 57, en un edificio alquilado a la Curia.",
   phone: "(02227) 42-0000",
   email: "secundaria6lobos@abc.gob.ar",
   instagram: "https://instagram.com/secundaria6lobos",
@@ -52,25 +55,25 @@ export const history = {
   eyebrow: "Nuestra Escuela",
   title: "Historia, misión y valores",
   intro:
-    "Con más de una década de trayectoria, la Escuela de Educación Secundaria N.º 6 acompaña a cada estudiante en su crecimiento académico y personal, construyendo proyectos junto a la comunidad de Lobos.",
+    "La Escuela de Educación Secundaria N.º 6 fue creada el 26 de mayo de 2006, fecha en la que se desvinculó formalmente de la E.E.S. N.º 1, de la cual funcionaba como Anexo. El 11 de noviembre de 2014 quedó conformada con su estructura institucional actual. Hoy funciona en San Martín 57, en un edificio alquilado a la Curia, acompañando a cada estudiante en su crecimiento académico y personal junto a la comunidad de Lobos.",
   timeline: [
     {
       date: "26/05/2006",
       title: "Creación de la institución",
       description:
-        "Se crea la institución bajo el nombre de Secundaria Básica N.º 2.",
+        "Se crea la institución al desvincularse formalmente de la E.E.S. N.º 1, de la cual funcionaba como Anexo.",
     },
     {
-      date: "01/11/2014",
-      title: "Nueva denominación",
+      date: "11/11/2014",
+      title: "Conformación institucional actual",
       description:
-        "Luego de una reorganización institucional, pasa a denominarse Escuela de Educación Secundaria N.º 6.",
+        "La institución queda conformada con su estructura institucional actual como Escuela de Educación Secundaria N.º 6.",
     },
     {
-      date: "Agosto de 2018",
-      title: "Nuevo edificio",
+      date: "Actualidad",
+      title: "Edificio de San Martín 57",
       description:
-        "La escuela se traslada a su edificio actual, ubicado en San Martín 57, Lobos, Provincia de Buenos Aires, consolidando su espacio dentro de la comunidad educativa.",
+        "Funciona en San Martín 57, Lobos, en un edificio alquilado a la Curia, consolidando su espacio dentro de la comunidad educativa.",
     },
   ] as TimelineItem[],
   closing:
@@ -91,7 +94,7 @@ export const anniversary = {
   eyebrow: "20.º Aniversario",
   title: "20 años de historia, crecimiento y compromiso",
   text:
-    "El 26 de mayo de 2026 la institución celebró su 20.º aniversario, compartiendo su recorrido histórico junto a toda la comunidad educativa. Agradecemos a quienes fueron y son parte de estos años de dedicación, aprendizaje y valores.",
+    "Cada 26 de mayo la institución conmemora su aniversario, recordando su creación el 26 de mayo de 2006 y compartiendo su recorrido histórico junto a toda la comunidad educativa. Agradecemos a quienes fueron y son parte de estos años de dedicación, aprendizaje y valores.",
 };
 
 export type GalleryItem = {
@@ -217,7 +220,7 @@ export const chatbot: { title: string; subtitle: string; options: ChatOption[] }
       icon: "🏫",
       question: "¿Cuándo fue inaugurada?",
       answer:
-        "La Escuela de Educación Secundaria N.º 6 fue inaugurada en el año 1980.",
+        "La institución fue creada el 26 de mayo de 2006, fecha en la que se desvinculó formalmente de la E.E.S. N.º 1, de la cual funcionaba como Anexo. El 11 de noviembre de 2014 quedó conformada con su estructura institucional actual.",
     },
     {
       id: "contacto",
