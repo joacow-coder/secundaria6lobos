@@ -32,10 +32,18 @@ const NAV = [
 const FOUNDED_YEAR = 2015;
 
 function Index() {
-  const [showIntro, setShowIntro] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const [checked, setChecked] = useState(false);
+
   useEffect(() => {
-    if (!hasSeenIntro()) setShowIntro(true);
+    if (hasSeenIntro()) setShowIntro(false);
+    setChecked(true);
   }, []);
+
+  if (!checked) {
+    return <div className="min-h-screen bg-black" />;
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {showIntro && <Intro onDone={() => setShowIntro(false)} />}
