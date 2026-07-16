@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   school,
   history,
@@ -10,6 +10,7 @@ import {
   anniversary,
 } from "@/data/school";
 import { Lobi } from "@/components/Lobi";
+import { Intro, hasSeenIntro } from "@/components/Intro";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -28,8 +29,13 @@ const NAV = [
 ];
 
 function Index() {
+  const [showIntro, setShowIntro] = useState(false);
+  useEffect(() => {
+    if (!hasSeenIntro()) setShowIntro(true);
+  }, []);
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {showIntro && <Intro onDone={() => setShowIntro(false)} />}
       <Header />
       <Hero />
       <About />
