@@ -25,8 +25,11 @@ const NAV = [
   { href: "#eventos", label: "Eventos" },
   { href: "#redes", label: "Redes" },
   { href: "#multimedia", label: "Multimedia" },
+  { href: "#proximamente", label: "Próximamente" },
   { href: "#contacto", label: "Contacto" },
 ];
+
+const FOUNDED_YEAR = 2015;
 
 function Index() {
   const [showIntro, setShowIntro] = useState(false);
@@ -45,9 +48,11 @@ function Index() {
       <Events />
       <SocialNetworks />
       <Multimedia />
+      <ComingSoon />
       <Contact />
       <Footer />
       <Lobi />
+      <BackToTop />
     </div>
   );
 }
@@ -114,6 +119,7 @@ function Header() {
 }
 
 function Hero() {
+  const years = new Date().getFullYear() - FOUNDED_YEAR;
   return (
     <section id="inicio" className="relative overflow-hidden bg-gradient-cosmic">
       <div className="absolute inset-0 bg-gradient-cosmic" aria-hidden />
@@ -125,7 +131,7 @@ function Hero() {
         />
         <div className="animate-fade-up space-y-4">
           <span className="inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ring-1 ring-white/30">
-            Desde 1980 · Lobos, Buenos Aires
+            Desde {FOUNDED_YEAR} · {years} {years === 1 ? "año" : "años"} formando comunidad · Lobos, Buenos Aires
           </span>
           <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
             {school.name}
@@ -618,5 +624,67 @@ function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function ComingSoon() {
+  const items = [
+    { icon: "🎓", title: "Centro de Estudiantes", desc: "Espacio de representación y participación estudiantil." },
+    { icon: "📚", title: "Proyectos Escolares", desc: "Iniciativas pedagógicas e interdisciplinarias en marcha." },
+    { icon: "🖼️", title: "Galería histórica de promociones", desc: "Recorrido visual por las promociones a lo largo de los años." },
+    { icon: "📰", title: "Noticias y novedades institucionales", desc: "Comunicados y novedades de la comunidad educativa." },
+    { icon: "📅", title: "Calendario de eventos escolares", desc: "Agenda completa de actividades y fechas destacadas." },
+  ];
+  return (
+    <section id="proximamente" className="bg-muted/40 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionTitle eyebrow="Próximamente" title="Novedades en camino" center />
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-foreground/80">
+          Estamos trabajando en nuevas secciones que estarán disponibles en próximas actualizaciones de nuestro sitio.
+        </p>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((it) => (
+            <div
+              key={it.title}
+              className="group relative overflow-hidden rounded-2xl bg-card p-6 shadow-card ring-1 ring-border/50 transition hover:-translate-y-1 hover:shadow-elegant"
+            >
+              <div className="absolute right-4 top-4 rounded-full bg-brand-sky/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-navy">
+                Pronto
+              </div>
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-navy text-2xl text-primary-foreground">
+                {it.icon}
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-brand-navy">{it.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{it.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BackToTop() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 400);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <button
+      type="button"
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      aria-label="Volver arriba"
+      className={`fixed bottom-5 right-5 z-50 grid h-12 w-12 place-items-center rounded-full bg-brand-navy text-primary-foreground shadow-elegant ring-1 ring-white/20 transition-all duration-500 hover:scale-110 hover:bg-brand-sky hover:text-brand-navy sm:bottom-6 sm:right-6 ${
+        visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+      }`}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+        <path d="M12 19V5" />
+        <path d="m5 12 7-7 7 7" />
+      </svg>
+    </button>
   );
 }
