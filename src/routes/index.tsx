@@ -25,8 +25,11 @@ const NAV = [
   { href: "#eventos", label: "Eventos" },
   { href: "#redes", label: "Redes" },
   { href: "#multimedia", label: "Multimedia" },
+  { href: "#proximamente", label: "Próximamente" },
   { href: "#contacto", label: "Contacto" },
 ];
+
+const FOUNDED_YEAR = 2015;
 
 function Index() {
   const [showIntro, setShowIntro] = useState(false);
@@ -45,9 +48,11 @@ function Index() {
       <Events />
       <SocialNetworks />
       <Multimedia />
+      <ComingSoon />
       <Contact />
       <Footer />
       <Lobi />
+      <BackToTop />
     </div>
   );
 }
@@ -114,6 +119,7 @@ function Header() {
 }
 
 function Hero() {
+  const years = new Date().getFullYear() - FOUNDED_YEAR;
   return (
     <section id="inicio" className="relative overflow-hidden bg-gradient-cosmic">
       <div className="absolute inset-0 bg-gradient-cosmic" aria-hidden />
@@ -125,7 +131,7 @@ function Hero() {
         />
         <div className="animate-fade-up space-y-4">
           <span className="inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ring-1 ring-white/30">
-            Desde 1980 · Lobos, Buenos Aires
+            Desde {FOUNDED_YEAR} · {years} {years === 1 ? "año" : "años"} formando comunidad · Lobos, Buenos Aires
           </span>
           <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
             {school.name}
