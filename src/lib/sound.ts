@@ -7,7 +7,9 @@
 
 let ctx: AudioContext | null = null;
 let clickInstalled = false;
-let musicHandle: { stop: (fadeMs?: number) => void } | null = null;
+let musicHandle:
+  | { stop: (fadeMs?: number) => void; setVolume: (v: number) => void }
+  | null = null;
 
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -167,17 +169,22 @@ export async function startInstitutionalMusic(targetVolume = 0.16) {
         musicHandle = null;
       }, fadeMs + 50);
     },
+    setVolume: (v: number) => {
+      const t = c.currentTime;
+      try {
+        master.gain.cancelScheduledValues(t);
+        master.gain.setValueAtTime(master.gain.value || 0.0001, t);
+        master.gain.exponentialRampToValueAtTime(Math.max(0.0001, v), t + 0.25);
+      } catch {
+        // ignore
+      }
+    },
   };
   return musicHandle;
 }
 
-export function setMusicMuted(muted: boolean) {
-  const c = getCtx();
-  if (!c || !musicHandle) return;
-  // Simple approach: toggle destination mute via a scheduled gain change is
-  // out of scope; just stop or restart. For our use case we swap volumes via
-  // a fresh call in the caller. This helper is a no-op placeholder.
-  void muted;
+export function setMusicVolume(v: number) {
+  musicHandle?.setVolume(v);
 }
 
 export function isMusicPlaying() {
