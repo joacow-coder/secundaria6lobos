@@ -25,6 +25,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
   const [index, setIndex] = useState(0);
   const [fadingOut, setFadingOut] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [needsUnlock, setNeedsUnlock] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const stopAudio = () => {
@@ -50,21 +51,42 @@ export function Intro({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const a = new Audio(music.url);
     a.volume = 0;
+    a.loop = true;
     a.preload = "auto";
+    a.crossOrigin = "anonymous";
     audioRef.current = a;
     const target = 0.35;
+    const fadeIn = () => {
+      const steps = 20;
+      let i = 0;
+      const id = setInterval(() => {
+        i++;
+        a.volume = Math.min(target, (target * i) / steps);
+        if (i >= steps) clearInterval(id);
+      }, 80);
+    };
     const tryPlay = async () => {
       try {
         await a.play();
-        const steps = 20;
-        let i = 0;
-        const id = setInterval(() => {
-          i++;
-          a.volume = Math.min(target, (target * i) / steps);
-          if (i >= steps) clearInterval(id);
-        }, 80);
+        setNeedsUnlock(false);
+        fadeIn();
       } catch {
-        // Autoplay blocked — silent fallback
+        setNeedsUnlock(true);
+        const unlock = async () => {
+          try {
+            await a.play();
+            setNeedsUnlock(false);
+            fadeIn();
+          } catch {
+            // still blocked
+          }
+          window.removeEventListener("pointerdown", unlock);
+          window.removeEventListener("keydown", unlock);
+          window.removeEventListener("touchstart", unlock);
+        };
+        window.addEventListener("pointerdown", unlock, { once: true });
+        window.addEventListener("keydown", unlock, { once: true });
+        window.addEventListener("touchstart", unlock, { once: true });
       }
     };
     tryPlay();
@@ -183,6 +205,24 @@ export function Intro({ onDone }: { onDone: () => void }) {
         >
           {muted ? "🔇 Sonido" : "🔊 Música"}
         </button>
+        {needsUnlock && (
+          <button
+            onClick={async () => {
+              const a = audioRef.current;
+              if (!a) return;
+              try {
+                a.volume = 0.35;
+                await a.play();
+                setNeedsUnlock(false);
+              } catch {
+                // ignore
+              }
+            }}
+            className="absolute top-6 right-6 rounded-full border border-white/50 bg-white/15 px-4 py-2 text-xs font-semibold text-white backdrop-blur transition hover:bg-white/25"
+          >
+            ▶ Activar música
+          </button>
+        )}
       </div>
     </div>
   );
