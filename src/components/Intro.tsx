@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import intro1 from "@/assets/intro-2021.jpg.asset.json";
 import intro2 from "@/assets/intro-2023b.jpg.asset.json";
 import intro3 from "@/assets/intro-2023.jpg.asset.json";
 import intro4 from "@/assets/intro-2025.jpg.asset.json";
 import intro5 from "@/assets/intro-2026.jpg.asset.json";
 import logo from "@/assets/logo.png.asset.json";
-import music from "@/assets/intro-music.mp3.asset.json";
+import { startInstitutionalMusic, stopMusic, setMusicVolume } from "@/lib/sound";
 
 const SESSION_KEY = "ees6-intro-seen";
 
@@ -26,60 +26,18 @@ export function Intro({ onDone }: { onDone: () => void }) {
   const [fadingOut, setFadingOut] = useState(false);
   const [muted, setMuted] = useState(false);
   const [needsUnlock, setNeedsUnlock] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const stopAudio = () => {
-    const a = audioRef.current;
-    if (!a) return;
-    try {
-      const startVol = a.volume;
-      const steps = 12;
-      let i = 0;
-      const id = setInterval(() => {
-        i++;
-        a.volume = Math.max(0, startVol * (1 - i / steps));
-        if (i >= steps) {
-          clearInterval(id);
-          a.pause();
-        }
-      }, 60);
-    } catch {
-      // ignore
-    }
-  };
+  const TARGET_VOL = 0.14;
+  const stopAudio = () => stopMusic(900);
 
   useEffect(() => {
-    const a = new Audio(music.url);
-    a.volume = 0;
-    a.loop = true;
-    a.preload = "auto";
-    a.crossOrigin = "anonymous";
-    audioRef.current = a;
-    const target = 0.35;
-    const fadeIn = () => {
-      const steps = 20;
-      let i = 0;
-      const id = setInterval(() => {
-        i++;
-        a.volume = Math.min(target, (target * i) / steps);
-        if (i >= steps) clearInterval(id);
-      }, 80);
-    };
-    const tryPlay = async () => {
-      try {
-        await a.play();
-        setNeedsUnlock(false);
-        fadeIn();
-      } catch {
-        setNeedsUnlock(true);
+    let cancelled = false;
+    const tryStart = async () => {
+      const h = await startInstitutionalMusic(TARGET_VOL);
+      if (!h) {
+        if (!cancelled) setNeedsUnlock(true);
         const unlock = async () => {
-          try {
-            await a.play();
-            setNeedsUnlock(false);
-            fadeIn();
-          } catch {
-            // still blocked
-          }
+          const hh = await startInstitutionalMusic(TARGET_VOL);
+          if (hh && !cancelled) setNeedsUnlock(false);
           window.removeEventListener("pointerdown", unlock);
           window.removeEventListener("keydown", unlock);
           window.removeEventListener("touchstart", unlock);
@@ -89,13 +47,10 @@ export function Intro({ onDone }: { onDone: () => void }) {
         window.addEventListener("touchstart", unlock, { once: true });
       }
     };
-    tryPlay();
+    tryStart();
     return () => {
-      try {
-        a.pause();
-      } catch {
-        // ignore
-      }
+      cancelled = true;
+      stopMusic(400);
     };
   }, []);
 
@@ -195,10 +150,9 @@ export function Intro({ onDone }: { onDone: () => void }) {
         <button
           onClick={() => {
             const a = audioRef.current;
-            if (!a) return;
             const next = !muted;
             setMuted(next);
-            a.muted = next;
+            setMusicVolume(next ? 0.0001 : TARGET_VOL);
           }}
           aria-label={muted ? "Activar sonido" : "Silenciar música"}
           className="absolute bottom-6 left-6 rounded-full border border-white/40 bg-white/10 px-3 py-2 text-xs font-medium text-white/90 backdrop-blur transition hover:bg-white/20"
@@ -208,15 +162,8 @@ export function Intro({ onDone }: { onDone: () => void }) {
         {needsUnlock && (
           <button
             onClick={async () => {
-              const a = audioRef.current;
-              if (!a) return;
-              try {
-                a.volume = 0.35;
-                await a.play();
-                setNeedsUnlock(false);
-              } catch {
-                // ignore
-              }
+              const h = await startInstitutionalMusic(TARGET_VOL);
+              if (h) setNeedsUnlock(false);
             }}
             className="absolute top-6 right-6 rounded-full border border-white/50 bg-white/15 px-4 py-2 text-xs font-semibold text-white backdrop-blur transition hover:bg-white/25"
           >
