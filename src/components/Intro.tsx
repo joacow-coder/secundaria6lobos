@@ -149,7 +149,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
         </button>
         <button
           onClick={() => {
-            const a = audioRef.current;
             const next = !muted;
             setMuted(next);
             setMusicVolume(next ? 0.0001 : TARGET_VOL);
