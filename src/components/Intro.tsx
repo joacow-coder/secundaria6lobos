@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import intro1 from "@/assets/intro-2021.jpg.asset.json";
 import intro2 from "@/assets/intro-2023b.jpg.asset.json";
 import intro3 from "@/assets/intro-2023.jpg.asset.json";
 import intro4 from "@/assets/intro-2025.jpg.asset.json";
 import intro5 from "@/assets/intro-2026.jpg.asset.json";
 import logo from "@/assets/logo.png.asset.json";
+import music from "@/assets/intro-music.mp3.asset.json";
 
 const SESSION_KEY = "ees6-intro-seen";
 
@@ -23,6 +24,58 @@ const FADE_OUT_MS = 900;
 export function Intro({ onDone }: { onDone: () => void }) {
   const [index, setIndex] = useState(0);
   const [fadingOut, setFadingOut] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const stopAudio = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    try {
+      const startVol = a.volume;
+      const steps = 12;
+      let i = 0;
+      const id = setInterval(() => {
+        i++;
+        a.volume = Math.max(0, startVol * (1 - i / steps));
+        if (i >= steps) {
+          clearInterval(id);
+          a.pause();
+        }
+      }, 60);
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    const a = new Audio(music.url);
+    a.volume = 0;
+    a.preload = "auto";
+    audioRef.current = a;
+    const target = 0.35;
+    const tryPlay = async () => {
+      try {
+        await a.play();
+        const steps = 20;
+        let i = 0;
+        const id = setInterval(() => {
+          i++;
+          a.volume = Math.min(target, (target * i) / steps);
+          if (i >= steps) clearInterval(id);
+        }, 80);
+      } catch {
+        // Autoplay blocked — silent fallback
+      }
+    };
+    tryPlay();
+    return () => {
+      try {
+        a.pause();
+      } catch {
+        // ignore
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
@@ -31,7 +84,12 @@ export function Intro({ onDone }: { onDone: () => void }) {
       timers.push(setTimeout(() => setIndex(i), i * SLIDE_MS));
     });
     const total = (SLIDES.length - 1) * SLIDE_MS + HOLD_LAST_MS;
-    timers.push(setTimeout(() => setFadingOut(true), total));
+    timers.push(
+      setTimeout(() => {
+        setFadingOut(true);
+        stopAudio();
+      }, total),
+    );
     timers.push(
       setTimeout(() => {
         try {
@@ -100,6 +158,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
         </div>
         <button
           onClick={() => {
+            stopAudio();
             try {
               sessionStorage.setItem(SESSION_KEY, "1");
             } catch {
@@ -110,6 +169,19 @@ export function Intro({ onDone }: { onDone: () => void }) {
           className="absolute bottom-6 right-6 rounded-full border border-white/40 bg-white/10 px-4 py-2 text-xs font-medium text-white/90 backdrop-blur transition hover:bg-white/20"
         >
           Saltar intro
+        </button>
+        <button
+          onClick={() => {
+            const a = audioRef.current;
+            if (!a) return;
+            const next = !muted;
+            setMuted(next);
+            a.muted = next;
+          }}
+          aria-label={muted ? "Activar sonido" : "Silenciar música"}
+          className="absolute bottom-6 left-6 rounded-full border border-white/40 bg-white/10 px-3 py-2 text-xs font-medium text-white/90 backdrop-blur transition hover:bg-white/20"
+        >
+          {muted ? "🔇 Sonido" : "🔊 Música"}
         </button>
       </div>
     </div>
