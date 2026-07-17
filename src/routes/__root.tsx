@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { installGlobalClickSound } from "../lib/sound";
 
 function NotFoundComponent() {
   return (
@@ -131,6 +132,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    installGlobalClickSound();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
