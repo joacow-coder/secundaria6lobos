@@ -2,6 +2,7 @@ import logo from "@/assets/logo.png.asset.json";
 import img1 from "@/assets/1.jpg.asset.json";
 import img4 from "@/assets/4.jpg.asset.json";
 import img6 from "@/assets/6.jpg.asset.json";
+import ss2 from "@/assets/ss-2.jpg.asset.json";
 import post1 from "@/assets/post1.jpg.asset.json";
 import post2 from "@/assets/post2.jpg.asset.json";
 import post3 from "@/assets/post3.jpg.asset.json";
@@ -166,7 +167,7 @@ export const news = [
       "Estudiantes de 5.º 1.ª compartieron un encuentro con veteranos de nuestra ciudad, cargado de historias, valores y emoción.",
   },
   {
-    image: img4.url,
+    image: ss2.url,
     date: "2 de Junio, 2026",
     title: "224° Aniversario de Lobos",
     excerpt:
