@@ -10,6 +10,7 @@ import post4 from "@/assets/post4.jpg.asset.json";
 import post5 from "@/assets/post5.jpg.asset.json";
 import post6 from "@/assets/post6.jpg.asset.json";
 import aa from "@/assets/aa-2.jpg.asset.json";
+import aa3 from "@/assets/aa-3.jpg.asset.json";
 import ss from "@/assets/ss.jpg.asset.json";
 import g from "@/assets/g.jpg.asset.json";
 import video1 from "@/assets/1.mp4.asset.json";
@@ -160,7 +161,7 @@ export const news = [
       "La comunidad educativa celebró un nuevo aniversario de la Declaración de la Independencia con un emotivo acto.",
   },
   {
-    image: img6.url,
+    image: aa3.url,
     date: "Junio, 2026",
     title: "Entrevista a Veteranos de Malvinas",
     excerpt:
