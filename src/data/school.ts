@@ -8,7 +8,7 @@ import post3 from "@/assets/post3.jpg.asset.json";
 import post4 from "@/assets/post4.jpg.asset.json";
 import post5 from "@/assets/post5.jpg.asset.json";
 import post6 from "@/assets/post6.jpg.asset.json";
-import aa from "@/assets/aa.jpg.asset.json";
+import aa from "@/assets/aa-2.jpg.asset.json";
 import ss from "@/assets/ss.jpg.asset.json";
 import g from "@/assets/g.jpg.asset.json";
 import video1 from "@/assets/1.mp4.asset.json";
