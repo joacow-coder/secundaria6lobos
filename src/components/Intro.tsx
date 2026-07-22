@@ -5,7 +5,6 @@ import intro3 from "@/assets/intro-2023.jpg.asset.json";
 import intro4 from "@/assets/intro-2025.jpg.asset.json";
 import intro5 from "@/assets/intro-2026.jpg.asset.json";
 import logo from "@/assets/logo.png.asset.json";
-import { startInstitutionalMusic, stopMusic, setMusicVolume } from "@/lib/sound";
 
 const SESSION_KEY = "ees6-intro-seen";
 
@@ -24,35 +23,6 @@ const FADE_OUT_MS = 900;
 export function Intro({ onDone }: { onDone: () => void }) {
   const [index, setIndex] = useState(0);
   const [fadingOut, setFadingOut] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [needsUnlock, setNeedsUnlock] = useState(false);
-  const TARGET_VOL = 0.14;
-  const stopAudio = () => stopMusic(900);
-
-  useEffect(() => {
-    let cancelled = false;
-    const tryStart = async () => {
-      const h = await startInstitutionalMusic(TARGET_VOL);
-      if (!h) {
-        if (!cancelled) setNeedsUnlock(true);
-        const unlock = async () => {
-          const hh = await startInstitutionalMusic(TARGET_VOL);
-          if (hh && !cancelled) setNeedsUnlock(false);
-          window.removeEventListener("pointerdown", unlock);
-          window.removeEventListener("keydown", unlock);
-          window.removeEventListener("touchstart", unlock);
-        };
-        window.addEventListener("pointerdown", unlock, { once: true });
-        window.addEventListener("keydown", unlock, { once: true });
-        window.addEventListener("touchstart", unlock, { once: true });
-      }
-    };
-    tryStart();
-    return () => {
-      cancelled = true;
-      stopMusic(400);
-    };
-  }, []);
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
@@ -64,7 +34,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
     timers.push(
       setTimeout(() => {
         setFadingOut(true);
-        stopAudio();
       }, total),
     );
     timers.push(
@@ -135,7 +104,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
         </div>
         <button
           onClick={() => {
-            stopAudio();
             try {
               sessionStorage.setItem(SESSION_KEY, "1");
             } catch {
@@ -147,28 +115,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
         >
           Saltar intro
         </button>
-        <button
-          onClick={() => {
-            const next = !muted;
-            setMuted(next);
-            setMusicVolume(next ? 0.0001 : TARGET_VOL);
-          }}
-          aria-label={muted ? "Activar sonido" : "Silenciar música"}
-          className="absolute bottom-6 left-6 rounded-full border border-white/40 bg-white/10 px-3 py-2 text-xs font-medium text-white/90 backdrop-blur transition hover:bg-white/20"
-        >
-          {muted ? "🔇 Sonido" : "🔊 Música"}
-        </button>
-        {needsUnlock && (
-          <button
-            onClick={async () => {
-              const h = await startInstitutionalMusic(TARGET_VOL);
-              if (h) setNeedsUnlock(false);
-            }}
-            className="absolute top-6 right-6 rounded-full border border-white/50 bg-white/15 px-4 py-2 text-xs font-semibold text-white backdrop-blur transition hover:bg-white/25"
-          >
-            ▶ Activar música
-          </button>
-        )}
       </div>
     </div>
   );
