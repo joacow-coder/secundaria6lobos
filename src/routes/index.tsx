@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
+  GraduationCap,
+  Rocket,
+  Building2,
+  Banknote,
+  Compass,
+  Map,
+  ExternalLink,
+} from "lucide-react";
+import {
   school,
   history,
   gallery,
@@ -49,6 +58,7 @@ function Index() {
       {showIntro && <Intro onDone={() => setShowIntro(false)} />}
       <Header />
       <Hero />
+      <TuFuturo />
       <About />
       <Gallery />
       <Anniversary />
@@ -162,6 +172,77 @@ function Hero() {
           >
             Consultar información
           </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TuFuturo() {
+  const items = [
+    { icon: GraduationCap, label: "Carreras" },
+    { icon: Building2, label: "Universidades" },
+    { icon: Banknote, label: "Becas" },
+    { icon: Compass, label: "Orientación" },
+    { icon: Map, label: "Mapa educativo" },
+  ];
+
+  return (
+    <section id="tu-futuro" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+      <div className="group relative overflow-hidden rounded-3xl bg-gradient-hero p-6 shadow-elegant ring-1 ring-white/15 transition-all duration-500 hover:-translate-y-1 hover:shadow-elegant sm:p-10 lg:p-12">
+        {/* Shine effect */}
+        <div
+          className="pointer-events-none absolute -inset-full top-0 z-20 h-full w-1/2 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-all duration-1000 group-hover:translate-x-[200%] group-hover:opacity-100"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center">
+          <div className="flex-1 space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-sky ring-1 ring-white/20">
+              <Rocket className="h-4 w-4" />
+              Proyecto institucional
+            </div>
+            <h2 className="text-3xl font-extrabold text-primary-foreground sm:text-4xl">
+              Tu Futuro
+            </h2>
+            <p className="text-base text-white/90 sm:text-lg">
+              Descubrí carreras, universidades, becas y oportunidades para
+              planificar tu futuro académico y profesional.
+            </p>
+            <p className="max-w-2xl text-sm leading-relaxed text-white/80">
+              Una plataforma desarrollada para acompañar a los estudiantes en
+              la búsqueda de información actualizada sobre universidades,
+              institutos, formación profesional, becas y diferentes caminos para
+              continuar su formación luego de finalizar la escuela secundaria.
+            </p>
+            <a
+              href="https://futuro-ees6.lovable.app"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-navy shadow-card transition-all duration-300 hover:scale-105 hover:bg-brand-sky hover:text-white hover:shadow-elegant"
+            >
+              Explorar Tu Futuro
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="flex shrink-0 justify-center lg:justify-end">
+            <div className="grid h-24 w-24 place-items-center rounded-3xl bg-white/10 text-white ring-1 ring-white/20 backdrop-blur-sm transition-transform duration-500 group-hover:scale-105 sm:h-32 sm:w-32">
+              <GraduationCap className="h-12 w-12 sm:h-16 sm:w-16" />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {items.map((it) => (
+            <div
+              key={it.label}
+              className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-primary-foreground ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-white/15"
+            >
+              <it.icon className="h-5 w-5 shrink-0 text-brand-sky" />
+              <span className="text-sm font-medium">{it.label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>
