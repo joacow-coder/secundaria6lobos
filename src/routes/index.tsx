@@ -1,46 +1,27 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import {
-  GraduationCap,
-  Rocket,
-  Building2,
-  Banknote,
-  Compass,
-  Map,
-  ExternalLink,
-} from "lucide-react";
-import {
-  school,
-  history,
-  gallery,
-  news,
-  events,
-  videos,
-  anniversary,
-} from "@/data/school";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { GraduationCap, Rocket, Building2, Banknote, Compass, Map, Clock } from "lucide-react";
 import { Lobi } from "@/components/Lobi";
 import { Intro, hasSeenIntro } from "@/components/Intro";
+import { loadSiteContent } from "@/lib/site.functions";
+import {
+  SECTION_LABELS,
+  defaultContent,
+  visible,
+  type SectionKey,
+  type SiteContent,
+} from "@/lib/site-content";
 
 export const Route = createFileRoute("/")({
+  loader: () => loadSiteContent(),
   component: Index,
 });
 
-const NAV = [
-  { href: "#inicio", label: "Inicio" },
-  { href: "#escuela", label: "Nuestra Escuela" },
-  { href: "#galeria", label: "Galería" },
-  { href: "#aniversario", label: "Aniversario" },
-  { href: "#noticias", label: "Noticias" },
-  { href: "#eventos", label: "Eventos" },
-  { href: "#redes", label: "Redes" },
-  { href: "#multimedia", label: "Multimedia" },
-  { href: "#proximamente", label: "Próximamente" },
-  { href: "#contacto", label: "Contacto" },
-];
-
-const FOUNDED_YEAR = 2015;
+const ContentCtx = createContext<SiteContent>(defaultContent);
+const useContent = () => useContext(ContentCtx);
 
 function Index() {
+  const content = Route.useLoaderData() as SiteContent;
   const [showIntro, setShowIntro] = useState(true);
   const [checked, setChecked] = useState(false);
 
@@ -53,39 +34,46 @@ function Index() {
     return <div className="min-h-screen bg-black" />;
   }
 
+  const sections = (content.sections?.order ?? defaultContent.sections.order).filter(
+    (s) => !s.hidden,
+  );
+
+  const RENDERERS: Record<SectionKey, () => React.ReactNode> = {
+    inicio: () => <Hero key="inicio" />,
+    tufuturo: () => <TuFuturo key="tufuturo" />,
+    escuela: () => <About key="escuela" />,
+    galeria: () => <Gallery key="galeria" />,
+    aniversario: () => <Anniversary key="aniversario" />,
+    noticias: () => <News key="noticias" />,
+    eventos: () => <Events key="eventos" />,
+    redes: () => <SocialNetworks key="redes" />,
+    multimedia: () => <Multimedia key="multimedia" />,
+    proximamente: () => <ComingSoon key="proximamente" />,
+    contacto: () => <Contact key="contacto" />,
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {showIntro && <Intro onDone={() => setShowIntro(false)} />}
-      <Header />
-      <Hero />
-      <TuFuturo />
-      <About />
-      <Gallery />
-      <Anniversary />
-      <News />
-      <Events />
-      <SocialNetworks />
-      <Multimedia />
-      <ComingSoon />
-      <Contact />
-      <Footer />
-      <Lobi />
-      <BackToTop />
-    </div>
+    <ContentCtx.Provider value={content}>
+      <div className="min-h-screen bg-background text-foreground">
+        {showIntro && <Intro onDone={() => setShowIntro(false)} />}
+        <Header nav={sections.map((s) => ({ href: `#${s.key}`, label: SECTION_LABELS[s.key] ?? s.label }))} />
+        {sections.map((s) => RENDERERS[s.key]?.())}
+        <Footer />
+        <Lobi />
+        <BackToTop />
+      </div>
+    </ContentCtx.Provider>
   );
 }
 
-function Header() {
+function Header({ nav }: { nav: { href: string; label: string }[] }) {
+  const { school } = useContent();
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#inicio" className="flex min-w-0 items-center gap-3">
-          <img
-            src={school.logo}
-            alt="Logo EES N.º 6"
-            className="h-12 w-12 shrink-0 object-contain"
-          />
+          <img src={school.logo} alt="Logo EES N.º 6" className="h-12 w-12 shrink-0 object-contain" />
           <div className="min-w-0 leading-tight">
             <div className="truncate text-sm font-bold text-brand-navy sm:text-base">
               {school.shortName}
@@ -94,7 +82,7 @@ function Header() {
           </div>
         </a>
         <nav className="hidden items-center gap-1 lg:flex">
-          {NAV.map((n) => (
+          {nav.map((n) => (
             <a
               key={n.href}
               href={n.href}
@@ -103,6 +91,12 @@ function Header() {
               {n.label}
             </a>
           ))}
+          <Link
+            to="/admin"
+            className="ml-1 rounded-full border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-brand-sky/30 hover:text-brand-navy"
+          >
+            Panel
+          </Link>
         </nav>
         <button
           onClick={() => setOpen((o) => !o)}
@@ -119,7 +113,7 @@ function Header() {
       {open && (
         <div className="border-t border-border bg-background lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col px-4 py-2">
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <a
                 key={n.href}
                 href={n.href}
@@ -129,6 +123,13 @@ function Header() {
                 {n.label}
               </a>
             ))}
+            <Link
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className="mt-1 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-brand-sky/30"
+            >
+              Panel de Administración
+            </Link>
           </nav>
         </div>
       )}
@@ -137,7 +138,8 @@ function Header() {
 }
 
 function Hero() {
-  const years = new Date().getFullYear() - FOUNDED_YEAR;
+  const { school, hero } = useContent();
+  const years = new Date().getFullYear() - hero.badgeYear;
   return (
     <section id="inicio" className="relative overflow-hidden bg-gradient-cosmic">
       <div className="absolute inset-0 bg-gradient-cosmic" aria-hidden />
@@ -149,28 +151,23 @@ function Hero() {
         />
         <div className="animate-fade-up space-y-4">
           <span className="inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ring-1 ring-white/30">
-            Desde {FOUNDED_YEAR} · {years} {years === 1 ? "año" : "años"} formando comunidad · Lobos, Buenos Aires
+            Desde {hero.badgeYear} · {years} {years === 1 ? "año" : "años"} formando comunidad · Lobos, Buenos Aires
           </span>
-          <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
-            {school.name}
-          </h1>
-          <p className="mx-auto max-w-2xl text-base text-white/85 sm:text-lg">
-            Una comunidad educativa que forma, acompaña e inspira. Bienvenidos a
-            la casa de todos y todas.
-          </p>
+          <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">{hero.title}</h1>
+          <p className="mx-auto max-w-2xl text-base text-white/85 sm:text-lg">{hero.subtitle}</p>
         </div>
         <div className="flex flex-wrap justify-center gap-3">
           <a
             href="#escuela"
             className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-navy shadow-elegant transition hover:scale-105"
           >
-            Conocer la escuela
+            {hero.primaryCta}
           </a>
           <a
             href="#contacto"
             className="rounded-full border-2 border-white/70 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
           >
-            Consultar información
+            {hero.secondaryCta}
           </a>
         </div>
       </div>
@@ -178,6 +175,7 @@ function Hero() {
   );
 }
 
+/** Sección "Tu Futuro" — deshabilitada temporalmente y marcada como próxima funcionalidad. */
 function TuFuturo() {
   const items = [
     { icon: GraduationCap, label: "Carreras" },
@@ -188,13 +186,11 @@ function TuFuturo() {
   ];
 
   return (
-    <section id="tu-futuro" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-      <div className="group relative overflow-hidden rounded-3xl bg-gradient-hero p-6 shadow-elegant ring-1 ring-white/15 transition-all duration-500 hover:-translate-y-1 hover:shadow-elegant sm:p-10 lg:p-12">
-        {/* Shine effect */}
-        <div
-          className="pointer-events-none absolute -inset-full top-0 z-20 h-full w-1/2 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-all duration-1000 group-hover:translate-x-[200%] group-hover:opacity-100"
-          aria-hidden="true"
-        />
+    <section id="tufuturo" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-hero p-6 shadow-elegant ring-1 ring-white/15 sm:p-10 lg:p-12">
+        <div className="absolute right-5 top-5 z-10 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white ring-1 ring-white/30">
+          Próximamente
+        </div>
 
         <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center">
           <div className="flex-1 space-y-5">
@@ -202,42 +198,38 @@ function TuFuturo() {
               <Rocket className="h-4 w-4" />
               Proyecto institucional
             </div>
-            <h2 className="text-3xl font-extrabold text-primary-foreground sm:text-4xl">
-              Tu Futuro
-            </h2>
+            <h2 className="text-3xl font-extrabold text-primary-foreground sm:text-4xl">Tu Futuro</h2>
             <p className="text-base text-white/90 sm:text-lg">
-              Descubrí carreras, universidades, becas y oportunidades para
-              planificar tu futuro académico y profesional.
+              Descubrí carreras, universidades, becas y oportunidades para planificar tu futuro
+              académico y profesional.
             </p>
-            <p className="max-w-2xl text-sm leading-relaxed text-white/80">
-              Una plataforma desarrollada para acompañar a los estudiantes en
-              la búsqueda de información actualizada sobre universidades,
-              institutos, formación profesional, becas y diferentes caminos para
-              continuar su formación luego de finalizar la escuela secundaria.
+            <p className="max-w-2xl text-sm leading-relaxed text-white/75">
+              Esta sección todavía no está disponible. Estamos preparando la plataforma para
+              acompañar a los estudiantes en la búsqueda de información sobre universidades,
+              institutos, formación profesional y becas. Estará disponible en una futura
+              actualización del sitio.
             </p>
-            <a
-              href="https://futuro-ees6.lovable.app"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-navy shadow-card transition-all duration-300 hover:scale-105 hover:bg-brand-sky hover:text-white hover:shadow-elegant"
+            <span
+              aria-disabled="true"
+              className="inline-flex cursor-not-allowed items-center gap-2 rounded-full bg-white/20 px-6 py-3 text-sm font-semibold text-white/70 ring-1 ring-white/25"
             >
-              Explorar Tu Futuro
-              <ExternalLink className="h-4 w-4" />
-            </a>
+              <Clock className="h-4 w-4" />
+              Disponible próximamente
+            </span>
           </div>
 
           <div className="flex shrink-0 justify-center lg:justify-end">
-            <div className="grid h-24 w-24 place-items-center rounded-3xl bg-white/10 text-white ring-1 ring-white/20 backdrop-blur-sm transition-transform duration-500 group-hover:scale-105 sm:h-32 sm:w-32">
+            <div className="grid h-24 w-24 place-items-center rounded-3xl bg-white/10 text-white/80 ring-1 ring-white/20 backdrop-blur-sm sm:h-32 sm:w-32">
               <GraduationCap className="h-12 w-12 sm:h-16 sm:w-16" />
             </div>
           </div>
         </div>
 
-        <div className="relative z-10 mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="relative z-10 mt-10 grid gap-3 opacity-70 sm:grid-cols-2 lg:grid-cols-5">
           {items.map((it) => (
             <div
               key={it.label}
-              className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-primary-foreground ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-white/15"
+              className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-primary-foreground ring-1 ring-white/10"
             >
               <it.icon className="h-5 w-5 shrink-0 text-brand-sky" />
               <span className="text-sm font-medium">{it.label}</span>
@@ -250,27 +242,22 @@ function TuFuturo() {
 }
 
 function About() {
+  const { history, school } = useContent();
   return (
     <section id="escuela" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
       <SectionTitle eyebrow={history.eyebrow} title={history.title} />
-      <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/85">
-        {history.intro}
-      </p>
+      <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/85">{history.intro}</p>
 
       <ol className="relative mt-10 space-y-6 border-l-2 border-brand-sky/60 pl-6">
         {history.timeline.map((t) => (
-          <li key={t.date} className="relative">
+          <li key={t.date + t.title} className="relative">
             <span className="absolute -left-[34px] top-1 grid h-6 w-6 place-items-center rounded-full bg-brand-navy text-[10px] font-bold text-primary-foreground ring-4 ring-background">
               ●
             </span>
             <div className="rounded-2xl bg-card p-5 shadow-card">
-              <div className="text-xs font-bold uppercase tracking-widest text-brand-sky">
-                {t.date}
-              </div>
+              <div className="text-xs font-bold uppercase tracking-widest text-brand-sky">{t.date}</div>
               <h3 className="mt-1 text-lg font-bold text-brand-navy">{t.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-foreground/85">
-                {t.description}
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/85">{t.description}</p>
             </div>
           </li>
         ))}
@@ -283,7 +270,7 @@ function About() {
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
         <div className="rounded-3xl bg-card p-8 shadow-card">
           <div className="flex flex-wrap gap-6 text-sm">
-            <Stat label="Localidad" value="Lobos, Bs. As." />
+            <Stat label="Localidad" value={school.city} />
             <Stat label="Dirección" value={school.address} />
           </div>
         </div>
@@ -291,15 +278,10 @@ function About() {
           <InfoCard title="Misión" body={history.mission} tone="navy" />
           <InfoCard title="Visión" body={history.vision} tone="sky" />
           <div className="rounded-3xl bg-card p-6 shadow-card sm:col-span-2">
-            <h3 className="mb-4 text-lg font-bold text-brand-navy">
-              Nuestros valores
-            </h3>
+            <h3 className="mb-4 text-lg font-bold text-brand-navy">Nuestros valores</h3>
             <div className="grid gap-3 sm:grid-cols-2">
               {history.values.map((v) => (
-                <div
-                  key={v.title}
-                  className="flex gap-3 rounded-xl bg-brand-sky/20 p-3"
-                >
+                <div key={v.title} className="flex gap-3 rounded-xl bg-brand-sky/20 p-3">
                   <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-navy text-xs font-bold text-primary-foreground">
                     ✓
                   </div>
@@ -321,26 +303,14 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div className="text-2xl font-extrabold text-brand-navy">{value}</div>
-      <div className="text-xs uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
     </div>
   );
 }
 
-function InfoCard({
-  title,
-  body,
-  tone,
-}: {
-  title: string;
-  body: string;
-  tone: "navy" | "sky";
-}) {
+function InfoCard({ title, body, tone }: { title: string; body: string; tone: "navy" | "sky" }) {
   const cls =
-    tone === "navy"
-      ? "bg-brand-navy text-primary-foreground"
-      : "bg-brand-sky text-brand-navy";
+    tone === "navy" ? "bg-brand-navy text-primary-foreground" : "bg-brand-sky text-brand-navy";
   return (
     <div className={`rounded-3xl p-6 shadow-card ${cls}`}>
       <h3 className="mb-2 text-lg font-bold">{title}</h3>
@@ -360,24 +330,22 @@ function SectionTitle({
 }) {
   return (
     <div className={center ? "text-center" : ""}>
-      <div className="text-xs font-bold uppercase tracking-[0.2em] text-brand-sky">
-        {eyebrow}
-      </div>
-      <h2 className="mt-2 text-3xl font-extrabold text-brand-navy sm:text-4xl">
-        {title}
-      </h2>
+      <div className="text-xs font-bold uppercase tracking-[0.2em] text-brand-sky">{eyebrow}</div>
+      <h2 className="mt-2 text-3xl font-extrabold text-brand-navy sm:text-4xl">{title}</h2>
       <div className="mt-3 h-1 w-16 rounded-full bg-gradient-brand" />
     </div>
   );
 }
 
 function Gallery() {
+  const { gallery } = useContent();
+  const items = useMemo(() => visible(gallery.items), [gallery.items]);
   const categories = useMemo(
-    () => ["Todas", ...Array.from(new Set(gallery.map((g) => g.category)))],
-    [],
+    () => ["Todas", ...Array.from(new Set(items.map((g) => g.category)))],
+    [items],
   );
   const [active, setActive] = useState("Todas");
-  const items = gallery.filter((g) => active === "Todas" || g.category === active);
+  const shown = items.filter((g) => active === "Todas" || g.category === active);
   return (
     <section id="galeria" className="bg-muted/40 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -398,9 +366,9 @@ function Gallery() {
           ))}
         </div>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((g) => (
+          {shown.map((g) => (
             <article
-              key={g.title}
+              key={g.id}
               className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
             >
               <div className="aspect-[4/5] overflow-hidden bg-muted">
@@ -415,12 +383,8 @@ function Gallery() {
                 <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-sky">
                   {g.category}
                 </div>
-                <h3 className="mt-2 text-base font-bold leading-snug text-brand-navy">
-                  {g.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {g.description}
-                </p>
+                <h3 className="mt-2 text-base font-bold leading-snug text-brand-navy">{g.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{g.description}</p>
               </div>
             </article>
           ))}
@@ -431,13 +395,11 @@ function Gallery() {
 }
 
 function Anniversary() {
+  const { anniversary } = useContent();
   return (
     <section id="aniversario" className="bg-muted/40 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionTitle
-          eyebrow={anniversary.eyebrow}
-          title={anniversary.title}
-        />
+        <SectionTitle eyebrow={anniversary.eyebrow} title={anniversary.title} />
         <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/85">
           {anniversary.text}
         </p>
@@ -447,13 +409,14 @@ function Anniversary() {
 }
 
 function News() {
+  const { news } = useContent();
   return (
     <section id="noticias" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
       <SectionTitle eyebrow="Noticias" title="Últimas novedades" />
       <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {news.map((n) => (
+        {visible(news.items).map((n) => (
           <article
-            key={n.title}
+            key={n.id}
             className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
           >
             <div className="aspect-video overflow-hidden">
@@ -474,21 +437,18 @@ function News() {
 }
 
 function Events() {
+  const { events } = useContent();
   return (
     <section id="eventos" className="bg-gradient-hero py-20 text-primary-foreground">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="text-xs font-bold uppercase tracking-[0.2em] text-brand-sky">
-          Eventos
-        </div>
-        <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">
-          Calendario escolar
-        </h2>
+        <div className="text-xs font-bold uppercase tracking-[0.2em] text-brand-sky">Eventos</div>
+        <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">Calendario escolar</h2>
         <div className="mt-3 h-1 w-16 rounded-full bg-white/70" />
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {events.map((e) => (
+          {visible(events.items).map((e) => (
             <div
-              key={e.title}
-              className="rounded-2xl bg-white/10 p-5 backdrop-blur ring-1 ring-white/20 transition hover:bg-white/15"
+              key={e.id}
+              className="rounded-2xl bg-white/10 p-5 ring-1 ring-white/20 backdrop-blur transition hover:bg-white/15"
             >
               <div className="text-3xl font-extrabold text-white">{e.date}</div>
               <div className="mt-2 text-xs font-semibold uppercase tracking-wider text-brand-sky">
@@ -504,13 +464,10 @@ function Events() {
 }
 
 function SocialNetworks() {
+  const { school } = useContent();
   return (
     <section id="redes" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-      <SectionTitle
-        eyebrow="Seguinos"
-        title="Nuestras redes"
-        center
-      />
+      <SectionTitle eyebrow="Seguinos" title="Nuestras redes" center />
       <div className="mt-10 flex flex-wrap justify-center gap-6">
         <a
           href={school.facebook}
@@ -542,15 +499,13 @@ function SocialNetworks() {
 }
 
 function Multimedia() {
+  const { videos } = useContent();
   return (
     <section id="multimedia" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
       <SectionTitle eyebrow="Multimedia" title="Videos institucionales" />
       <div className="mt-10 grid gap-6 md:grid-cols-2">
-        {videos.map((v) => (
-          <div
-            key={v.url}
-            className="overflow-hidden rounded-2xl bg-card shadow-card"
-          >
+        {visible(videos.items).map((v) => (
+          <div key={v.id} className="overflow-hidden rounded-2xl bg-card shadow-card">
             <video
               src={v.url}
               controls
@@ -568,6 +523,7 @@ function Multimedia() {
 }
 
 function Contact() {
+  const { school } = useContent();
   return (
     <section id="contacto" className="bg-muted/40 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -635,6 +591,7 @@ function ContactItem({
 }
 
 function HoursCard() {
+  const { school } = useContent();
   return (
     <div className="rounded-2xl bg-card p-5 shadow-card">
       <div className="flex items-start gap-4">
@@ -668,15 +625,12 @@ function HoursCard() {
 }
 
 function Footer() {
+  const { school } = useContent();
   return (
     <footer className="bg-brand-navy text-primary-foreground">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div className="flex items-center gap-4">
-          <img
-            src={school.logo}
-            alt="Logo"
-            className="h-14 w-14 object-contain"
-          />
+          <img src={school.logo} alt="Logo" className="h-14 w-14 object-contain" />
           <div>
             <div className="font-bold">{school.shortName}</div>
             <div className="text-sm opacity-80">Lobos, Buenos Aires</div>
@@ -717,24 +671,18 @@ function Footer() {
 }
 
 function ComingSoon() {
-  const items = [
-    { icon: "🎓", title: "Centro de Estudiantes", desc: "Espacio de representación y participación estudiantil." },
-    { icon: "📚", title: "Proyectos Escolares", desc: "Iniciativas pedagógicas e interdisciplinarias en marcha." },
-    { icon: "🖼️", title: "Galería histórica de promociones", desc: "Recorrido visual por las promociones a lo largo de los años." },
-    { icon: "📰", title: "Noticias y novedades institucionales", desc: "Comunicados y novedades de la comunidad educativa." },
-    { icon: "📅", title: "Calendario de eventos escolares", desc: "Agenda completa de actividades y fechas destacadas." },
-  ];
+  const { comingSoon } = useContent();
   return (
     <section id="proximamente" className="bg-muted/40 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionTitle eyebrow="Próximamente" title="Novedades en camino" center />
         <p className="mx-auto mt-6 max-w-2xl text-center text-base leading-relaxed text-foreground/80">
-          Estamos trabajando en nuevas secciones que estarán disponibles en próximas actualizaciones de nuestro sitio.
+          {comingSoon.intro}
         </p>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((it) => (
+          {visible(comingSoon.items).map((it) => (
             <div
-              key={it.title}
+              key={it.id}
               className="group relative overflow-hidden rounded-2xl bg-card p-6 shadow-card ring-1 ring-border/50 transition hover:-translate-y-1 hover:shadow-elegant"
             >
               <div className="absolute right-4 top-4 rounded-full bg-brand-sky/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-navy">
@@ -754,7 +702,7 @@ function ComingSoon() {
 }
 
 function BackToTop() {
-  const [visible, setVisible] = useState(false);
+  const [visibleBtn, setVisible] = useState(false);
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 400);
     onScroll();
@@ -767,10 +715,19 @@ function BackToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Volver arriba"
       className={`fixed bottom-5 right-5 z-50 grid h-12 w-12 place-items-center rounded-full bg-brand-navy text-primary-foreground shadow-elegant ring-1 ring-white/20 transition-all duration-500 hover:scale-110 hover:bg-brand-sky hover:text-brand-navy sm:bottom-6 sm:right-6 ${
-        visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+        visibleBtn ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       }`}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-5 w-5"
+      >
         <path d="M12 19V5" />
         <path d="m5 12 7-7 7 7" />
       </svg>
