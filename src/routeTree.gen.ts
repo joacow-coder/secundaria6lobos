@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TuFuturoRouteRoute = TuFuturoRouteRouteImport.update({
+  id: '/tu-futuro',
+  path: '/tu-futuro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,30 +37,34 @@ const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/tu-futuro': typeof TuFuturoRouteRoute
   '/admin': typeof AdminRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/tu-futuro': typeof TuFuturoRouteRoute
   '/admin': typeof AdminRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/tu-futuro': typeof TuFuturoRouteRoute
   '/admin': typeof AdminRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/api/public/media/$'
+  fullPaths: '/' | '/tu-futuro' | '/admin' | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/api/public/media/$'
-  id: '__root__' | '/' | '/admin' | '/api/public/media/$'
+  to: '/' | '/tu-futuro' | '/admin' | '/api/public/media/$'
+  id: '__root__' | '/' | '/tu-futuro' | '/admin' | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TuFuturoRouteRoute: typeof TuFuturoRouteRoute
   AdminRoute: typeof AdminRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tu-futuro': {
+      id: '/tu-futuro'
+      path: '/tu-futuro'
+      fullPath: '/tu-futuro'
+      preLoaderRoute: typeof TuFuturoRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,19 +104,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TuFuturoRouteRoute: TuFuturoRouteRoute,
   AdminRoute: AdminRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
