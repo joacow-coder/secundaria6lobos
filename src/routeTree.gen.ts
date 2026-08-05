@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TuFuturoIndexRouteImport } from './routes/tu-futuro/index'
 import { Route as TuFuturoRecursosRouteImport } from './routes/tu-futuro/recursos'
 import { Route as TuFuturoNoticiasRouteImport } from './routes/tu-futuro/noticias'
+import { Route as TuFuturoMapaRouteImport } from './routes/tu-futuro/mapa'
 import { Route as TuFuturoCompartirRouteImport } from './routes/tu-futuro/compartir'
 import { Route as TuFuturoCarrerasRouteImport } from './routes/tu-futuro/carreras'
 import { Route as TuFuturoCaminosRouteImport } from './routes/tu-futuro/caminos'
@@ -53,6 +54,11 @@ const TuFuturoRecursosRoute = TuFuturoRecursosRouteImport.update({
 const TuFuturoNoticiasRoute = TuFuturoNoticiasRouteImport.update({
   id: '/noticias',
   path: '/noticias',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoMapaRoute = TuFuturoMapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
   getParentRoute: () => TuFuturoRouteRoute,
 } as any)
 const TuFuturoCompartirRoute = TuFuturoCompartirRouteImport.update({
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/tu-futuro/caminos': typeof TuFuturoCaminosRoute
   '/tu-futuro/carreras': typeof TuFuturoCarrerasRoute
   '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
+  '/tu-futuro/mapa': typeof TuFuturoMapaRoute
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/tu-futuro/caminos': typeof TuFuturoCaminosRoute
   '/tu-futuro/carreras': typeof TuFuturoCarrerasRoute
   '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
+  '/tu-futuro/mapa': typeof TuFuturoMapaRoute
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro': typeof TuFuturoIndexRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/tu-futuro/caminos': typeof TuFuturoCaminosRoute
   '/tu-futuro/carreras': typeof TuFuturoCarrerasRoute
   '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
+  '/tu-futuro/mapa': typeof TuFuturoMapaRoute
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/caminos'
     | '/tu-futuro/carreras'
     | '/tu-futuro/compartir'
+    | '/tu-futuro/mapa'
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/caminos'
     | '/tu-futuro/carreras'
     | '/tu-futuro/compartir'
+    | '/tu-futuro/mapa'
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/caminos'
     | '/tu-futuro/carreras'
     | '/tu-futuro/compartir'
+    | '/tu-futuro/mapa'
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/'
@@ -255,6 +267,13 @@ declare module '@tanstack/react-router' {
       path: '/noticias'
       fullPath: '/tu-futuro/noticias'
       preLoaderRoute: typeof TuFuturoNoticiasRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/mapa': {
+      id: '/tu-futuro/mapa'
+      path: '/mapa'
+      fullPath: '/tu-futuro/mapa'
+      preLoaderRoute: typeof TuFuturoMapaRouteImport
       parentRoute: typeof TuFuturoRouteRoute
     }
     '/tu-futuro/compartir': {
@@ -331,6 +350,7 @@ interface TuFuturoRouteRouteChildren {
   TuFuturoCaminosRoute: typeof TuFuturoCaminosRoute
   TuFuturoCarrerasRoute: typeof TuFuturoCarrerasRoute
   TuFuturoCompartirRoute: typeof TuFuturoCompartirRoute
+  TuFuturoMapaRoute: typeof TuFuturoMapaRoute
   TuFuturoNoticiasRoute: typeof TuFuturoNoticiasRoute
   TuFuturoRecursosRoute: typeof TuFuturoRecursosRoute
   TuFuturoIndexRoute: typeof TuFuturoIndexRoute
@@ -345,6 +365,7 @@ const TuFuturoRouteRouteChildren: TuFuturoRouteRouteChildren = {
   TuFuturoCaminosRoute: TuFuturoCaminosRoute,
   TuFuturoCarrerasRoute: TuFuturoCarrerasRoute,
   TuFuturoCompartirRoute: TuFuturoCompartirRoute,
+  TuFuturoMapaRoute: TuFuturoMapaRoute,
   TuFuturoNoticiasRoute: TuFuturoNoticiasRoute,
   TuFuturoRecursosRoute: TuFuturoRecursosRoute,
   TuFuturoIndexRoute: TuFuturoIndexRoute,
