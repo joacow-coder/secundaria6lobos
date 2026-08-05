@@ -13,6 +13,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TuFuturoIndexRouteImport } from './routes/tu-futuro/index'
+import { Route as TuFuturoTestRouteImport } from './routes/tu-futuro/test'
 import { Route as TuFuturoRecursosRouteImport } from './routes/tu-futuro/recursos'
 import { Route as TuFuturoNoticiasRouteImport } from './routes/tu-futuro/noticias'
 import { Route as TuFuturoMapaRouteImport } from './routes/tu-futuro/mapa'
@@ -24,6 +25,7 @@ import { Route as TuFuturoBecasRouteImport } from './routes/tu-futuro/becas'
 import { Route as TuFuturoAuthRouteImport } from './routes/tu-futuro/auth'
 import { Route as TuFuturoAdminRouteImport } from './routes/tu-futuro/admin'
 import { Route as TuFuturoInstitucionesIndexRouteImport } from './routes/tu-futuro/instituciones.index'
+import { Route as TuFuturoInstitucionesIdRouteImport } from './routes/tu-futuro/instituciones.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 
 const AdminRoute = AdminRouteImport.update({
@@ -44,6 +46,11 @@ const IndexRoute = IndexRouteImport.update({
 const TuFuturoIndexRoute = TuFuturoIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoTestRoute = TuFuturoTestRouteImport.update({
+  id: '/test',
+  path: '/test',
   getParentRoute: () => TuFuturoRouteRoute,
 } as any)
 const TuFuturoRecursosRoute = TuFuturoRecursosRouteImport.update({
@@ -102,6 +109,11 @@ const TuFuturoInstitucionesIndexRoute =
     path: '/instituciones/',
     getParentRoute: () => TuFuturoRouteRoute,
   } as any)
+const TuFuturoInstitucionesIdRoute = TuFuturoInstitucionesIdRouteImport.update({
+  id: '/instituciones/$id',
+  path: '/instituciones/$id',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   id: '/api/public/media/$',
   path: '/api/public/media/$',
@@ -122,7 +134,9 @@ export interface FileRoutesByFullPath {
   '/tu-futuro/mapa': typeof TuFuturoMapaRoute
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
+  '/tu-futuro/test': typeof TuFuturoTestRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
@@ -139,7 +153,9 @@ export interface FileRoutesByTo {
   '/tu-futuro/mapa': typeof TuFuturoMapaRoute
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
+  '/tu-futuro/test': typeof TuFuturoTestRoute
   '/tu-futuro': typeof TuFuturoIndexRoute
+  '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
@@ -158,7 +174,9 @@ export interface FileRoutesById {
   '/tu-futuro/mapa': typeof TuFuturoMapaRoute
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
+  '/tu-futuro/test': typeof TuFuturoTestRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
@@ -178,7 +196,9 @@ export interface FileRouteTypes {
     | '/tu-futuro/mapa'
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
+    | '/tu-futuro/test'
     | '/tu-futuro/'
+    | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones/'
     | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
@@ -195,7 +215,9 @@ export interface FileRouteTypes {
     | '/tu-futuro/mapa'
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
+    | '/tu-futuro/test'
     | '/tu-futuro'
+    | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones'
     | '/api/public/media/$'
   id:
@@ -213,7 +235,9 @@ export interface FileRouteTypes {
     | '/tu-futuro/mapa'
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
+    | '/tu-futuro/test'
     | '/tu-futuro/'
+    | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones/'
     | '/api/public/media/$'
   fileRoutesById: FileRoutesById
@@ -253,6 +277,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/tu-futuro/'
       preLoaderRoute: typeof TuFuturoIndexRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/test': {
+      id: '/tu-futuro/test'
+      path: '/test'
+      fullPath: '/tu-futuro/test'
+      preLoaderRoute: typeof TuFuturoTestRouteImport
       parentRoute: typeof TuFuturoRouteRoute
     }
     '/tu-futuro/recursos': {
@@ -332,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TuFuturoInstitucionesIndexRouteImport
       parentRoute: typeof TuFuturoRouteRoute
     }
+    '/tu-futuro/instituciones/$id': {
+      id: '/tu-futuro/instituciones/$id'
+      path: '/instituciones/$id'
+      fullPath: '/tu-futuro/instituciones/$id'
+      preLoaderRoute: typeof TuFuturoInstitucionesIdRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
     '/api/public/media/$': {
       id: '/api/public/media/$'
       path: '/api/public/media/$'
@@ -353,7 +391,9 @@ interface TuFuturoRouteRouteChildren {
   TuFuturoMapaRoute: typeof TuFuturoMapaRoute
   TuFuturoNoticiasRoute: typeof TuFuturoNoticiasRoute
   TuFuturoRecursosRoute: typeof TuFuturoRecursosRoute
+  TuFuturoTestRoute: typeof TuFuturoTestRoute
   TuFuturoIndexRoute: typeof TuFuturoIndexRoute
+  TuFuturoInstitucionesIdRoute: typeof TuFuturoInstitucionesIdRoute
   TuFuturoInstitucionesIndexRoute: typeof TuFuturoInstitucionesIndexRoute
 }
 
@@ -368,7 +408,9 @@ const TuFuturoRouteRouteChildren: TuFuturoRouteRouteChildren = {
   TuFuturoMapaRoute: TuFuturoMapaRoute,
   TuFuturoNoticiasRoute: TuFuturoNoticiasRoute,
   TuFuturoRecursosRoute: TuFuturoRecursosRoute,
+  TuFuturoTestRoute: TuFuturoTestRoute,
   TuFuturoIndexRoute: TuFuturoIndexRoute,
+  TuFuturoInstitucionesIdRoute: TuFuturoInstitucionesIdRoute,
   TuFuturoInstitucionesIndexRoute: TuFuturoInstitucionesIndexRoute,
 }
 
@@ -385,3 +427,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
