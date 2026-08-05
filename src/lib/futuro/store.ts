@@ -4,7 +4,7 @@ const KEY = "ees6-orientacion-memoria-v1";
 const MAX_ITEMS = 12;
 const MAX_BUSQUEDAS = 8;
 
-export type Ref = { id: string; nombre: string };
+export type Ref = { id: string; nombre: string; detalle?: string | null };
 
 export type Memoria = {
   version: number;
