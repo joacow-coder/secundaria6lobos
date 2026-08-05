@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TuFuturoBecasRouteImport } from './routes/tu-futuro/becas'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 
 const AdminRoute = AdminRouteImport.update({
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TuFuturoBecasRoute = TuFuturoBecasRouteImport.update({
+  id: '/becas',
+  path: '/becas',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   id: '/api/public/media/$',
   path: '/api/public/media/$',
@@ -37,34 +43,48 @@ const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/tu-futuro': typeof TuFuturoRouteRoute
+  '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/tu-futuro/becas': typeof TuFuturoBecasRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/tu-futuro': typeof TuFuturoRouteRoute
+  '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/tu-futuro/becas': typeof TuFuturoBecasRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/tu-futuro': typeof TuFuturoRouteRoute
+  '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/tu-futuro/becas': typeof TuFuturoBecasRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/tu-futuro' | '/admin' | '/api/public/media/$'
+  fullPaths:
+    | '/'
+    | '/tu-futuro'
+    | '/admin'
+    | '/tu-futuro/becas'
+    | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/tu-futuro' | '/admin' | '/api/public/media/$'
-  id: '__root__' | '/' | '/tu-futuro' | '/admin' | '/api/public/media/$'
+  to: '/' | '/tu-futuro' | '/admin' | '/tu-futuro/becas' | '/api/public/media/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/tu-futuro'
+    | '/admin'
+    | '/tu-futuro/becas'
+    | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TuFuturoRouteRoute: typeof TuFuturoRouteRoute
+  TuFuturoRouteRoute: typeof TuFuturoRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
@@ -92,6 +112,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tu-futuro/becas': {
+      id: '/tu-futuro/becas'
+      path: '/becas'
+      fullPath: '/tu-futuro/becas'
+      preLoaderRoute: typeof TuFuturoBecasRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
     '/api/public/media/$': {
       id: '/api/public/media/$'
       path: '/api/public/media/$'
@@ -102,9 +129,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface TuFuturoRouteRouteChildren {
+  TuFuturoBecasRoute: typeof TuFuturoBecasRoute
+}
+
+const TuFuturoRouteRouteChildren: TuFuturoRouteRouteChildren = {
+  TuFuturoBecasRoute: TuFuturoBecasRoute,
+}
+
+const TuFuturoRouteRouteWithChildren = TuFuturoRouteRoute._addFileChildren(
+  TuFuturoRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TuFuturoRouteRoute: TuFuturoRouteRoute,
+  TuFuturoRouteRoute: TuFuturoRouteRouteWithChildren,
   AdminRoute: AdminRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
