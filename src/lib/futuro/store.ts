@@ -42,12 +42,14 @@ const listeners = new Set<() => void>();
 function read(): Memoria {
   if (typeof window === "undefined") return EMPTY;
   if (cache) return cache;
+  let next: Memoria;
   try {
     const raw = window.localStorage.getItem(KEY);
-    cache = raw ? { ...EMPTY, ...JSON.parse(raw) } : EMPTY;
+    next = raw ? { ...EMPTY, ...(JSON.parse(raw) as Partial<Memoria>) } : EMPTY;
   } catch {
-    cache = EMPTY;
+    next = EMPTY;
   }
+  cache = next;
   return cache;
 }
 
