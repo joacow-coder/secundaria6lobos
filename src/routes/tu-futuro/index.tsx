@@ -108,7 +108,7 @@ function ContinuarExplorando() {
                 ))}
               </ul>
               <Link
-                to="/tu-futuro/carreras"
+                to="/tu-futuro/carreras" search={{}}
                 className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
               >
                 Ver el buscador de carreras <ArrowRight className="h-3.5 w-3.5" />
@@ -411,7 +411,7 @@ function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/tu-futuro/carreras"
+                to="/tu-futuro/carreras" search={{}}
                 className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-brand-navy transition-transform hover:-translate-y-0.5"
               >
                 Explorar carreras
