@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { GraduationCap, Rocket, Building2, Banknote, Compass, Map, Clock } from "lucide-react";
+import { GraduationCap, Rocket, Building2, Banknote, Compass, Map, ArrowRight } from "lucide-react";
 import { Lobi } from "@/components/Lobi";
 import { Intro, hasSeenIntro } from "@/components/Intro";
 import { loadSiteContent } from "@/lib/site.functions";
@@ -175,23 +175,19 @@ function Hero() {
   );
 }
 
-/** Sección "Tu Futuro" — deshabilitada temporalmente y marcada como próxima funcionalidad. */
+/** Sección "Tu Futuro" — plataforma de orientación integrada dentro del mismo sitio. */
 function TuFuturo() {
   const items = [
-    { icon: GraduationCap, label: "Carreras" },
-    { icon: Building2, label: "Universidades" },
-    { icon: Banknote, label: "Becas" },
-    { icon: Compass, label: "Orientación" },
-    { icon: Map, label: "Mapa educativo" },
+    { icon: GraduationCap, label: "Carreras", to: "/tu-futuro/carreras" },
+    { icon: Building2, label: "Universidades", to: "/tu-futuro/instituciones" },
+    { icon: Banknote, label: "Becas", to: "/tu-futuro/becas" },
+    { icon: Compass, label: "Orientación", to: "/tu-futuro/test" },
+    { icon: Map, label: "Mapa educativo", to: "/tu-futuro/mapa" },
   ];
 
   return (
     <section id="tufuturo" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-hero p-6 shadow-elegant ring-1 ring-white/15 sm:p-10 lg:p-12">
-        <div className="absolute right-5 top-5 z-10 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white ring-1 ring-white/30">
-          Próximamente
-        </div>
-
+      <div className="group relative overflow-hidden rounded-3xl bg-gradient-hero p-6 shadow-elegant ring-1 ring-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:p-10 lg:p-12">
         <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center">
           <div className="flex-1 space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-sky ring-1 ring-white/20">
@@ -204,18 +200,17 @@ function TuFuturo() {
               académico y profesional.
             </p>
             <p className="max-w-2xl text-sm leading-relaxed text-white/75">
-              Esta sección todavía no está disponible. Estamos preparando la plataforma para
-              acompañar a los estudiantes en la búsqueda de información sobre universidades,
-              institutos, formación profesional y becas. Estará disponible en una futura
-              actualización del sitio.
+              Una plataforma desarrollada por la escuela para acompañar a los estudiantes en la
+              búsqueda de información sobre universidades, institutos, formación profesional, becas
+              y oportunidades cercanas a Lobos.
             </p>
-            <span
-              aria-disabled="true"
-              className="inline-flex cursor-not-allowed items-center gap-2 rounded-full bg-white/20 px-6 py-3 text-sm font-semibold text-white/70 ring-1 ring-white/25"
+            <Link
+              to="/tu-futuro"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-primary shadow-lg transition-transform hover:scale-[1.03]"
             >
-              <Clock className="h-4 w-4" />
-              Disponible próximamente
-            </span>
+              Explorar Tu Futuro
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
 
           <div className="flex shrink-0 justify-center lg:justify-end">
@@ -225,15 +220,16 @@ function TuFuturo() {
           </div>
         </div>
 
-        <div className="relative z-10 mt-10 grid gap-3 opacity-70 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="relative z-10 mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {items.map((it) => (
-            <div
+            <Link
               key={it.label}
-              className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-primary-foreground ring-1 ring-white/10"
+              to={it.to}
+              className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-primary-foreground ring-1 ring-white/10 transition-colors hover:bg-white/20"
             >
               <it.icon className="h-5 w-5 shrink-0 text-brand-sky" />
               <span className="text-sm font-medium">{it.label}</span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

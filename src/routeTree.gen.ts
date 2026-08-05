@@ -10,7 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TuFuturoIndexRouteImport } from './routes/tu-futuro/index'
+import { Route as TuFuturoTestRouteImport } from './routes/tu-futuro/test'
+import { Route as TuFuturoRecursosRouteImport } from './routes/tu-futuro/recursos'
+import { Route as TuFuturoNoticiasRouteImport } from './routes/tu-futuro/noticias'
+import { Route as TuFuturoMapaRouteImport } from './routes/tu-futuro/mapa'
+import { Route as TuFuturoCompartirRouteImport } from './routes/tu-futuro/compartir'
+import { Route as TuFuturoCarrerasRouteImport } from './routes/tu-futuro/carreras'
+import { Route as TuFuturoCaminosRouteImport } from './routes/tu-futuro/caminos'
+import { Route as TuFuturoCalendarioRouteImport } from './routes/tu-futuro/calendario'
+import { Route as TuFuturoBecasRouteImport } from './routes/tu-futuro/becas'
+import { Route as TuFuturoAuthRouteImport } from './routes/tu-futuro/auth'
+import { Route as TuFuturoAdminRouteImport } from './routes/tu-futuro/admin'
+import { Route as TuFuturoInstitucionesIndexRouteImport } from './routes/tu-futuro/instituciones.index'
+import { Route as TuFuturoInstitucionesIdRouteImport } from './routes/tu-futuro/instituciones.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 
 const AdminRoute = AdminRouteImport.update({
@@ -18,10 +33,86 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TuFuturoRouteRoute = TuFuturoRouteRouteImport.update({
+  id: '/tu-futuro',
+  path: '/tu-futuro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TuFuturoIndexRoute = TuFuturoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoTestRoute = TuFuturoTestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoRecursosRoute = TuFuturoRecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoNoticiasRoute = TuFuturoNoticiasRouteImport.update({
+  id: '/noticias',
+  path: '/noticias',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoMapaRoute = TuFuturoMapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoCompartirRoute = TuFuturoCompartirRouteImport.update({
+  id: '/compartir',
+  path: '/compartir',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoCarrerasRoute = TuFuturoCarrerasRouteImport.update({
+  id: '/carreras',
+  path: '/carreras',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoCaminosRoute = TuFuturoCaminosRouteImport.update({
+  id: '/caminos',
+  path: '/caminos',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoCalendarioRoute = TuFuturoCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoBecasRoute = TuFuturoBecasRouteImport.update({
+  id: '/becas',
+  path: '/becas',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoAuthRoute = TuFuturoAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoAdminRoute = TuFuturoAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const TuFuturoInstitucionesIndexRoute =
+  TuFuturoInstitucionesIndexRouteImport.update({
+    id: '/instituciones/',
+    path: '/instituciones/',
+    getParentRoute: () => TuFuturoRouteRoute,
+  } as any)
+const TuFuturoInstitucionesIdRoute = TuFuturoInstitucionesIdRouteImport.update({
+  id: '/instituciones/$id',
+  path: '/instituciones/$id',
+  getParentRoute: () => TuFuturoRouteRoute,
 } as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   id: '/api/public/media/$',
@@ -31,30 +122,129 @@ const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/tu-futuro/admin': typeof TuFuturoAdminRoute
+  '/tu-futuro/auth': typeof TuFuturoAuthRoute
+  '/tu-futuro/becas': typeof TuFuturoBecasRoute
+  '/tu-futuro/calendario': typeof TuFuturoCalendarioRoute
+  '/tu-futuro/caminos': typeof TuFuturoCaminosRoute
+  '/tu-futuro/carreras': typeof TuFuturoCarrerasRoute
+  '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
+  '/tu-futuro/mapa': typeof TuFuturoMapaRoute
+  '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
+  '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
+  '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
+  '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/tu-futuro/admin': typeof TuFuturoAdminRoute
+  '/tu-futuro/auth': typeof TuFuturoAuthRoute
+  '/tu-futuro/becas': typeof TuFuturoBecasRoute
+  '/tu-futuro/calendario': typeof TuFuturoCalendarioRoute
+  '/tu-futuro/caminos': typeof TuFuturoCaminosRoute
+  '/tu-futuro/carreras': typeof TuFuturoCarrerasRoute
+  '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
+  '/tu-futuro/mapa': typeof TuFuturoMapaRoute
+  '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
+  '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
+  '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/tu-futuro': typeof TuFuturoIndexRoute
+  '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
+  '/tu-futuro/instituciones': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/tu-futuro/admin': typeof TuFuturoAdminRoute
+  '/tu-futuro/auth': typeof TuFuturoAuthRoute
+  '/tu-futuro/becas': typeof TuFuturoBecasRoute
+  '/tu-futuro/calendario': typeof TuFuturoCalendarioRoute
+  '/tu-futuro/caminos': typeof TuFuturoCaminosRoute
+  '/tu-futuro/carreras': typeof TuFuturoCarrerasRoute
+  '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
+  '/tu-futuro/mapa': typeof TuFuturoMapaRoute
+  '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
+  '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
+  '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
+  '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/api/public/media/$'
+  fullPaths:
+    | '/'
+    | '/tu-futuro'
+    | '/admin'
+    | '/tu-futuro/admin'
+    | '/tu-futuro/auth'
+    | '/tu-futuro/becas'
+    | '/tu-futuro/calendario'
+    | '/tu-futuro/caminos'
+    | '/tu-futuro/carreras'
+    | '/tu-futuro/compartir'
+    | '/tu-futuro/mapa'
+    | '/tu-futuro/noticias'
+    | '/tu-futuro/recursos'
+    | '/tu-futuro/test'
+    | '/tu-futuro/'
+    | '/tu-futuro/instituciones/$id'
+    | '/tu-futuro/instituciones/'
+    | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/api/public/media/$'
-  id: '__root__' | '/' | '/admin' | '/api/public/media/$'
+  to:
+    | '/'
+    | '/admin'
+    | '/tu-futuro/admin'
+    | '/tu-futuro/auth'
+    | '/tu-futuro/becas'
+    | '/tu-futuro/calendario'
+    | '/tu-futuro/caminos'
+    | '/tu-futuro/carreras'
+    | '/tu-futuro/compartir'
+    | '/tu-futuro/mapa'
+    | '/tu-futuro/noticias'
+    | '/tu-futuro/recursos'
+    | '/tu-futuro/test'
+    | '/tu-futuro'
+    | '/tu-futuro/instituciones/$id'
+    | '/tu-futuro/instituciones'
+    | '/api/public/media/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/tu-futuro'
+    | '/admin'
+    | '/tu-futuro/admin'
+    | '/tu-futuro/auth'
+    | '/tu-futuro/becas'
+    | '/tu-futuro/calendario'
+    | '/tu-futuro/caminos'
+    | '/tu-futuro/carreras'
+    | '/tu-futuro/compartir'
+    | '/tu-futuro/mapa'
+    | '/tu-futuro/noticias'
+    | '/tu-futuro/recursos'
+    | '/tu-futuro/test'
+    | '/tu-futuro/'
+    | '/tu-futuro/instituciones/$id'
+    | '/tu-futuro/instituciones/'
+    | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TuFuturoRouteRoute: typeof TuFuturoRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
@@ -68,12 +258,117 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tu-futuro': {
+      id: '/tu-futuro'
+      path: '/tu-futuro'
+      fullPath: '/tu-futuro'
+      preLoaderRoute: typeof TuFuturoRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/tu-futuro/': {
+      id: '/tu-futuro/'
+      path: '/'
+      fullPath: '/tu-futuro/'
+      preLoaderRoute: typeof TuFuturoIndexRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/test': {
+      id: '/tu-futuro/test'
+      path: '/test'
+      fullPath: '/tu-futuro/test'
+      preLoaderRoute: typeof TuFuturoTestRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/recursos': {
+      id: '/tu-futuro/recursos'
+      path: '/recursos'
+      fullPath: '/tu-futuro/recursos'
+      preLoaderRoute: typeof TuFuturoRecursosRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/noticias': {
+      id: '/tu-futuro/noticias'
+      path: '/noticias'
+      fullPath: '/tu-futuro/noticias'
+      preLoaderRoute: typeof TuFuturoNoticiasRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/mapa': {
+      id: '/tu-futuro/mapa'
+      path: '/mapa'
+      fullPath: '/tu-futuro/mapa'
+      preLoaderRoute: typeof TuFuturoMapaRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/compartir': {
+      id: '/tu-futuro/compartir'
+      path: '/compartir'
+      fullPath: '/tu-futuro/compartir'
+      preLoaderRoute: typeof TuFuturoCompartirRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/carreras': {
+      id: '/tu-futuro/carreras'
+      path: '/carreras'
+      fullPath: '/tu-futuro/carreras'
+      preLoaderRoute: typeof TuFuturoCarrerasRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/caminos': {
+      id: '/tu-futuro/caminos'
+      path: '/caminos'
+      fullPath: '/tu-futuro/caminos'
+      preLoaderRoute: typeof TuFuturoCaminosRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/calendario': {
+      id: '/tu-futuro/calendario'
+      path: '/calendario'
+      fullPath: '/tu-futuro/calendario'
+      preLoaderRoute: typeof TuFuturoCalendarioRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/becas': {
+      id: '/tu-futuro/becas'
+      path: '/becas'
+      fullPath: '/tu-futuro/becas'
+      preLoaderRoute: typeof TuFuturoBecasRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/auth': {
+      id: '/tu-futuro/auth'
+      path: '/auth'
+      fullPath: '/tu-futuro/auth'
+      preLoaderRoute: typeof TuFuturoAuthRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/admin': {
+      id: '/tu-futuro/admin'
+      path: '/admin'
+      fullPath: '/tu-futuro/admin'
+      preLoaderRoute: typeof TuFuturoAdminRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/instituciones/': {
+      id: '/tu-futuro/instituciones/'
+      path: '/instituciones'
+      fullPath: '/tu-futuro/instituciones/'
+      preLoaderRoute: typeof TuFuturoInstitucionesIndexRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/tu-futuro/instituciones/$id': {
+      id: '/tu-futuro/instituciones/$id'
+      path: '/instituciones/$id'
+      fullPath: '/tu-futuro/instituciones/$id'
+      preLoaderRoute: typeof TuFuturoInstitucionesIdRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
     }
     '/api/public/media/$': {
       id: '/api/public/media/$'
@@ -85,21 +380,50 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface TuFuturoRouteRouteChildren {
+  TuFuturoAdminRoute: typeof TuFuturoAdminRoute
+  TuFuturoAuthRoute: typeof TuFuturoAuthRoute
+  TuFuturoBecasRoute: typeof TuFuturoBecasRoute
+  TuFuturoCalendarioRoute: typeof TuFuturoCalendarioRoute
+  TuFuturoCaminosRoute: typeof TuFuturoCaminosRoute
+  TuFuturoCarrerasRoute: typeof TuFuturoCarrerasRoute
+  TuFuturoCompartirRoute: typeof TuFuturoCompartirRoute
+  TuFuturoMapaRoute: typeof TuFuturoMapaRoute
+  TuFuturoNoticiasRoute: typeof TuFuturoNoticiasRoute
+  TuFuturoRecursosRoute: typeof TuFuturoRecursosRoute
+  TuFuturoTestRoute: typeof TuFuturoTestRoute
+  TuFuturoIndexRoute: typeof TuFuturoIndexRoute
+  TuFuturoInstitucionesIdRoute: typeof TuFuturoInstitucionesIdRoute
+  TuFuturoInstitucionesIndexRoute: typeof TuFuturoInstitucionesIndexRoute
+}
+
+const TuFuturoRouteRouteChildren: TuFuturoRouteRouteChildren = {
+  TuFuturoAdminRoute: TuFuturoAdminRoute,
+  TuFuturoAuthRoute: TuFuturoAuthRoute,
+  TuFuturoBecasRoute: TuFuturoBecasRoute,
+  TuFuturoCalendarioRoute: TuFuturoCalendarioRoute,
+  TuFuturoCaminosRoute: TuFuturoCaminosRoute,
+  TuFuturoCarrerasRoute: TuFuturoCarrerasRoute,
+  TuFuturoCompartirRoute: TuFuturoCompartirRoute,
+  TuFuturoMapaRoute: TuFuturoMapaRoute,
+  TuFuturoNoticiasRoute: TuFuturoNoticiasRoute,
+  TuFuturoRecursosRoute: TuFuturoRecursosRoute,
+  TuFuturoTestRoute: TuFuturoTestRoute,
+  TuFuturoIndexRoute: TuFuturoIndexRoute,
+  TuFuturoInstitucionesIdRoute: TuFuturoInstitucionesIdRoute,
+  TuFuturoInstitucionesIndexRoute: TuFuturoInstitucionesIndexRoute,
+}
+
+const TuFuturoRouteRouteWithChildren = TuFuturoRouteRoute._addFileChildren(
+  TuFuturoRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TuFuturoRouteRoute: TuFuturoRouteRouteWithChildren,
   AdminRoute: AdminRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
