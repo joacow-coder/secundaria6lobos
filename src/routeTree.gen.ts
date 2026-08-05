@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TuFuturoCompartirRouteImport } from './routes/tu-futuro/compartir'
 import { Route as TuFuturoBecasRouteImport } from './routes/tu-futuro/becas'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TuFuturoCompartirRoute = TuFuturoCompartirRouteImport.update({
+  id: '/compartir',
+  path: '/compartir',
+  getParentRoute: () => TuFuturoRouteRoute,
+} as any)
 const TuFuturoBecasRoute = TuFuturoBecasRouteImport.update({
   id: '/becas',
   path: '/becas',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
+  '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
+  '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
@@ -61,6 +69,7 @@ export interface FileRoutesById {
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
+  '/tu-futuro/compartir': typeof TuFuturoCompartirRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
@@ -70,15 +79,23 @@ export interface FileRouteTypes {
     | '/tu-futuro'
     | '/admin'
     | '/tu-futuro/becas'
+    | '/tu-futuro/compartir'
     | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/tu-futuro' | '/admin' | '/tu-futuro/becas' | '/api/public/media/$'
+  to:
+    | '/'
+    | '/tu-futuro'
+    | '/admin'
+    | '/tu-futuro/becas'
+    | '/tu-futuro/compartir'
+    | '/api/public/media/$'
   id:
     | '__root__'
     | '/'
     | '/tu-futuro'
     | '/admin'
     | '/tu-futuro/becas'
+    | '/tu-futuro/compartir'
     | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
@@ -112,6 +129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tu-futuro/compartir': {
+      id: '/tu-futuro/compartir'
+      path: '/compartir'
+      fullPath: '/tu-futuro/compartir'
+      preLoaderRoute: typeof TuFuturoCompartirRouteImport
+      parentRoute: typeof TuFuturoRouteRoute
+    }
     '/tu-futuro/becas': {
       id: '/tu-futuro/becas'
       path: '/becas'
@@ -131,10 +155,12 @@ declare module '@tanstack/react-router' {
 
 interface TuFuturoRouteRouteChildren {
   TuFuturoBecasRoute: typeof TuFuturoBecasRoute
+  TuFuturoCompartirRoute: typeof TuFuturoCompartirRoute
 }
 
 const TuFuturoRouteRouteChildren: TuFuturoRouteRouteChildren = {
   TuFuturoBecasRoute: TuFuturoBecasRoute,
+  TuFuturoCompartirRoute: TuFuturoCompartirRoute,
 }
 
 const TuFuturoRouteRouteWithChildren = TuFuturoRouteRoute._addFileChildren(
@@ -150,3 +176,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
