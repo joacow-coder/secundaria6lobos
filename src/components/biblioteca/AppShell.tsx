@@ -1,4 +1,3 @@
-import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, Menu, Sparkles, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import logoAsset from "@/assets/logo.png.asset.json";
@@ -31,7 +30,6 @@ export function AppShell({
   area: "alumno" | "profesor";
 }) {
   const { student, teacher, signOut } = useBibliotecaSession();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const links = area === "alumno" ? STUDENT_NAV : TEACHER_NAV;
@@ -44,15 +42,15 @@ export function AppShell({
 
   function handleExit() {
     signOut();
-    navigate({ to: area === "profesor" ? "/biblioteca/acceso" : "/biblioteca", replace: true });
+    window.location.href = area === "profesor" ? "/biblioteca/acceso" : "/biblioteca";
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="surface-institutional sticky top-0 z-40 text-primary-foreground shadow-soft">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-6">
-          <Link
-            to={area === "alumno" ? "/biblioteca/inicio" : "/biblioteca/panel"}
+          <a
+            href={area === "alumno" ? "/biblioteca/inicio" : "/biblioteca/panel"}
             className="flex min-w-0 items-center gap-3"
           >
             <img
@@ -68,19 +66,18 @@ export function AppShell({
                 E.E.S. N.º 6 · Lobos
               </span>
             </span>
-          </Link>
+          </a>
 
           <div className="flex shrink-0 items-center gap-1">
             <nav className="hidden items-center gap-1 lg:flex">
               {links.map((item) => (
-                <Link
+                <a
                   key={item.to}
-                  to={item.to}
-                  activeProps={{ className: "bg-white/15" }}
+                  href={item.to}
                   className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10"
                 >
                   {item.label}
-                </Link>
+                </a>
               ))}
             </nav>
 
@@ -132,15 +129,13 @@ export function AppShell({
               </button>
             </div>
             {links.map((item) => (
-              <Link
+              <a
                 key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-                activeProps={{ className: "bg-secondary font-semibold" }}
+                href={item.to}
                 className="rounded-md px-3 py-2.5 text-base transition-colors hover:bg-secondary"
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </aside>
         </div>
@@ -152,15 +147,15 @@ export function AppShell({
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>Escuela de Educación Secundaria N.º 6 · Lobos, Buenos Aires</p>
           <div className="flex flex-wrap items-center gap-4">
-            <Link
-              to="/biblioteca/asistente"
+            <a
+              href="/biblioteca/asistente"
               className="inline-flex items-center gap-1.5 hover:text-foreground"
             >
               <Sparkles className="size-4" /> Asistente de la biblioteca
-            </Link>
-            <Link to="/" className="hover:text-foreground">
+            </a>
+            <a href="/" className="hover:text-foreground">
               Volver al sitio de la escuela
-            </Link>
+            </a>
           </div>
         </div>
       </footer>

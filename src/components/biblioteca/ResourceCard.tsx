@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Download, Eye, Heart, User } from "lucide-react";
 import type { Resource } from "@/lib/biblioteca/data";
 import { KIND_LABELS, formatFileSize } from "@/lib/biblioteca/utils";
@@ -77,13 +76,12 @@ export function ResourceCard({
         </span>
       </div>
 
-      <Link
-        to="/biblioteca/recurso/$id"
-        params={{ id: resource.id }}
+      <a
+        href={`/biblioteca/recurso/${resource.id}`}
         className="block border-t border-border bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
       >
         Abrir material
-      </Link>
+      </a>
     </article>
   );
 }
