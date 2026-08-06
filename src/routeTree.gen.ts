@@ -27,6 +27,7 @@ import { Route as TuFuturoAdminRouteImport } from './routes/tu-futuro/admin'
 import { Route as TuFuturoInstitucionesIndexRouteImport } from './routes/tu-futuro/instituciones.index'
 import { Route as TuFuturoInstitucionesIdRouteImport } from './routes/tu-futuro/instituciones.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
+import { Route as ApiPublicBibliotecaSplatRouteImport } from './routes/api/public/biblioteca/$'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -119,6 +120,12 @@ const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   path: '/api/public/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBibliotecaSplatRoute =
+  ApiPublicBibliotecaSplatRouteImport.update({
+    id: '/api/public/biblioteca/$',
+    path: '/api/public/biblioteca/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/tu-futuro/': typeof TuFuturoIndexRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
+  '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
@@ -157,6 +165,7 @@ export interface FileRoutesByTo {
   '/tu-futuro': typeof TuFuturoIndexRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones': typeof TuFuturoInstitucionesIndexRoute
+  '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
@@ -178,6 +187,7 @@ export interface FileRoutesById {
   '/tu-futuro/': typeof TuFuturoIndexRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
+  '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/'
     | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones/'
+    | '/api/public/biblioteca/$'
     | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/tu-futuro'
     | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones'
+    | '/api/public/biblioteca/$'
     | '/api/public/media/$'
   id:
     | '__root__'
@@ -239,6 +251,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/'
     | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones/'
+    | '/api/public/biblioteca/$'
     | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
@@ -246,6 +259,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TuFuturoRouteRoute: typeof TuFuturoRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
+  ApiPublicBibliotecaSplatRoute: typeof ApiPublicBibliotecaSplatRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
 
@@ -377,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/biblioteca/$': {
+      id: '/api/public/biblioteca/$'
+      path: '/api/public/biblioteca/$'
+      fullPath: '/api/public/biblioteca/$'
+      preLoaderRoute: typeof ApiPublicBibliotecaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -422,6 +443,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TuFuturoRouteRoute: TuFuturoRouteRouteWithChildren,
   AdminRoute: AdminRoute,
+  ApiPublicBibliotecaSplatRoute: ApiPublicBibliotecaSplatRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
