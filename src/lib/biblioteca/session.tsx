@@ -1,0 +1,170 @@
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import { bibVerifyCode } from "./teacher.functions";
+
+/**
+ * Sesión de la Biblioteca Digital.
+ *
+ * Hoy el acceso docente usa un único código maestro institucional verificado
+ * en el servidor. La interfaz `TeacherAuthStrategy` deja preparada la
+ * migración futura a usuarios y contraseñas: alcanza con crear otra
+ * implementación (por ejemplo, con email + contraseña) y usarla en
+ * `teacherAuth`, sin tocar ninguna pantalla.
+ */
+export type TeacherIdentity = {
+  full_name: string;
+  /** Credencial que las funciones del servidor validan en cada operación. */
+  credential: string;
+  role: "profesor" | "admin";
+};
+
+export type TeacherAuthStrategy = {
+  id: string;
+  signIn(input: { code?: string; name?: string }): Promise<TeacherIdentity>;
+};
+
+export const masterCodeStrategy: TeacherAuthStrategy = {
+  id: "codigo-maestro",
+  async signIn({ code, name }) {
+    const value = (code ?? "").trim();
+    await bibVerifyCode({ data: { code: value } });
+    return {
+      full_name: (name ?? "").trim() || "Equipo docente",
+      credential: value,
+      role: "admin",
+    };
+  },
+};
+
+export const teacherAuth: TeacherAuthStrategy = masterCodeStrategy;
+
+export type Student = { name: string; since: string };
+
+type SessionState = {
+  student: Student | null;
+  teacher: TeacherIdentity | null;
+  role: "alumno" | "profesor" | "admin" | null;
+  favorites: string[];
+  recents: string[];
+  ready: boolean;
+  signInStudent: (name: string) => void;
+  signInTeacher: (input: { code?: string; name?: string }) => Promise<void>;
+  signOut: () => void;
+  toggleFavorite: (id: string) => void;
+  markRecent: (id: string) => void;
+};
+
+const KEYS = {
+  student: "bib.student",
+  teacher: "bib.teacher",
+  favorites: "bib.favorites",
+  recents: "bib.recents",
+};
+
+function read<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write(key: string, value: unknown) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* almacenamiento no disponible */
+  }
+}
+
+const SessionContext = createContext<SessionState | null>(null);
+
+export function BibliotecaSessionProvider({ children }: { children: ReactNode }) {
+  const [ready, setReady] = useState(false);
+  const [student, setStudent] = useState<Student | null>(null);
+  const [teacher, setTeacher] = useState<TeacherIdentity | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [recents, setRecents] = useState<string[]>([]);
+
+  useEffect(() => {
+    setStudent(read<Student | null>(KEYS.student, null));
+    setTeacher(read<TeacherIdentity | null>(KEYS.teacher, null));
+    setFavorites(read<string[]>(KEYS.favorites, []));
+    setRecents(read<string[]>(KEYS.recents, []));
+    setReady(true);
+  }, []);
+
+  const signInStudent = useCallback((name: string) => {
+    const value: Student = { name: name.trim(), since: new Date().toISOString() };
+    setStudent(value);
+    write(KEYS.student, value);
+  }, []);
+
+  const signInTeacher = useCallback(async (input: { code?: string; name?: string }) => {
+    const identity = await teacherAuth.signIn(input);
+    setTeacher(identity);
+    write(KEYS.teacher, identity);
+  }, []);
+
+  const signOut = useCallback(() => {
+    setStudent(null);
+    setTeacher(null);
+    write(KEYS.student, null);
+    write(KEYS.teacher, null);
+  }, []);
+
+  const toggleFavorite = useCallback((id: string) => {
+    setFavorites((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      write(KEYS.favorites, next);
+      return next;
+    });
+  }, []);
+
+  const markRecent = useCallback((id: string) => {
+    setRecents((prev) => {
+      const next = [id, ...prev.filter((x) => x !== id)].slice(0, 12);
+      write(KEYS.recents, next);
+      return next;
+    });
+  }, []);
+
+  const value = useMemo<SessionState>(
+    () => ({
+      student,
+      teacher,
+      role: teacher ? teacher.role : student ? "alumno" : null,
+      favorites,
+      recents,
+      ready,
+      signInStudent,
+      signInTeacher,
+      signOut,
+      toggleFavorite,
+      markRecent,
+    }),
+    [
+      student,
+      teacher,
+      favorites,
+      recents,
+      ready,
+      signInStudent,
+      signInTeacher,
+      signOut,
+      toggleFavorite,
+      markRecent,
+    ],
+  );
+
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+}
+
+export function useBibliotecaSession(): SessionState {
+  const ctx = useContext(SessionContext);
+  if (!ctx) throw new Error("useBibliotecaSession debe usarse dentro de BibliotecaSessionProvider");
+  return ctx;
+}
