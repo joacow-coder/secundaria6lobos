@@ -14,6 +14,246 @@ export type Database = {
   }
   public: {
     Tables: {
+      bib_announcements: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          importance: string
+          pinned: boolean
+          subject_code: string | null
+          teacher_id: string | null
+          teacher_name: string
+          title: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          importance?: string
+          pinned?: boolean
+          subject_code?: string | null
+          teacher_id?: string | null
+          teacher_name?: string
+          title: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          importance?: string
+          pinned?: boolean
+          subject_code?: string | null
+          teacher_id?: string | null
+          teacher_name?: string
+          title?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
+      bib_blocked_words: {
+        Row: {
+          created_at: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          word?: string
+        }
+        Relationships: []
+      }
+      bib_calendar_events: {
+        Row: {
+          created_at: string
+          description: string
+          ends_at: string | null
+          event_type: string
+          id: string
+          starts_at: string
+          subject_code: string | null
+          teacher_id: string | null
+          teacher_name: string
+          title: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          ends_at?: string | null
+          event_type?: string
+          id?: string
+          starts_at: string
+          subject_code?: string | null
+          teacher_id?: string | null
+          teacher_name?: string
+          title: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          ends_at?: string | null
+          event_type?: string
+          id?: string
+          starts_at?: string
+          subject_code?: string | null
+          teacher_id?: string | null
+          teacher_name?: string
+          title?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
+      bib_resources: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          description: string
+          downloads: number
+          external_url: string | null
+          featured: boolean
+          file_path: string | null
+          file_size: number | null
+          id: string
+          kind: string
+          mime_type: string | null
+          provider: string | null
+          subject_code: string
+          tags: string[]
+          teacher_id: string | null
+          teacher_name: string
+          title: string
+          topic: string | null
+          unit: string | null
+          updated_at: string
+          views: number
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string
+          downloads?: number
+          external_url?: string | null
+          featured?: boolean
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          provider?: string | null
+          subject_code: string
+          tags?: string[]
+          teacher_id?: string | null
+          teacher_name?: string
+          title: string
+          topic?: string | null
+          unit?: string | null
+          updated_at?: string
+          views?: number
+          year: number
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          description?: string
+          downloads?: number
+          external_url?: string | null
+          featured?: boolean
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          provider?: string | null
+          subject_code?: string
+          tags?: string[]
+          teacher_id?: string | null
+          teacher_name?: string
+          title?: string
+          topic?: string | null
+          unit?: string | null
+          updated_at?: string
+          views?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      bib_subjects: {
+        Row: {
+          code: string
+          created_at: string
+          name: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          name: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          name?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      bib_teachers: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          onboarded: boolean
+          subject_codes: string[]
+          teach_years: number[]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          onboarded?: boolean
+          subject_codes?: string[]
+          teach_years?: number[]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          onboarded?: boolean
+          subject_codes?: string[]
+          teach_years?: number[]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       site_content: {
         Row: {
           data: Json
