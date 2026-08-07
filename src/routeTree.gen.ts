@@ -14,6 +14,7 @@ import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
 import { Route as BibliotecaRouteRouteImport } from './routes/biblioteca/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TuFuturoIndexRouteImport } from './routes/tu-futuro/index'
+import { Route as BibliotecaIndexRouteImport } from './routes/biblioteca/index'
 import { Route as TuFuturoTestRouteImport } from './routes/tu-futuro/test'
 import { Route as TuFuturoRecursosRouteImport } from './routes/tu-futuro/recursos'
 import { Route as TuFuturoNoticiasRouteImport } from './routes/tu-futuro/noticias'
@@ -54,6 +55,11 @@ const TuFuturoIndexRoute = TuFuturoIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const BibliotecaIndexRoute = BibliotecaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BibliotecaRouteRoute,
 } as any)
 const TuFuturoTestRoute = TuFuturoTestRouteImport.update({
   id: '/test',
@@ -135,7 +141,7 @@ const ApiPublicBibliotecaSplatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRouteRoute
+  '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/biblioteca/': typeof BibliotecaIndexRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
@@ -157,7 +164,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRouteRoute
   '/admin': typeof AdminRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
@@ -170,6 +176,7 @@ export interface FileRoutesByTo {
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/biblioteca': typeof BibliotecaIndexRoute
   '/tu-futuro': typeof TuFuturoIndexRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones': typeof TuFuturoInstitucionesIndexRoute
@@ -179,7 +186,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/biblioteca': typeof BibliotecaRouteRoute
+  '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
@@ -193,6 +200,7 @@ export interface FileRoutesById {
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/biblioteca/': typeof BibliotecaIndexRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
@@ -217,6 +225,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/test'
+    | '/biblioteca/'
     | '/tu-futuro/'
     | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones/'
@@ -225,7 +234,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/biblioteca'
     | '/admin'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
@@ -238,6 +246,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/test'
+    | '/biblioteca'
     | '/tu-futuro'
     | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones'
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/test'
+    | '/biblioteca/'
     | '/tu-futuro/'
     | '/tu-futuro/instituciones/$id'
     | '/tu-futuro/instituciones/'
@@ -269,7 +279,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BibliotecaRouteRoute: typeof BibliotecaRouteRoute
+  BibliotecaRouteRoute: typeof BibliotecaRouteRouteWithChildren
   TuFuturoRouteRoute: typeof TuFuturoRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
   ApiPublicBibliotecaSplatRoute: typeof ApiPublicBibliotecaSplatRoute
@@ -312,6 +322,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tu-futuro/'
       preLoaderRoute: typeof TuFuturoIndexRouteImport
       parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/biblioteca/': {
+      id: '/biblioteca/'
+      path: '/'
+      fullPath: '/biblioteca/'
+      preLoaderRoute: typeof BibliotecaIndexRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
     }
     '/tu-futuro/test': {
       id: '/tu-futuro/test'
@@ -421,6 +438,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BibliotecaRouteRouteChildren {
+  BibliotecaIndexRoute: typeof BibliotecaIndexRoute
+}
+
+const BibliotecaRouteRouteChildren: BibliotecaRouteRouteChildren = {
+  BibliotecaIndexRoute: BibliotecaIndexRoute,
+}
+
+const BibliotecaRouteRouteWithChildren = BibliotecaRouteRoute._addFileChildren(
+  BibliotecaRouteRouteChildren,
+)
+
 interface TuFuturoRouteRouteChildren {
   TuFuturoAdminRoute: typeof TuFuturoAdminRoute
   TuFuturoAuthRoute: typeof TuFuturoAuthRoute
@@ -461,7 +490,7 @@ const TuFuturoRouteRouteWithChildren = TuFuturoRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BibliotecaRouteRoute: BibliotecaRouteRoute,
+  BibliotecaRouteRoute: BibliotecaRouteRouteWithChildren,
   TuFuturoRouteRoute: TuFuturoRouteRouteWithChildren,
   AdminRoute: AdminRoute,
   ApiPublicBibliotecaSplatRoute: ApiPublicBibliotecaSplatRoute,
