@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
+import { Route as BibliotecaRouteRouteImport } from './routes/biblioteca/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TuFuturoIndexRouteImport } from './routes/tu-futuro/index'
 import { Route as TuFuturoTestRouteImport } from './routes/tu-futuro/test'
@@ -37,6 +38,11 @@ const AdminRoute = AdminRouteImport.update({
 const TuFuturoRouteRoute = TuFuturoRouteRouteImport.update({
   id: '/tu-futuro',
   path: '/tu-futuro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BibliotecaRouteRoute = BibliotecaRouteRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -129,6 +135,7 @@ const ApiPublicBibliotecaSplatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRouteRoute
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRouteRoute
   '/admin': typeof AdminRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
@@ -171,6 +179,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRouteRoute
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
     | '/tu-futuro/admin'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/biblioteca'
     | '/admin'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
     | '/tu-futuro/admin'
@@ -257,6 +269,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BibliotecaRouteRoute: typeof BibliotecaRouteRoute
   TuFuturoRouteRoute: typeof TuFuturoRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
   ApiPublicBibliotecaSplatRoute: typeof ApiPublicBibliotecaSplatRoute
@@ -277,6 +290,13 @@ declare module '@tanstack/react-router' {
       path: '/tu-futuro'
       fullPath: '/tu-futuro'
       preLoaderRoute: typeof TuFuturoRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/biblioteca': {
+      id: '/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof BibliotecaRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -441,6 +461,7 @@ const TuFuturoRouteRouteWithChildren = TuFuturoRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BibliotecaRouteRoute: BibliotecaRouteRoute,
   TuFuturoRouteRoute: TuFuturoRouteRouteWithChildren,
   AdminRoute: AdminRoute,
   ApiPublicBibliotecaSplatRoute: ApiPublicBibliotecaSplatRoute,
@@ -449,13 +470,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
