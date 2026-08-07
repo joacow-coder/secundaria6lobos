@@ -97,6 +97,12 @@ function Header({ nav }: { nav: { href: string; label: string }[] }) {
           >
             Panel
           </Link>
+          <a
+            href="/biblioteca"
+            className="ml-1 rounded-full bg-brand-navy px-3 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+          >
+            Biblioteca Digital
+          </a>
         </nav>
         <button
           onClick={() => setOpen((o) => !o)}
@@ -130,6 +136,13 @@ function Header({ nav }: { nav: { href: string; label: string }[] }) {
             >
               Panel de Administración
             </Link>
+            <a
+              href="/biblioteca"
+              onClick={() => setOpen(false)}
+              className="mt-1 rounded-lg bg-brand-navy px-3 py-2.5 text-sm font-semibold text-primary-foreground"
+            >
+              Biblioteca Digital
+            </a>
           </nav>
         </div>
       )}

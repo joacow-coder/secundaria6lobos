@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
+import { Route as BibliotecaRouteRouteImport } from './routes/biblioteca/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TuFuturoIndexRouteImport } from './routes/tu-futuro/index'
+import { Route as BibliotecaIndexRouteImport } from './routes/biblioteca/index'
 import { Route as TuFuturoTestRouteImport } from './routes/tu-futuro/test'
 import { Route as TuFuturoRecursosRouteImport } from './routes/tu-futuro/recursos'
 import { Route as TuFuturoNoticiasRouteImport } from './routes/tu-futuro/noticias'
@@ -24,8 +26,23 @@ import { Route as TuFuturoCalendarioRouteImport } from './routes/tu-futuro/calen
 import { Route as TuFuturoBecasRouteImport } from './routes/tu-futuro/becas'
 import { Route as TuFuturoAuthRouteImport } from './routes/tu-futuro/auth'
 import { Route as TuFuturoAdminRouteImport } from './routes/tu-futuro/admin'
+import { Route as BibliotecaPerfilRouteImport } from './routes/biblioteca/perfil'
+import { Route as BibliotecaNovedadesRouteImport } from './routes/biblioteca/novedades'
+import { Route as BibliotecaInicioRouteImport } from './routes/biblioteca/inicio'
+import { Route as BibliotecaFavoritosRouteImport } from './routes/biblioteca/favoritos'
+import { Route as BibliotecaCalendarioRouteImport } from './routes/biblioteca/calendario'
+import { Route as BibliotecaAsistenteRouteImport } from './routes/biblioteca/asistente'
+import { Route as BibliotecaAccesoRouteImport } from './routes/biblioteca/acceso'
 import { Route as TuFuturoInstitucionesIndexRouteImport } from './routes/tu-futuro/instituciones.index'
+import { Route as BibliotecaPanelIndexRouteImport } from './routes/biblioteca/panel/index'
 import { Route as TuFuturoInstitucionesIdRouteImport } from './routes/tu-futuro/instituciones.$id'
+import { Route as BibliotecaRecursoIdRouteImport } from './routes/biblioteca/recurso.$id'
+import { Route as BibliotecaPanelRecursosRouteImport } from './routes/biblioteca/panel/recursos'
+import { Route as BibliotecaPanelNovedadesRouteImport } from './routes/biblioteca/panel/novedades'
+import { Route as BibliotecaPanelConfiguracionRouteImport } from './routes/biblioteca/panel/configuracion'
+import { Route as BibliotecaPanelCalendarioRouteImport } from './routes/biblioteca/panel/calendario'
+import { Route as BibliotecaPanelAdministracionRouteImport } from './routes/biblioteca/panel/administracion'
+import { Route as BibliotecaMateriaCodeRouteImport } from './routes/biblioteca/materia.$code'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as ApiPublicBibliotecaSplatRouteImport } from './routes/api/public/biblioteca/$'
 
@@ -39,6 +56,11 @@ const TuFuturoRouteRoute = TuFuturoRouteRouteImport.update({
   path: '/tu-futuro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BibliotecaRouteRoute = BibliotecaRouteRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -48,6 +70,11 @@ const TuFuturoIndexRoute = TuFuturoIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const BibliotecaIndexRoute = BibliotecaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BibliotecaRouteRoute,
 } as any)
 const TuFuturoTestRoute = TuFuturoTestRouteImport.update({
   id: '/test',
@@ -104,16 +131,95 @@ const TuFuturoAdminRoute = TuFuturoAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => TuFuturoRouteRoute,
 } as any)
+const BibliotecaPerfilRoute = BibliotecaPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaNovedadesRoute = BibliotecaNovedadesRouteImport.update({
+  id: '/novedades',
+  path: '/novedades',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaInicioRoute = BibliotecaInicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaFavoritosRoute = BibliotecaFavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaCalendarioRoute = BibliotecaCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaAsistenteRoute = BibliotecaAsistenteRouteImport.update({
+  id: '/asistente',
+  path: '/asistente',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaAccesoRoute = BibliotecaAccesoRouteImport.update({
+  id: '/acceso',
+  path: '/acceso',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
 const TuFuturoInstitucionesIndexRoute =
   TuFuturoInstitucionesIndexRouteImport.update({
     id: '/instituciones/',
     path: '/instituciones/',
     getParentRoute: () => TuFuturoRouteRoute,
   } as any)
+const BibliotecaPanelIndexRoute = BibliotecaPanelIndexRouteImport.update({
+  id: '/panel/',
+  path: '/panel/',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
 const TuFuturoInstitucionesIdRoute = TuFuturoInstitucionesIdRouteImport.update({
   id: '/instituciones/$id',
   path: '/instituciones/$id',
   getParentRoute: () => TuFuturoRouteRoute,
+} as any)
+const BibliotecaRecursoIdRoute = BibliotecaRecursoIdRouteImport.update({
+  id: '/recurso/$id',
+  path: '/recurso/$id',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaPanelRecursosRoute = BibliotecaPanelRecursosRouteImport.update({
+  id: '/panel/recursos',
+  path: '/panel/recursos',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
+const BibliotecaPanelNovedadesRoute =
+  BibliotecaPanelNovedadesRouteImport.update({
+    id: '/panel/novedades',
+    path: '/panel/novedades',
+    getParentRoute: () => BibliotecaRouteRoute,
+  } as any)
+const BibliotecaPanelConfiguracionRoute =
+  BibliotecaPanelConfiguracionRouteImport.update({
+    id: '/panel/configuracion',
+    path: '/panel/configuracion',
+    getParentRoute: () => BibliotecaRouteRoute,
+  } as any)
+const BibliotecaPanelCalendarioRoute =
+  BibliotecaPanelCalendarioRouteImport.update({
+    id: '/panel/calendario',
+    path: '/panel/calendario',
+    getParentRoute: () => BibliotecaRouteRoute,
+  } as any)
+const BibliotecaPanelAdministracionRoute =
+  BibliotecaPanelAdministracionRouteImport.update({
+    id: '/panel/administracion',
+    path: '/panel/administracion',
+    getParentRoute: () => BibliotecaRouteRoute,
+  } as any)
+const BibliotecaMateriaCodeRoute = BibliotecaMateriaCodeRouteImport.update({
+  id: '/materia/$code',
+  path: '/materia/$code',
+  getParentRoute: () => BibliotecaRouteRoute,
 } as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   id: '/api/public/media/$',
@@ -129,8 +235,16 @@ const ApiPublicBibliotecaSplatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/biblioteca/acceso': typeof BibliotecaAccesoRoute
+  '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
+  '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
+  '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
+  '/biblioteca/inicio': typeof BibliotecaInicioRoute
+  '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
+  '/biblioteca/perfil': typeof BibliotecaPerfilRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
@@ -142,8 +256,17 @@ export interface FileRoutesByFullPath {
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/biblioteca/': typeof BibliotecaIndexRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/biblioteca/materia/$code': typeof BibliotecaMateriaCodeRoute
+  '/biblioteca/panel/administracion': typeof BibliotecaPanelAdministracionRoute
+  '/biblioteca/panel/calendario': typeof BibliotecaPanelCalendarioRoute
+  '/biblioteca/panel/configuracion': typeof BibliotecaPanelConfiguracionRoute
+  '/biblioteca/panel/novedades': typeof BibliotecaPanelNovedadesRoute
+  '/biblioteca/panel/recursos': typeof BibliotecaPanelRecursosRoute
+  '/biblioteca/recurso/$id': typeof BibliotecaRecursoIdRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
+  '/biblioteca/panel/': typeof BibliotecaPanelIndexRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
@@ -151,6 +274,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/biblioteca/acceso': typeof BibliotecaAccesoRoute
+  '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
+  '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
+  '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
+  '/biblioteca/inicio': typeof BibliotecaInicioRoute
+  '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
+  '/biblioteca/perfil': typeof BibliotecaPerfilRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
@@ -162,8 +292,17 @@ export interface FileRoutesByTo {
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/biblioteca': typeof BibliotecaIndexRoute
   '/tu-futuro': typeof TuFuturoIndexRoute
+  '/biblioteca/materia/$code': typeof BibliotecaMateriaCodeRoute
+  '/biblioteca/panel/administracion': typeof BibliotecaPanelAdministracionRoute
+  '/biblioteca/panel/calendario': typeof BibliotecaPanelCalendarioRoute
+  '/biblioteca/panel/configuracion': typeof BibliotecaPanelConfiguracionRoute
+  '/biblioteca/panel/novedades': typeof BibliotecaPanelNovedadesRoute
+  '/biblioteca/panel/recursos': typeof BibliotecaPanelRecursosRoute
+  '/biblioteca/recurso/$id': typeof BibliotecaRecursoIdRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
+  '/biblioteca/panel': typeof BibliotecaPanelIndexRoute
   '/tu-futuro/instituciones': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
@@ -171,8 +310,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/biblioteca/acceso': typeof BibliotecaAccesoRoute
+  '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
+  '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
+  '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
+  '/biblioteca/inicio': typeof BibliotecaInicioRoute
+  '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
+  '/biblioteca/perfil': typeof BibliotecaPerfilRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
@@ -184,8 +331,17 @@ export interface FileRoutesById {
   '/tu-futuro/noticias': typeof TuFuturoNoticiasRoute
   '/tu-futuro/recursos': typeof TuFuturoRecursosRoute
   '/tu-futuro/test': typeof TuFuturoTestRoute
+  '/biblioteca/': typeof BibliotecaIndexRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/biblioteca/materia/$code': typeof BibliotecaMateriaCodeRoute
+  '/biblioteca/panel/administracion': typeof BibliotecaPanelAdministracionRoute
+  '/biblioteca/panel/calendario': typeof BibliotecaPanelCalendarioRoute
+  '/biblioteca/panel/configuracion': typeof BibliotecaPanelConfiguracionRoute
+  '/biblioteca/panel/novedades': typeof BibliotecaPanelNovedadesRoute
+  '/biblioteca/panel/recursos': typeof BibliotecaPanelRecursosRoute
+  '/biblioteca/recurso/$id': typeof BibliotecaRecursoIdRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
+  '/biblioteca/panel/': typeof BibliotecaPanelIndexRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
   '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
@@ -194,8 +350,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
+    | '/biblioteca/acceso'
+    | '/biblioteca/asistente'
+    | '/biblioteca/calendario'
+    | '/biblioteca/favoritos'
+    | '/biblioteca/inicio'
+    | '/biblioteca/novedades'
+    | '/biblioteca/perfil'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
     | '/tu-futuro/becas'
@@ -207,8 +371,17 @@ export interface FileRouteTypes {
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/test'
+    | '/biblioteca/'
     | '/tu-futuro/'
+    | '/biblioteca/materia/$code'
+    | '/biblioteca/panel/administracion'
+    | '/biblioteca/panel/calendario'
+    | '/biblioteca/panel/configuracion'
+    | '/biblioteca/panel/novedades'
+    | '/biblioteca/panel/recursos'
+    | '/biblioteca/recurso/$id'
     | '/tu-futuro/instituciones/$id'
+    | '/biblioteca/panel/'
     | '/tu-futuro/instituciones/'
     | '/api/public/biblioteca/$'
     | '/api/public/media/$'
@@ -216,6 +389,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/biblioteca/acceso'
+    | '/biblioteca/asistente'
+    | '/biblioteca/calendario'
+    | '/biblioteca/favoritos'
+    | '/biblioteca/inicio'
+    | '/biblioteca/novedades'
+    | '/biblioteca/perfil'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
     | '/tu-futuro/becas'
@@ -227,16 +407,33 @@ export interface FileRouteTypes {
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/test'
+    | '/biblioteca'
     | '/tu-futuro'
+    | '/biblioteca/materia/$code'
+    | '/biblioteca/panel/administracion'
+    | '/biblioteca/panel/calendario'
+    | '/biblioteca/panel/configuracion'
+    | '/biblioteca/panel/novedades'
+    | '/biblioteca/panel/recursos'
+    | '/biblioteca/recurso/$id'
     | '/tu-futuro/instituciones/$id'
+    | '/biblioteca/panel'
     | '/tu-futuro/instituciones'
     | '/api/public/biblioteca/$'
     | '/api/public/media/$'
   id:
     | '__root__'
     | '/'
+    | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
+    | '/biblioteca/acceso'
+    | '/biblioteca/asistente'
+    | '/biblioteca/calendario'
+    | '/biblioteca/favoritos'
+    | '/biblioteca/inicio'
+    | '/biblioteca/novedades'
+    | '/biblioteca/perfil'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
     | '/tu-futuro/becas'
@@ -248,8 +445,17 @@ export interface FileRouteTypes {
     | '/tu-futuro/noticias'
     | '/tu-futuro/recursos'
     | '/tu-futuro/test'
+    | '/biblioteca/'
     | '/tu-futuro/'
+    | '/biblioteca/materia/$code'
+    | '/biblioteca/panel/administracion'
+    | '/biblioteca/panel/calendario'
+    | '/biblioteca/panel/configuracion'
+    | '/biblioteca/panel/novedades'
+    | '/biblioteca/panel/recursos'
+    | '/biblioteca/recurso/$id'
     | '/tu-futuro/instituciones/$id'
+    | '/biblioteca/panel/'
     | '/tu-futuro/instituciones/'
     | '/api/public/biblioteca/$'
     | '/api/public/media/$'
@@ -257,6 +463,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BibliotecaRouteRoute: typeof BibliotecaRouteRouteWithChildren
   TuFuturoRouteRoute: typeof TuFuturoRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
   ApiPublicBibliotecaSplatRoute: typeof ApiPublicBibliotecaSplatRoute
@@ -279,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TuFuturoRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/biblioteca': {
+      id: '/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof BibliotecaRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -292,6 +506,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tu-futuro/'
       preLoaderRoute: typeof TuFuturoIndexRouteImport
       parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/biblioteca/': {
+      id: '/biblioteca/'
+      path: '/'
+      fullPath: '/biblioteca/'
+      preLoaderRoute: typeof BibliotecaIndexRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
     }
     '/tu-futuro/test': {
       id: '/tu-futuro/test'
@@ -370,6 +591,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TuFuturoAdminRouteImport
       parentRoute: typeof TuFuturoRouteRoute
     }
+    '/biblioteca/perfil': {
+      id: '/biblioteca/perfil'
+      path: '/perfil'
+      fullPath: '/biblioteca/perfil'
+      preLoaderRoute: typeof BibliotecaPerfilRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/novedades': {
+      id: '/biblioteca/novedades'
+      path: '/novedades'
+      fullPath: '/biblioteca/novedades'
+      preLoaderRoute: typeof BibliotecaNovedadesRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/inicio': {
+      id: '/biblioteca/inicio'
+      path: '/inicio'
+      fullPath: '/biblioteca/inicio'
+      preLoaderRoute: typeof BibliotecaInicioRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/favoritos': {
+      id: '/biblioteca/favoritos'
+      path: '/favoritos'
+      fullPath: '/biblioteca/favoritos'
+      preLoaderRoute: typeof BibliotecaFavoritosRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/calendario': {
+      id: '/biblioteca/calendario'
+      path: '/calendario'
+      fullPath: '/biblioteca/calendario'
+      preLoaderRoute: typeof BibliotecaCalendarioRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/asistente': {
+      id: '/biblioteca/asistente'
+      path: '/asistente'
+      fullPath: '/biblioteca/asistente'
+      preLoaderRoute: typeof BibliotecaAsistenteRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/acceso': {
+      id: '/biblioteca/acceso'
+      path: '/acceso'
+      fullPath: '/biblioteca/acceso'
+      preLoaderRoute: typeof BibliotecaAccesoRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
     '/tu-futuro/instituciones/': {
       id: '/tu-futuro/instituciones/'
       path: '/instituciones'
@@ -377,12 +647,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TuFuturoInstitucionesIndexRouteImport
       parentRoute: typeof TuFuturoRouteRoute
     }
+    '/biblioteca/panel/': {
+      id: '/biblioteca/panel/'
+      path: '/panel'
+      fullPath: '/biblioteca/panel/'
+      preLoaderRoute: typeof BibliotecaPanelIndexRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
     '/tu-futuro/instituciones/$id': {
       id: '/tu-futuro/instituciones/$id'
       path: '/instituciones/$id'
       fullPath: '/tu-futuro/instituciones/$id'
       preLoaderRoute: typeof TuFuturoInstitucionesIdRouteImport
       parentRoute: typeof TuFuturoRouteRoute
+    }
+    '/biblioteca/recurso/$id': {
+      id: '/biblioteca/recurso/$id'
+      path: '/recurso/$id'
+      fullPath: '/biblioteca/recurso/$id'
+      preLoaderRoute: typeof BibliotecaRecursoIdRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/panel/recursos': {
+      id: '/biblioteca/panel/recursos'
+      path: '/panel/recursos'
+      fullPath: '/biblioteca/panel/recursos'
+      preLoaderRoute: typeof BibliotecaPanelRecursosRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/panel/novedades': {
+      id: '/biblioteca/panel/novedades'
+      path: '/panel/novedades'
+      fullPath: '/biblioteca/panel/novedades'
+      preLoaderRoute: typeof BibliotecaPanelNovedadesRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/panel/configuracion': {
+      id: '/biblioteca/panel/configuracion'
+      path: '/panel/configuracion'
+      fullPath: '/biblioteca/panel/configuracion'
+      preLoaderRoute: typeof BibliotecaPanelConfiguracionRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/panel/calendario': {
+      id: '/biblioteca/panel/calendario'
+      path: '/panel/calendario'
+      fullPath: '/biblioteca/panel/calendario'
+      preLoaderRoute: typeof BibliotecaPanelCalendarioRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/panel/administracion': {
+      id: '/biblioteca/panel/administracion'
+      path: '/panel/administracion'
+      fullPath: '/biblioteca/panel/administracion'
+      preLoaderRoute: typeof BibliotecaPanelAdministracionRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
+    '/biblioteca/materia/$code': {
+      id: '/biblioteca/materia/$code'
+      path: '/materia/$code'
+      fullPath: '/biblioteca/materia/$code'
+      preLoaderRoute: typeof BibliotecaMateriaCodeRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
     }
     '/api/public/media/$': {
       id: '/api/public/media/$'
@@ -400,6 +726,48 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface BibliotecaRouteRouteChildren {
+  BibliotecaAccesoRoute: typeof BibliotecaAccesoRoute
+  BibliotecaAsistenteRoute: typeof BibliotecaAsistenteRoute
+  BibliotecaCalendarioRoute: typeof BibliotecaCalendarioRoute
+  BibliotecaFavoritosRoute: typeof BibliotecaFavoritosRoute
+  BibliotecaInicioRoute: typeof BibliotecaInicioRoute
+  BibliotecaNovedadesRoute: typeof BibliotecaNovedadesRoute
+  BibliotecaPerfilRoute: typeof BibliotecaPerfilRoute
+  BibliotecaIndexRoute: typeof BibliotecaIndexRoute
+  BibliotecaMateriaCodeRoute: typeof BibliotecaMateriaCodeRoute
+  BibliotecaPanelAdministracionRoute: typeof BibliotecaPanelAdministracionRoute
+  BibliotecaPanelCalendarioRoute: typeof BibliotecaPanelCalendarioRoute
+  BibliotecaPanelConfiguracionRoute: typeof BibliotecaPanelConfiguracionRoute
+  BibliotecaPanelNovedadesRoute: typeof BibliotecaPanelNovedadesRoute
+  BibliotecaPanelRecursosRoute: typeof BibliotecaPanelRecursosRoute
+  BibliotecaRecursoIdRoute: typeof BibliotecaRecursoIdRoute
+  BibliotecaPanelIndexRoute: typeof BibliotecaPanelIndexRoute
+}
+
+const BibliotecaRouteRouteChildren: BibliotecaRouteRouteChildren = {
+  BibliotecaAccesoRoute: BibliotecaAccesoRoute,
+  BibliotecaAsistenteRoute: BibliotecaAsistenteRoute,
+  BibliotecaCalendarioRoute: BibliotecaCalendarioRoute,
+  BibliotecaFavoritosRoute: BibliotecaFavoritosRoute,
+  BibliotecaInicioRoute: BibliotecaInicioRoute,
+  BibliotecaNovedadesRoute: BibliotecaNovedadesRoute,
+  BibliotecaPerfilRoute: BibliotecaPerfilRoute,
+  BibliotecaIndexRoute: BibliotecaIndexRoute,
+  BibliotecaMateriaCodeRoute: BibliotecaMateriaCodeRoute,
+  BibliotecaPanelAdministracionRoute: BibliotecaPanelAdministracionRoute,
+  BibliotecaPanelCalendarioRoute: BibliotecaPanelCalendarioRoute,
+  BibliotecaPanelConfiguracionRoute: BibliotecaPanelConfiguracionRoute,
+  BibliotecaPanelNovedadesRoute: BibliotecaPanelNovedadesRoute,
+  BibliotecaPanelRecursosRoute: BibliotecaPanelRecursosRoute,
+  BibliotecaRecursoIdRoute: BibliotecaRecursoIdRoute,
+  BibliotecaPanelIndexRoute: BibliotecaPanelIndexRoute,
+}
+
+const BibliotecaRouteRouteWithChildren = BibliotecaRouteRoute._addFileChildren(
+  BibliotecaRouteRouteChildren,
+)
 
 interface TuFuturoRouteRouteChildren {
   TuFuturoAdminRoute: typeof TuFuturoAdminRoute
@@ -441,6 +809,7 @@ const TuFuturoRouteRouteWithChildren = TuFuturoRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BibliotecaRouteRoute: BibliotecaRouteRouteWithChildren,
   TuFuturoRouteRoute: TuFuturoRouteRouteWithChildren,
   AdminRoute: AdminRoute,
   ApiPublicBibliotecaSplatRoute: ApiPublicBibliotecaSplatRoute,

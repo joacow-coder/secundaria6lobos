@@ -102,19 +102,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
             </>
           )}
         </div>
-        <button
-          onClick={() => {
-            try {
-              sessionStorage.setItem(SESSION_KEY, "1");
-            } catch {
-              // ignore
-            }
-            onDone();
-          }}
-          className="absolute bottom-6 right-6 rounded-full border border-white/40 bg-white/10 px-4 py-2 text-xs font-medium text-white/90 backdrop-blur transition hover:bg-white/20"
-        >
-          Saltar intro
-        </button>
       </div>
     </div>
   );
