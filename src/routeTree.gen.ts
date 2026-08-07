@@ -26,6 +26,7 @@ import { Route as TuFuturoCalendarioRouteImport } from './routes/tu-futuro/calen
 import { Route as TuFuturoBecasRouteImport } from './routes/tu-futuro/becas'
 import { Route as TuFuturoAuthRouteImport } from './routes/tu-futuro/auth'
 import { Route as TuFuturoAdminRouteImport } from './routes/tu-futuro/admin'
+import { Route as BibliotecaAccesoRouteImport } from './routes/biblioteca/acceso'
 import { Route as TuFuturoInstitucionesIndexRouteImport } from './routes/tu-futuro/instituciones.index'
 import { Route as TuFuturoInstitucionesIdRouteImport } from './routes/tu-futuro/instituciones.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
@@ -116,6 +117,11 @@ const TuFuturoAdminRoute = TuFuturoAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => TuFuturoRouteRoute,
 } as any)
+const BibliotecaAccesoRoute = BibliotecaAccesoRouteImport.update({
+  id: '/acceso',
+  path: '/acceso',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
 const TuFuturoInstitucionesIndexRoute =
   TuFuturoInstitucionesIndexRouteImport.update({
     id: '/instituciones/',
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
   '/tu-futuro/auth': typeof TuFuturoAuthRoute
   '/tu-futuro/becas': typeof TuFuturoBecasRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
+    | '/biblioteca/acceso'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
     | '/tu-futuro/becas'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/biblioteca/acceso'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
     | '/tu-futuro/becas'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
+    | '/biblioteca/acceso'
     | '/tu-futuro/admin'
     | '/tu-futuro/auth'
     | '/tu-futuro/becas'
@@ -407,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TuFuturoAdminRouteImport
       parentRoute: typeof TuFuturoRouteRoute
     }
+    '/biblioteca/acceso': {
+      id: '/biblioteca/acceso'
+      path: '/acceso'
+      fullPath: '/biblioteca/acceso'
+      preLoaderRoute: typeof BibliotecaAccesoRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
     '/tu-futuro/instituciones/': {
       id: '/tu-futuro/instituciones/'
       path: '/instituciones'
@@ -439,10 +458,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface BibliotecaRouteRouteChildren {
+  BibliotecaAccesoRoute: typeof BibliotecaAccesoRoute
   BibliotecaIndexRoute: typeof BibliotecaIndexRoute
 }
 
 const BibliotecaRouteRouteChildren: BibliotecaRouteRouteChildren = {
+  BibliotecaAccesoRoute: BibliotecaAccesoRoute,
   BibliotecaIndexRoute: BibliotecaIndexRoute,
 }
 
