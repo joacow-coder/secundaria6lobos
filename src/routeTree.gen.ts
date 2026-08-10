@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as InstitucionRouteImport } from './routes/institucion'
+import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TuFuturoRouteRouteImport } from './routes/tu-futuro/route'
 import { Route as BibliotecaRouteRouteImport } from './routes/biblioteca/route'
@@ -46,6 +48,16 @@ import { Route as BibliotecaMateriaCodeRouteImport } from './routes/biblioteca/m
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as ApiPublicBibliotecaSplatRouteImport } from './routes/api/public/biblioteca/$'
 
+const InstitucionRoute = InstitucionRouteImport.update({
+  id: '/institucion',
+  path: '/institucion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoriaRoute = HistoriaRouteImport.update({
+  id: '/historia',
+  path: '/historia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -238,6 +250,8 @@ export interface FileRoutesByFullPath {
   '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/historia': typeof HistoriaRoute
+  '/institucion': typeof InstitucionRoute
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
@@ -274,6 +288,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/historia': typeof HistoriaRoute
+  '/institucion': typeof InstitucionRoute
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
@@ -313,6 +329,8 @@ export interface FileRoutesById {
   '/biblioteca': typeof BibliotecaRouteRouteWithChildren
   '/tu-futuro': typeof TuFuturoRouteRouteWithChildren
   '/admin': typeof AdminRoute
+  '/historia': typeof HistoriaRoute
+  '/institucion': typeof InstitucionRoute
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
@@ -353,6 +371,8 @@ export interface FileRouteTypes {
     | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
+    | '/historia'
+    | '/institucion'
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
@@ -389,6 +409,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/historia'
+    | '/institucion'
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
@@ -427,6 +449,8 @@ export interface FileRouteTypes {
     | '/biblioteca'
     | '/tu-futuro'
     | '/admin'
+    | '/historia'
+    | '/institucion'
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
@@ -466,12 +490,28 @@ export interface RootRouteChildren {
   BibliotecaRouteRoute: typeof BibliotecaRouteRouteWithChildren
   TuFuturoRouteRoute: typeof TuFuturoRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
+  HistoriaRoute: typeof HistoriaRoute
+  InstitucionRoute: typeof InstitucionRoute
   ApiPublicBibliotecaSplatRoute: typeof ApiPublicBibliotecaSplatRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/institucion': {
+      id: '/institucion'
+      path: '/institucion'
+      fullPath: '/institucion'
+      preLoaderRoute: typeof InstitucionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historia': {
+      id: '/historia'
+      path: '/historia'
+      fullPath: '/historia'
+      preLoaderRoute: typeof HistoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -812,19 +852,11 @@ const rootRouteChildren: RootRouteChildren = {
   BibliotecaRouteRoute: BibliotecaRouteRouteWithChildren,
   TuFuturoRouteRoute: TuFuturoRouteRouteWithChildren,
   AdminRoute: AdminRoute,
+  HistoriaRoute: HistoriaRoute,
+  InstitucionRoute: InstitucionRoute,
   ApiPublicBibliotecaSplatRoute: ApiPublicBibliotecaSplatRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
