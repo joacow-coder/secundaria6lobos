@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { GraduationCap, Rocket, Building2, Banknote, Compass, Map, ArrowRight } from "lucide-react";
 import { Lobi } from "@/components/Lobi";
 import { Intro, hasSeenIntro } from "@/components/Intro";
+import { AppBottomNav } from "@/components/AppBottomNav";
 import { loadSiteContent } from "@/lib/site.functions";
 import {
   SECTION_LABELS,
@@ -61,6 +62,7 @@ function Index() {
         <Footer />
         <Lobi />
         <BackToTop />
+        <AppBottomNav />
       </div>
     </ContentCtx.Provider>
   );
