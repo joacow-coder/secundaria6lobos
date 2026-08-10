@@ -1,13 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, BookOpen, Home, Info, Menu } from "lucide-react";
 
-const ITEMS = [
+type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean };
+
+const ITEMS: NavItem[] = [
   { to: "/", label: "Inicio", icon: Home, exact: true },
   { to: "/biblioteca", label: "Biblioteca", icon: BookOpen },
   { to: "/biblioteca/novedades", label: "Avisos", icon: Bell, exact: true },
   { to: "/institucion", label: "Institución", icon: Info },
   { to: "/mas", label: "Más", icon: Menu },
-] as const;
+];
 
 /** Barra de navegación inferior (experiencia tipo app en celulares). */
 export function AppBottomNav() {
