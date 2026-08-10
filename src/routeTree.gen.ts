@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MasRouteImport } from './routes/mas'
 import { Route as InstitucionRouteImport } from './routes/institucion'
 import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -48,6 +49,11 @@ import { Route as BibliotecaMateriaCodeRouteImport } from './routes/biblioteca/m
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as ApiPublicBibliotecaSplatRouteImport } from './routes/api/public/biblioteca/$'
 
+const MasRoute = MasRouteImport.update({
+  id: '/mas',
+  path: '/mas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InstitucionRoute = InstitucionRouteImport.update({
   id: '/institucion',
   path: '/institucion',
@@ -252,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/historia': typeof HistoriaRoute
   '/institucion': typeof InstitucionRoute
+  '/mas': typeof MasRoute
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/historia': typeof HistoriaRoute
   '/institucion': typeof InstitucionRoute
+  '/mas': typeof MasRoute
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
@@ -331,6 +339,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/historia': typeof HistoriaRoute
   '/institucion': typeof InstitucionRoute
+  '/mas': typeof MasRoute
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
@@ -373,6 +382,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/historia'
     | '/institucion'
+    | '/mas'
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/historia'
     | '/institucion'
+    | '/mas'
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/historia'
     | '/institucion'
+    | '/mas'
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
@@ -492,12 +504,20 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   HistoriaRoute: typeof HistoriaRoute
   InstitucionRoute: typeof InstitucionRoute
+  MasRoute: typeof MasRoute
   ApiPublicBibliotecaSplatRoute: typeof ApiPublicBibliotecaSplatRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mas': {
+      id: '/mas'
+      path: '/mas'
+      fullPath: '/mas'
+      preLoaderRoute: typeof MasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/institucion': {
       id: '/institucion'
       path: '/institucion'
@@ -854,6 +874,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   HistoriaRoute: HistoriaRoute,
   InstitucionRoute: InstitucionRoute,
+  MasRoute: MasRoute,
   ApiPublicBibliotecaSplatRoute: ApiPublicBibliotecaSplatRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
