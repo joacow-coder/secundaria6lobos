@@ -31,6 +31,7 @@ import { Route as TuFuturoAuthRouteImport } from './routes/tu-futuro/auth'
 import { Route as TuFuturoAdminRouteImport } from './routes/tu-futuro/admin'
 import { Route as BibliotecaPerfilRouteImport } from './routes/biblioteca/perfil'
 import { Route as BibliotecaNovedadesRouteImport } from './routes/biblioteca/novedades'
+import { Route as BibliotecaNotificacionesRouteImport } from './routes/biblioteca/notificaciones'
 import { Route as BibliotecaInicioRouteImport } from './routes/biblioteca/inicio'
 import { Route as BibliotecaFavoritosRouteImport } from './routes/biblioteca/favoritos'
 import { Route as BibliotecaEstudianteRouteImport } from './routes/biblioteca/estudiante'
@@ -161,6 +162,12 @@ const BibliotecaNovedadesRoute = BibliotecaNovedadesRouteImport.update({
   path: '/novedades',
   getParentRoute: () => BibliotecaRouteRoute,
 } as any)
+const BibliotecaNotificacionesRoute =
+  BibliotecaNotificacionesRouteImport.update({
+    id: '/notificaciones',
+    path: '/notificaciones',
+    getParentRoute: () => BibliotecaRouteRoute,
+  } as any)
 const BibliotecaInicioRoute = BibliotecaInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
@@ -277,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/biblioteca/estudiante': typeof BibliotecaEstudianteRoute
   '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
   '/biblioteca/inicio': typeof BibliotecaInicioRoute
+  '/biblioteca/notificaciones': typeof BibliotecaNotificacionesRoute
   '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
   '/biblioteca/perfil': typeof BibliotecaPerfilRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
@@ -318,6 +326,7 @@ export interface FileRoutesByTo {
   '/biblioteca/estudiante': typeof BibliotecaEstudianteRoute
   '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
   '/biblioteca/inicio': typeof BibliotecaInicioRoute
+  '/biblioteca/notificaciones': typeof BibliotecaNotificacionesRoute
   '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
   '/biblioteca/perfil': typeof BibliotecaPerfilRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
@@ -362,6 +371,7 @@ export interface FileRoutesById {
   '/biblioteca/estudiante': typeof BibliotecaEstudianteRoute
   '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
   '/biblioteca/inicio': typeof BibliotecaInicioRoute
+  '/biblioteca/notificaciones': typeof BibliotecaNotificacionesRoute
   '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
   '/biblioteca/perfil': typeof BibliotecaPerfilRoute
   '/tu-futuro/admin': typeof TuFuturoAdminRoute
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/biblioteca/estudiante'
     | '/biblioteca/favoritos'
     | '/biblioteca/inicio'
+    | '/biblioteca/notificaciones'
     | '/biblioteca/novedades'
     | '/biblioteca/perfil'
     | '/tu-futuro/admin'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/biblioteca/estudiante'
     | '/biblioteca/favoritos'
     | '/biblioteca/inicio'
+    | '/biblioteca/notificaciones'
     | '/biblioteca/novedades'
     | '/biblioteca/perfil'
     | '/tu-futuro/admin'
@@ -491,6 +503,7 @@ export interface FileRouteTypes {
     | '/biblioteca/estudiante'
     | '/biblioteca/favoritos'
     | '/biblioteca/inicio'
+    | '/biblioteca/notificaciones'
     | '/biblioteca/novedades'
     | '/biblioteca/perfil'
     | '/tu-futuro/admin'
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BibliotecaNovedadesRouteImport
       parentRoute: typeof BibliotecaRouteRoute
     }
+    '/biblioteca/notificaciones': {
+      id: '/biblioteca/notificaciones'
+      path: '/notificaciones'
+      fullPath: '/biblioteca/notificaciones'
+      preLoaderRoute: typeof BibliotecaNotificacionesRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
     '/biblioteca/inicio': {
       id: '/biblioteca/inicio'
       path: '/inicio'
@@ -832,6 +852,7 @@ interface BibliotecaRouteRouteChildren {
   BibliotecaEstudianteRoute: typeof BibliotecaEstudianteRoute
   BibliotecaFavoritosRoute: typeof BibliotecaFavoritosRoute
   BibliotecaInicioRoute: typeof BibliotecaInicioRoute
+  BibliotecaNotificacionesRoute: typeof BibliotecaNotificacionesRoute
   BibliotecaNovedadesRoute: typeof BibliotecaNovedadesRoute
   BibliotecaPerfilRoute: typeof BibliotecaPerfilRoute
   BibliotecaIndexRoute: typeof BibliotecaIndexRoute
@@ -853,6 +874,7 @@ const BibliotecaRouteRouteChildren: BibliotecaRouteRouteChildren = {
   BibliotecaEstudianteRoute: BibliotecaEstudianteRoute,
   BibliotecaFavoritosRoute: BibliotecaFavoritosRoute,
   BibliotecaInicioRoute: BibliotecaInicioRoute,
+  BibliotecaNotificacionesRoute: BibliotecaNotificacionesRoute,
   BibliotecaNovedadesRoute: BibliotecaNovedadesRoute,
   BibliotecaPerfilRoute: BibliotecaPerfilRoute,
   BibliotecaIndexRoute: BibliotecaIndexRoute,
