@@ -1,11 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, GraduationCap, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Briefcase, ClipboardList, GraduationCap, Sparkles, UserRound } from "lucide-react";
+import { useEffect } from "react";
 import logoAsset from "@/assets/logo.png.asset.json";
-import { blockedWordsQuery } from "@/lib/biblioteca/data";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { suggestName, toTitleCase, validateStudentName } from "@/lib/biblioteca/utils";
 
 export const Route = createFileRoute("/biblioteca/")({
   head: () => ({
@@ -26,30 +23,44 @@ export const Route = createFileRoute("/biblioteca/")({
   component: BibliotecaPortal,
 });
 
+const PROFILES = [
+  {
+    to: "/biblioteca/estudiante",
+    icon: GraduationCap,
+    title: "Estudiante",
+    description: "Materiales, actividades y comunicados de tu año.",
+  },
+  {
+    to: "/biblioteca/acceso",
+    icon: UserRound,
+    title: "Docente",
+    description: "Subí materiales y enviá comunicados a tus cursos.",
+  },
+  {
+    to: "/biblioteca/ingreso/preceptor",
+    icon: ClipboardList,
+    title: "Preceptor/a",
+    description: "Comunicados a cursos y personas, con historial de envíos.",
+  },
+  {
+    to: "/biblioteca/ingreso/directivo",
+    icon: Briefcase,
+    title: "Directivo/a",
+    description: "Comunicación con toda la comunidad educativa.",
+  },
+] as const;
+
 function BibliotecaPortal() {
   const navigate = useNavigate();
-  const { student, ready, signInStudent } = useBibliotecaSession();
-  const { data: blocked = [] } = useQuery(blockedWordsQuery);
-  const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const { student, teacher, ready } = useBibliotecaSession();
 
   useEffect(() => {
     if (ready && student) navigate({ to: "/biblioteca/inicio" });
-  }, [ready, student, navigate]);
-
-  const suggestion = suggestName(name);
-
-  function submit(event: React.FormEvent) {
-    event.preventDefault();
-    const pretty = toTitleCase(name);
-    const check = validateStudentName(pretty, blocked);
-    if (!check.ok) {
-      setError(check.message ?? "Revisá tu nombre.");
-      return;
-    }
-    signInStudent(pretty);
-    navigate({ to: "/biblioteca/inicio" });
-  }
+    else if (ready && teacher)
+      navigate({
+        to: teacher.role === "profesor" ? "/biblioteca/panel" : "/biblioteca/panel/comunicados",
+      });
+  }, [ready, student, teacher, navigate]);
 
   return (
     <div className="surface-institutional flex min-h-screen flex-col items-center justify-center px-4 py-12 text-primary-foreground">
@@ -66,58 +77,35 @@ function BibliotecaPortal() {
           </p>
         </div>
 
-        <form
-          onSubmit={submit}
-          className="mt-8 rounded-2xl bg-card p-6 text-card-foreground shadow-xl"
-        >
-          <h2 className="font-display text-xl font-semibold">Ingresá con tu nombre</h2>
+        <div className="mt-8 rounded-2xl bg-card p-5 text-card-foreground shadow-xl sm:p-6">
+          <h2 className="font-display text-xl font-semibold">Elegí tu perfil</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Usá tu nombre y apellido reales para entrar al espacio de estudiantes.
+            Cada perfil ve solo la información que le corresponde.
           </p>
-          <label className="mt-4 block text-sm font-medium" htmlFor="bib-nombre">
-            Nombre y apellido
-          </label>
-          <input
-            id="bib-nombre"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setError(null);
-            }}
-            placeholder="Ej.: María López"
-            autoComplete="name"
-            className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-base outline-none focus:ring-2 focus:ring-ring"
-          />
-          {suggestion && suggestion !== name ? (
-            <button
-              type="button"
-              onClick={() => setName(suggestion)}
-              className="mt-2 text-sm text-primary underline underline-offset-4"
-            >
-              ¿Quisiste decir “{suggestion}”?
-            </button>
-          ) : null}
-          {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
-
-          <button
-            type="submit"
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            <BookOpen className="size-4" /> Entrar a la biblioteca
-          </button>
-
-          <div className="mt-5 flex flex-col gap-2 border-t border-border pt-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-            <a
-              href="/biblioteca/acceso"
-              className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
-            >
-              <GraduationCap className="size-4" /> Soy docente
-            </a>
-            <a href="/" className="text-muted-foreground hover:text-foreground">
+          <ul className="mt-4 flex flex-col gap-3">
+            {PROFILES.map((p) => (
+              <li key={p.to}>
+                <Link
+                  to={p.to}
+                  className="card-lift flex items-center gap-4 rounded-xl border border-border bg-background px-4 py-4 text-left"
+                >
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <p.icon className="size-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-medium">{p.title}</span>
+                    <span className="block text-sm text-muted-foreground">{p.description}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-5 border-t border-border pt-4 text-sm">
+            <Link to="/" className="text-muted-foreground hover:text-foreground">
               Volver al sitio de la escuela
-            </a>
+            </Link>
           </div>
-        </form>
+        </div>
 
         <p className="mt-6 flex items-center justify-center gap-2 text-center text-xs opacity-80">
           <Sparkles className="size-3.5" /> Materiales cargados por el equipo docente de la escuela.

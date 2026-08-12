@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { bibVerifyCode } from "./teacher.functions";
+import { bibVerifyStaffCode, type StaffRole, type Audience } from "./messages.functions";
 
 /**
  * Sesión de la Biblioteca Digital.
@@ -15,40 +15,44 @@ export type TeacherIdentity = {
   full_name: string;
   /** Credencial que las funciones del servidor validan en cada operación. */
   credential: string;
-  role: "profesor" | "admin";
+  role: StaffRole;
 };
 
 export type TeacherAuthStrategy = {
   id: string;
-  signIn(input: { code?: string; name?: string }): Promise<TeacherIdentity>;
+  signIn(input: { code?: string; name?: string; role?: StaffRole }): Promise<TeacherIdentity>;
 };
 
 export const masterCodeStrategy: TeacherAuthStrategy = {
   id: "codigo-maestro",
-  async signIn({ code, name }) {
+  async signIn({ code, name, role = "profesor" }) {
     const value = (code ?? "").trim();
-    await bibVerifyCode({ data: { code: value } });
+    await bibVerifyStaffCode({ data: { role, code: value } });
     return {
-      full_name: (name ?? "").trim() || "Equipo docente",
+      full_name:
+        (name ?? "").trim() ||
+        (role === "preceptor" ? "Preceptoría" : role === "directivo" ? "Dirección" : "Equipo docente"),
       credential: value,
-      role: "admin",
+      role,
     };
   },
 };
 
 export const teacherAuth: TeacherAuthStrategy = masterCodeStrategy;
 
-export type Student = { name: string; since: string };
+export type Student = { name: string; since: string; year: number | null };
 
 type SessionState = {
   student: Student | null;
   teacher: TeacherIdentity | null;
-  role: "alumno" | "profesor" | "admin" | null;
+  role: "alumno" | StaffRole | null;
+  /** Identidad usada por el servidor para resolver la bandeja de notificaciones. */
+  audience: Audience | null;
   favorites: string[];
   recents: string[];
   ready: boolean;
-  signInStudent: (name: string) => void;
-  signInTeacher: (input: { code?: string; name?: string }) => Promise<void>;
+  signInStudent: (name: string, year?: number | null) => void;
+  signInTeacher: (input: { code?: string; name?: string; role?: StaffRole }) => Promise<void>;
   signOut: () => void;
   toggleFavorite: (id: string) => void;
   markRecent: (id: string) => void;
@@ -97,13 +101,13 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
     setReady(true);
   }, []);
 
-  const signInStudent = useCallback((name: string) => {
-    const value: Student = { name: name.trim(), since: new Date().toISOString() };
+  const signInStudent = useCallback((name: string, year: number | null = null) => {
+    const value: Student = { name: name.trim(), since: new Date().toISOString(), year };
     setStudent(value);
     write(KEYS.student, value);
   }, []);
 
-  const signInTeacher = useCallback(async (input: { code?: string; name?: string }) => {
+  const signInTeacher = useCallback(async (input: { code?: string; name?: string; role?: StaffRole }) => {
     const identity = await teacherAuth.signIn(input);
     setTeacher(identity);
     write(KEYS.teacher, identity);
@@ -137,6 +141,11 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
       student,
       teacher,
       role: teacher ? teacher.role : student ? "alumno" : null,
+      audience: teacher
+        ? { role: teacher.role, name: teacher.full_name, year: null }
+        : student
+          ? { role: "alumno", name: student.name, year: student.year ?? null }
+          : null,
       favorites,
       recents,
       ready,

@@ -1,0 +1,242 @@
+import { createServerFn } from "@tanstack/react-start";
+
+export type StaffRole = "profesor" | "preceptor" | "directivo";
+export type Audience = { role: "alumno" | StaffRole; name: string; year: number | null };
+export type TargetInput = {
+  target_type: "all" | "role" | "year" | "person";
+  target_role: string | null;
+  target_year: number | null;
+  target_person: string | null;
+};
+export type InboxMessage = {
+  id: string;
+  title: string;
+  body: string;
+  sender_role: string;
+  sender_name: string;
+  created_at: string;
+  targets: TargetInput[];
+  read_at: string | null;
+  archived: boolean;
+};
+
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+const CODE_ENV: Record<StaffRole, string> = {
+  profesor: "TEACHER_MASTER_CODE",
+  preceptor: "PRECEPTOR_MASTER_CODE",
+  directivo: "DIRECTOR_MASTER_CODE",
+};
+
+/** Verificación central de credenciales del personal (docente, preceptor, directivo). */
+function assertStaff(role: unknown, code: unknown): StaffRole {
+  const value = String(role ?? "") as StaffRole;
+  const envName = CODE_ENV[value];
+  if (!envName) throw new Error("Perfil no válido.");
+  const expected = process.env[envName];
+  if (!expected) throw new Error("Este acceso todavía no está configurado.");
+  if (typeof code !== "string" || !safeEqual(code.trim(), expected.trim())) {
+    throw new Error("El código de acceso no es correcto.");
+  }
+  return value;
+}
+
+async function admin() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
+}
+
+export function readerKeyOf(audience: Audience): string {
+  const name = audience.name.trim().toLowerCase();
+  return audience.role === "alumno" ? `alumno:${audience.year ?? 0}:${name}` : `${audience.role}:${name}`;
+}
+
+function matches(target: TargetInput, audience: Audience): boolean {
+  const name = audience.name.trim().toLowerCase();
+  switch (target.target_type) {
+    case "all":
+      return true;
+    case "role":
+      return target.target_role === audience.role;
+    case "year":
+      return (
+        audience.year != null &&
+        target.target_year === audience.year &&
+        (!target.target_role || target.target_role === audience.role)
+      );
+    case "person":
+      return (target.target_person ?? "").trim().toLowerCase() === name;
+    default:
+      return false;
+  }
+}
+
+export const bibVerifyStaffCode = createServerFn({ method: "POST" })
+  .inputValidator((d: { role: StaffRole; code: string }) => d)
+  .handler(async ({ data }) => {
+    assertStaff(data.role, data.code);
+    return { ok: true as const };
+  });
+
+export const bibSendMessage = createServerFn({ method: "POST" })
+  .inputValidator(
+    (d: {
+      role: StaffRole;
+      code: string;
+      title: string;
+      body: string;
+      senderName: string;
+      targets: TargetInput[];
+    }) => d,
+  )
+  .handler(async ({ data }) => {
+    const role = assertStaff(data.role, data.code);
+    const title = data.title.trim();
+    if (!title) throw new Error("El título es obligatorio.");
+    if (!data.targets.length) throw new Error("Elegí al menos un destinatario.");
+    if (role !== "directivo" && data.targets.some((t) => t.target_type === "all")) {
+      throw new Error("Solo la dirección puede enviar a toda la institución.");
+    }
+
+    const db = await admin();
+    const { data: inserted, error } = await db
+      .from("bib_messages")
+      .insert({
+        sender_role: role,
+        sender_name: data.senderName.trim() || "Equipo institucional",
+        title,
+        body: data.body.trim(),
+      } as never)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    const messageId = (inserted as { id: string }).id;
+    const rows = data.targets.slice(0, 60).map((t) => ({
+      message_id: messageId,
+      target_type: t.target_type,
+      target_role: t.target_role,
+      target_year: t.target_year,
+      target_person: t.target_person?.trim() || null,
+    }));
+    const { error: targetError } = await db.from("bib_message_targets").insert(rows as never);
+    if (targetError) throw new Error(targetError.message);
+    return { ok: true as const, id: messageId };
+  });
+
+export const bibInbox = createServerFn({ method: "POST" })
+  .inputValidator((d: { audience: Audience }) => d)
+  .handler(async ({ data }): Promise<InboxMessage[]> => {
+    const audience = data.audience;
+    if (!audience?.name?.trim()) return [];
+    const db = await admin();
+
+    const { data: messages, error } = await db
+      .from("bib_messages")
+      .select("id, title, body, sender_role, sender_name, created_at")
+      .order("created_at", { ascending: false })
+      .limit(300);
+    if (error) throw new Error(error.message);
+
+    const list = (messages ?? []) as {
+      id: string;
+      title: string;
+      body: string;
+      sender_role: string;
+      sender_name: string;
+      created_at: string;
+    }[];
+    if (list.length === 0) return [];
+
+    const ids = list.map((m) => m.id);
+    const { data: targets } = await db
+      .from("bib_message_targets")
+      .select("message_id, target_type, target_role, target_year, target_person")
+      .in("message_id", ids);
+    const { data: reads } = await db
+      .from("bib_message_reads")
+      .select("message_id, read_at, archived")
+      .eq("reader_key", readerKeyOf(audience));
+
+    const byMessage = new Map<string, TargetInput[]>();
+    for (const row of (targets ?? []) as ({ message_id: string } & TargetInput)[]) {
+      const arr = byMessage.get(row.message_id) ?? [];
+      arr.push(row);
+      byMessage.set(row.message_id, arr);
+    }
+    const readMap = new Map(
+      ((reads ?? []) as { message_id: string; read_at: string | null; archived: boolean }[]).map(
+        (r) => [r.message_id, r],
+      ),
+    );
+
+    return list
+      .map((m) => ({ ...m, targets: byMessage.get(m.id) ?? [] }))
+      .filter((m) => m.targets.some((t) => matches(t, audience)))
+      .map((m) => ({
+        ...m,
+        read_at: readMap.get(m.id)?.read_at ?? null,
+        archived: readMap.get(m.id)?.archived ?? false,
+      }));
+  });
+
+export const bibUpdateInboxState = createServerFn({ method: "POST" })
+  .inputValidator(
+    (d: { audience: Audience; id: string; read?: boolean; archived?: boolean }) => d,
+  )
+  .handler(async ({ data }) => {
+    const db = await admin();
+    const row: Record<string, unknown> = {
+      message_id: data.id,
+      reader_key: readerKeyOf(data.audience),
+    };
+    if (data.read !== undefined) row.read_at = data.read ? new Date().toISOString() : null;
+    if (data.archived !== undefined) row.archived = data.archived;
+    const { error } = await db
+      .from("bib_message_reads")
+      .upsert(row as never, { onConflict: "message_id,reader_key" });
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const bibSentMessages = createServerFn({ method: "POST" })
+  .inputValidator((d: { role: StaffRole; code: string; senderName: string }) => d)
+  .handler(async ({ data }) => {
+    const role = assertStaff(data.role, data.code);
+    const db = await admin();
+    const { data: messages, error } = await db
+      .from("bib_messages")
+      .select("id, title, body, sender_role, sender_name, created_at")
+      .eq("sender_role", role)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    const list = (messages ?? []) as {
+      id: string;
+      title: string;
+      body: string;
+      sender_role: string;
+      sender_name: string;
+      created_at: string;
+    }[];
+    if (list.length === 0) return [];
+    const { data: targets } = await db
+      .from("bib_message_targets")
+      .select("message_id, target_type, target_role, target_year, target_person")
+      .in(
+        "message_id",
+        list.map((m) => m.id),
+      );
+    const byMessage = new Map<string, TargetInput[]>();
+    for (const row of (targets ?? []) as ({ message_id: string } & TargetInput)[]) {
+      const arr = byMessage.get(row.message_id) ?? [];
+      arr.push(row);
+      byMessage.set(row.message_id, arr);
+    }
+    return list.map((m) => ({ ...m, targets: byMessage.get(m.id) ?? [] }));
+  });

@@ -116,6 +116,112 @@ export type Database = {
         }
         Relationships: []
       }
+      bib_message_reads: {
+        Row: {
+          archived: boolean
+          created_at: string
+          id: string
+          message_id: string
+          read_at: string | null
+          reader_key: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          message_id: string
+          read_at?: string | null
+          reader_key: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          message_id?: string
+          read_at?: string | null
+          reader_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bib_message_reads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "bib_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bib_message_targets: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          target_person: string | null
+          target_role: string | null
+          target_type: string
+          target_year: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          target_person?: string | null
+          target_role?: string | null
+          target_type: string
+          target_year?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          target_person?: string | null
+          target_role?: string | null
+          target_type?: string
+          target_year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bib_message_targets_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "bib_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bib_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          sender_name: string
+          sender_role: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          sender_name?: string
+          sender_role: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          sender_name?: string
+          sender_role?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bib_resources: {
         Row: {
           created_at: string
