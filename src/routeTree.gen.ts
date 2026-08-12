@@ -47,6 +47,7 @@ import { Route as BibliotecaPanelConfiguracionRouteImport } from './routes/bibli
 import { Route as BibliotecaPanelCalendarioRouteImport } from './routes/biblioteca/panel/calendario'
 import { Route as BibliotecaPanelAdministracionRouteImport } from './routes/biblioteca/panel/administracion'
 import { Route as BibliotecaMateriaCodeRouteImport } from './routes/biblioteca/materia.$code'
+import { Route as BibliotecaIngresoRolRouteImport } from './routes/biblioteca/ingreso.$rol'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as ApiPublicBibliotecaSplatRouteImport } from './routes/api/public/biblioteca/$'
 
@@ -245,6 +246,11 @@ const BibliotecaMateriaCodeRoute = BibliotecaMateriaCodeRouteImport.update({
   path: '/materia/$code',
   getParentRoute: () => BibliotecaRouteRoute,
 } as any)
+const BibliotecaIngresoRolRoute = BibliotecaIngresoRolRouteImport.update({
+  id: '/ingreso/$rol',
+  path: '/ingreso/$rol',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   id: '/api/public/media/$',
   path: '/api/public/media/$',
@@ -286,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/tu-futuro/test': typeof TuFuturoTestRoute
   '/biblioteca/': typeof BibliotecaIndexRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/biblioteca/ingreso/$rol': typeof BibliotecaIngresoRolRoute
   '/biblioteca/materia/$code': typeof BibliotecaMateriaCodeRoute
   '/biblioteca/panel/administracion': typeof BibliotecaPanelAdministracionRoute
   '/biblioteca/panel/calendario': typeof BibliotecaPanelCalendarioRoute
@@ -326,6 +333,7 @@ export interface FileRoutesByTo {
   '/tu-futuro/test': typeof TuFuturoTestRoute
   '/biblioteca': typeof BibliotecaIndexRoute
   '/tu-futuro': typeof TuFuturoIndexRoute
+  '/biblioteca/ingreso/$rol': typeof BibliotecaIngresoRolRoute
   '/biblioteca/materia/$code': typeof BibliotecaMateriaCodeRoute
   '/biblioteca/panel/administracion': typeof BibliotecaPanelAdministracionRoute
   '/biblioteca/panel/calendario': typeof BibliotecaPanelCalendarioRoute
@@ -369,6 +377,7 @@ export interface FileRoutesById {
   '/tu-futuro/test': typeof TuFuturoTestRoute
   '/biblioteca/': typeof BibliotecaIndexRoute
   '/tu-futuro/': typeof TuFuturoIndexRoute
+  '/biblioteca/ingreso/$rol': typeof BibliotecaIngresoRolRoute
   '/biblioteca/materia/$code': typeof BibliotecaMateriaCodeRoute
   '/biblioteca/panel/administracion': typeof BibliotecaPanelAdministracionRoute
   '/biblioteca/panel/calendario': typeof BibliotecaPanelCalendarioRoute
@@ -413,6 +422,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/test'
     | '/biblioteca/'
     | '/tu-futuro/'
+    | '/biblioteca/ingreso/$rol'
     | '/biblioteca/materia/$code'
     | '/biblioteca/panel/administracion'
     | '/biblioteca/panel/calendario'
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/test'
     | '/biblioteca'
     | '/tu-futuro'
+    | '/biblioteca/ingreso/$rol'
     | '/biblioteca/materia/$code'
     | '/biblioteca/panel/administracion'
     | '/biblioteca/panel/calendario'
@@ -495,6 +506,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/test'
     | '/biblioteca/'
     | '/tu-futuro/'
+    | '/biblioteca/ingreso/$rol'
     | '/biblioteca/materia/$code'
     | '/biblioteca/panel/administracion'
     | '/biblioteca/panel/calendario'
@@ -789,6 +801,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BibliotecaMateriaCodeRouteImport
       parentRoute: typeof BibliotecaRouteRoute
     }
+    '/biblioteca/ingreso/$rol': {
+      id: '/biblioteca/ingreso/$rol'
+      path: '/ingreso/$rol'
+      fullPath: '/biblioteca/ingreso/$rol'
+      preLoaderRoute: typeof BibliotecaIngresoRolRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
     '/api/public/media/$': {
       id: '/api/public/media/$'
       path: '/api/public/media/$'
@@ -816,6 +835,7 @@ interface BibliotecaRouteRouteChildren {
   BibliotecaNovedadesRoute: typeof BibliotecaNovedadesRoute
   BibliotecaPerfilRoute: typeof BibliotecaPerfilRoute
   BibliotecaIndexRoute: typeof BibliotecaIndexRoute
+  BibliotecaIngresoRolRoute: typeof BibliotecaIngresoRolRoute
   BibliotecaMateriaCodeRoute: typeof BibliotecaMateriaCodeRoute
   BibliotecaPanelAdministracionRoute: typeof BibliotecaPanelAdministracionRoute
   BibliotecaPanelCalendarioRoute: typeof BibliotecaPanelCalendarioRoute
@@ -836,6 +856,7 @@ const BibliotecaRouteRouteChildren: BibliotecaRouteRouteChildren = {
   BibliotecaNovedadesRoute: BibliotecaNovedadesRoute,
   BibliotecaPerfilRoute: BibliotecaPerfilRoute,
   BibliotecaIndexRoute: BibliotecaIndexRoute,
+  BibliotecaIngresoRolRoute: BibliotecaIngresoRolRoute,
   BibliotecaMateriaCodeRoute: BibliotecaMateriaCodeRoute,
   BibliotecaPanelAdministracionRoute: BibliotecaPanelAdministracionRoute,
   BibliotecaPanelCalendarioRoute: BibliotecaPanelCalendarioRoute,
