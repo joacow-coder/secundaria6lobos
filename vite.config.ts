@@ -11,7 +11,7 @@ export default defineConfig({
     tsconfigPaths(),
     TanStackRouterVite({
       autoCodeSplitting: true,
-      target: "react", // Forzar renderizado de cliente
+      target: "react",
     }),
     react(),
     tailwindcss(),
@@ -27,9 +27,12 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      // Le indica a Vite que ignore los módulos de servidor de Node.js
+      external: ["@tanstack/react-start", "node:async_hooks"],
+    },
   },
   define: {
-    // Evita errores si alguna librería busca variables globales de Node
     "process.env": {},
   },
 });
