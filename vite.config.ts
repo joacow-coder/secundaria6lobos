@@ -6,10 +6,12 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
 
 export default defineConfig({
+  base: "/",
   plugins: [
     tsconfigPaths(),
     TanStackRouterVite({
       autoCodeSplitting: true,
+      target: "react", // Forzar renderizado de cliente
     }),
     react(),
     tailwindcss(),
@@ -22,5 +24,12 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
+  },
+  build: {
+    chunkSizeWarningLimit: 2000,
+  },
+  define: {
+    // Evita errores si alguna librería busca variables globales de Node
+    "process.env": {},
   },
 });
