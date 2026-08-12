@@ -1,5 +1,4 @@
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -12,10 +11,6 @@
  *
  * The :root and .dark blocks define the actual color values using oklch.
  * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
  */
 
 @theme inline {
@@ -60,9 +55,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-}
-
-@theme inline {
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
 }
@@ -109,9 +101,6 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
-}
-
-:root {
   --warning: oklch(0.82 0.15 85);
   --warning-foreground: oklch(0.32 0.09 80);
   --surface-institutional: linear-gradient(135deg, oklch(28% 0.09 258) 0%, oklch(38% 0.1 252) 55%, oklch(45% 0.09 245) 100%);
@@ -121,36 +110,6 @@
 .dark {
   --warning: oklch(0.78 0.14 85);
   --warning-foreground: oklch(0.95 0.03 85);
-}
-
-/* Ámbito visual de la Biblioteca Digital: tipografía editorial propia. */
-.biblioteca-scope {
-  --font-display: 'Playfair Display', Georgia, serif;
-  font-family: 'Source Sans 3', 'Inter', ui-sans-serif, system-ui, sans-serif;
-}
-.biblioteca-scope h1,
-.biblioteca-scope h2,
-.biblioteca-scope h3,
-.biblioteca-scope h4 {
-  font-family: 'Playfair Display', Georgia, serif;
-  letter-spacing: -0.01em;
-}
-
-@utility surface-institutional {
-  background-image: var(--surface-institutional);
-}
-@utility shadow-soft {
-  box-shadow: var(--shadow-soft);
-}
-@utility card-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-soft);
-  }
-}
-
-.dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
@@ -183,6 +142,33 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+/* Ámbito visual de la Biblioteca Digital */
+.biblioteca-scope {
+  --font-display: 'Playfair Display', Georgia, serif;
+  font-family: 'Source Sans 3', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+.biblioteca-scope h1,
+.biblioteca-scope h2,
+.biblioteca-scope h3,
+.biblioteca-scope h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+@utility surface-institutional {
+  background-image: var(--surface-institutional);
+}
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+@utility card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+  }
 }
 
 @layer base {
@@ -256,7 +242,7 @@
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
-  }
+}
 
 @keyframes kenburns {
   0% { transform: scale(1.02); }
@@ -281,7 +267,6 @@
   animation: introLogoIn 1s ease-out both;
 }
 
-/* --- Tu Futuro (orientación estudiantil) --- */
 .eyebrow {
   letter-spacing: 0.2em;
   text-transform: uppercase;
