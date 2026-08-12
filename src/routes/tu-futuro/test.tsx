@@ -213,7 +213,7 @@ function TestPage() {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/tu-futuro/carreras" search={{}}
+                to="/tu-futuro/carreras" search={{ q: undefined }}
                 className="inline-flex rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
                 Ver todas las carreras
