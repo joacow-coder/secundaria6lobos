@@ -27,10 +27,6 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 2000,
-    rollupOptions: {
-      // Le indica a Vite que ignore los módulos de servidor de Node.js
-      external: ["@tanstack/react-start", "node:async_hooks"],
-    },
   },
   define: {
     "process.env": {},
