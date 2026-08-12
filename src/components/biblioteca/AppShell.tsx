@@ -7,6 +7,7 @@ const STUDENT_NAV = [
   { to: "/biblioteca/inicio", label: "Inicio" },
   { to: "/biblioteca/favoritos", label: "Favoritos" },
   { to: "/biblioteca/novedades", label: "Novedades" },
+  { to: "/biblioteca/notificaciones", label: "Notificaciones" },
   { to: "/biblioteca/calendario", label: "Calendario" },
   { to: "/biblioteca/asistente", label: "Asistente" },
   { to: "/biblioteca/perfil", label: "Mi perfil" },
@@ -15,11 +16,20 @@ const STUDENT_NAV = [
 const TEACHER_NAV = [
   { to: "/biblioteca/panel", label: "Panel" },
   { to: "/biblioteca/panel/recursos", label: "Mis materiales" },
+  { to: "/biblioteca/panel/comunicados", label: "Comunicados" },
+  { to: "/biblioteca/notificaciones", label: "Notificaciones" },
   { to: "/biblioteca/panel/novedades", label: "Novedades" },
   { to: "/biblioteca/panel/calendario", label: "Calendario" },
   { to: "/biblioteca/asistente", label: "Asistente" },
   { to: "/biblioteca/panel/administracion", label: "Administración" },
   { to: "/biblioteca/panel/configuracion", label: "Configuración" },
+] as const;
+
+const STAFF_NAV = [
+  { to: "/biblioteca/panel/comunicados", label: "Comunicados" },
+  { to: "/biblioteca/notificaciones", label: "Notificaciones" },
+  { to: "/biblioteca/novedades", label: "Novedades" },
+  { to: "/biblioteca/calendario", label: "Calendario" },
 ] as const;
 
 export function AppShell({
@@ -32,7 +42,12 @@ export function AppShell({
   const { student, teacher, signOut } = useBibliotecaSession();
   const [open, setOpen] = useState(false);
 
-  const links = area === "alumno" ? STUDENT_NAV : TEACHER_NAV;
+  const links: readonly { to: string; label: string }[] =
+    area === "alumno"
+      ? STUDENT_NAV
+      : teacher && teacher.role !== "profesor"
+        ? STAFF_NAV
+        : TEACHER_NAV;
   const displayName = area === "alumno" ? student?.name : (teacher?.full_name ?? "Administración");
   const initials = (displayName ?? "?")
     .split(" ")
