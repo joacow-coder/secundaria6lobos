@@ -4,12 +4,9 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 
-import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -74,72 +71,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EES N.º 6 Lobos — Escuela de Educación Secundaria N.º 6" },
-      {
-        name: "description",
-        content:
-          "Sitio institucional de la Escuela de Educación Secundaria N.º 6 de Lobos. Historia, noticias, galería, eventos y contacto.",
-      },
-      { name: "author", content: "EES N.º 6 Lobos" },
-      { property: "og:title", content: "EES N.º 6 Lobos — Escuela de Educación Secundaria N.º 6" },
-      {
-        property: "og:description",
-        content: "Sitio institucional de la Escuela de Educación Secundaria N.º 6 de Lobos. Historia, noticias, galería, eventos y contacto.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "EES N.º 6 Lobos — Escuela de Educación Secundaria N.º 6" },
-      { name: "twitter:description", content: "Sitio institucional de la Escuela de Educación Secundaria N.º 6 de Lobos. Historia, noticias, galería, eventos y contacto." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Hun0zLGBd0XwXGMZ1r48iIPuwCG2/social-images/social-1784086221809-logo.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Hun0zLGBd0XwXGMZ1r48iIPuwCG2/social-images/social-1784086221809-logo.webp" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap",
-      },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster />
     </QueryClientProvider>
