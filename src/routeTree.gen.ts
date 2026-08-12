@@ -33,6 +33,7 @@ import { Route as BibliotecaPerfilRouteImport } from './routes/biblioteca/perfil
 import { Route as BibliotecaNovedadesRouteImport } from './routes/biblioteca/novedades'
 import { Route as BibliotecaInicioRouteImport } from './routes/biblioteca/inicio'
 import { Route as BibliotecaFavoritosRouteImport } from './routes/biblioteca/favoritos'
+import { Route as BibliotecaEstudianteRouteImport } from './routes/biblioteca/estudiante'
 import { Route as BibliotecaCalendarioRouteImport } from './routes/biblioteca/calendario'
 import { Route as BibliotecaAsistenteRouteImport } from './routes/biblioteca/asistente'
 import { Route as BibliotecaAccesoRouteImport } from './routes/biblioteca/acceso'
@@ -169,6 +170,11 @@ const BibliotecaFavoritosRoute = BibliotecaFavoritosRouteImport.update({
   path: '/favoritos',
   getParentRoute: () => BibliotecaRouteRoute,
 } as any)
+const BibliotecaEstudianteRoute = BibliotecaEstudianteRouteImport.update({
+  id: '/estudiante',
+  path: '/estudiante',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
 const BibliotecaCalendarioRoute = BibliotecaCalendarioRouteImport.update({
   id: '/calendario',
   path: '/calendario',
@@ -262,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
+  '/biblioteca/estudiante': typeof BibliotecaEstudianteRoute
   '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
   '/biblioteca/inicio': typeof BibliotecaInicioRoute
   '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
+  '/biblioteca/estudiante': typeof BibliotecaEstudianteRoute
   '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
   '/biblioteca/inicio': typeof BibliotecaInicioRoute
   '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
@@ -343,6 +351,7 @@ export interface FileRoutesById {
   '/biblioteca/acceso': typeof BibliotecaAccesoRoute
   '/biblioteca/asistente': typeof BibliotecaAsistenteRoute
   '/biblioteca/calendario': typeof BibliotecaCalendarioRoute
+  '/biblioteca/estudiante': typeof BibliotecaEstudianteRoute
   '/biblioteca/favoritos': typeof BibliotecaFavoritosRoute
   '/biblioteca/inicio': typeof BibliotecaInicioRoute
   '/biblioteca/novedades': typeof BibliotecaNovedadesRoute
@@ -386,6 +395,7 @@ export interface FileRouteTypes {
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
+    | '/biblioteca/estudiante'
     | '/biblioteca/favoritos'
     | '/biblioteca/inicio'
     | '/biblioteca/novedades'
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
+    | '/biblioteca/estudiante'
     | '/biblioteca/favoritos'
     | '/biblioteca/inicio'
     | '/biblioteca/novedades'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/biblioteca/acceso'
     | '/biblioteca/asistente'
     | '/biblioteca/calendario'
+    | '/biblioteca/estudiante'
     | '/biblioteca/favoritos'
     | '/biblioteca/inicio'
     | '/biblioteca/novedades'
@@ -679,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BibliotecaFavoritosRouteImport
       parentRoute: typeof BibliotecaRouteRoute
     }
+    '/biblioteca/estudiante': {
+      id: '/biblioteca/estudiante'
+      path: '/estudiante'
+      fullPath: '/biblioteca/estudiante'
+      preLoaderRoute: typeof BibliotecaEstudianteRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
     '/biblioteca/calendario': {
       id: '/biblioteca/calendario'
       path: '/calendario'
@@ -791,6 +810,7 @@ interface BibliotecaRouteRouteChildren {
   BibliotecaAccesoRoute: typeof BibliotecaAccesoRoute
   BibliotecaAsistenteRoute: typeof BibliotecaAsistenteRoute
   BibliotecaCalendarioRoute: typeof BibliotecaCalendarioRoute
+  BibliotecaEstudianteRoute: typeof BibliotecaEstudianteRoute
   BibliotecaFavoritosRoute: typeof BibliotecaFavoritosRoute
   BibliotecaInicioRoute: typeof BibliotecaInicioRoute
   BibliotecaNovedadesRoute: typeof BibliotecaNovedadesRoute
@@ -810,6 +830,7 @@ const BibliotecaRouteRouteChildren: BibliotecaRouteRouteChildren = {
   BibliotecaAccesoRoute: BibliotecaAccesoRoute,
   BibliotecaAsistenteRoute: BibliotecaAsistenteRoute,
   BibliotecaCalendarioRoute: BibliotecaCalendarioRoute,
+  BibliotecaEstudianteRoute: BibliotecaEstudianteRoute,
   BibliotecaFavoritosRoute: BibliotecaFavoritosRoute,
   BibliotecaInicioRoute: BibliotecaInicioRoute,
   BibliotecaNovedadesRoute: BibliotecaNovedadesRoute,
