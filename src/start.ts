@@ -1,3 +1,6 @@
-import { getRouter } from "./router";
+import { createStart } from "@tanstack/react-start";
+import { attachSupabaseAuth } from "./integrations/supabase/auth-attacher";
 
-export const router = getRouter();
+export const startInstance = createStart(() => ({
+  functionMiddleware: [attachSupabaseAuth],
+}));

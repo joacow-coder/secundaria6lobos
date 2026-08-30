@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import intro1 from "@/assets/intro-2021.jpg.asset.json";
-import intro2 from "@/assets/intro-2023b.jpg.asset.json";
-import intro3 from "@/assets/intro-2023.jpg.asset.json";
-import intro4 from "@/assets/intro-2025.jpg.asset.json";
-import intro5 from "@/assets/intro-2026.jpg.asset.json";
-import logo from "@/assets/logo.png.asset.json";
+import intro1 from "@/assets/intro-2021.jpg";
+import intro2 from "@/assets/intro-2023b.jpg";
+import intro3 from "@/assets/intro-2023.jpg";
+import intro4 from "@/assets/intro-2025.jpg";
+import intro5 from "@/assets/intro-2026.jpg";
+import logo from "@/assets/logo.png";
 
 const SESSION_KEY = "ees6-intro-seen";
 
 const SLIDES = [
-  { url: intro1.url },
-  { url: intro2.url },
-  { url: intro3.url },
-  { url: intro4.url },
-  { url: intro5.url },
+  { url: intro1 },
+  { url: intro2 },
+  { url: intro3 },
+  { url: intro4 },
+  { url: intro5 },
 ];
 
 const SLIDE_MS = 2200;
@@ -77,7 +77,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
 
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center text-white">
         <img
-          src={logo.url}
+          src={logo}
           alt="Logo EES N.º 6"
           className="mb-8 h-24 w-24 object-contain drop-shadow-2xl intro-logo sm:h-28 sm:w-28"
         />

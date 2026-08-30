@@ -1,11 +1,11 @@
-import logoAsset from "@/assets/logo.png.asset.json";
+import logoAsset from "@/assets/logo.png";
 
 export const futuroSite = {
   nombre: "Orientación Estudiantil y Futuro",
   escuela: "Escuela de Educación Secundaria N.º 6",
   ciudad: "Lobos, Buenos Aires",
   sitioEscuela: "/",
-  logo: logoAsset.url,
+  logo: logoAsset,
   contacto: "secundaria6lobos@abc.gob.ar",
   direccion: "San Martín N.º 57, Lobos, Buenos Aires",
 };

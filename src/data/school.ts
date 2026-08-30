@@ -1,19 +1,19 @@
-import logo from "@/assets/logo.png.asset.json";
-import img1 from "@/assets/1.jpg.asset.json";
-import img4 from "@/assets/4.jpg.asset.json";
-import img6 from "@/assets/6.jpg.asset.json";
-import ss2 from "@/assets/ss-2.jpg.asset.json";
-import post1 from "@/assets/post1.jpg.asset.json";
-import post2 from "@/assets/post2.jpg.asset.json";
-import post3 from "@/assets/post3.jpg.asset.json";
-import post4 from "@/assets/post4.jpg.asset.json";
-import post5 from "@/assets/post5.jpg.asset.json";
-import post6 from "@/assets/post6.jpg.asset.json";
-import aa from "@/assets/aa-2.jpg.asset.json";
-import aa3 from "@/assets/aa-3.jpg.asset.json";
-import ss from "@/assets/ss.jpg.asset.json";
-import g from "@/assets/g.jpg.asset.json";
-import video1 from "@/assets/1.mp4.asset.json";
+import logo from "@/assets/logo.png";
+import img1 from "@/assets/1.jpg";
+import img4 from "@/assets/4.jpg";
+import img6 from "@/assets/6.jpg";
+import ss2 from "@/assets/ss-2.jpg";
+import post1 from "@/assets/post1.jpg";
+import post2 from "@/assets/post2.jpg";
+import post3 from "@/assets/post3.jpg";
+import post4 from "@/assets/post4.jpg";
+import post5 from "@/assets/post5.jpg";
+import post6 from "@/assets/post6.jpg";
+import aa from "@/assets/aa-2.jpg";
+import aa3 from "@/assets/aa-3.jpg";
+import ss from "@/assets/ss.jpg";
+import g from "@/assets/g.jpg";
+import video1 from "@/assets/1.mp4";
 
 export const school = {
   name: "Escuela de Educación Secundaria N.º 6",
@@ -42,10 +42,10 @@ export const school = {
   },
   mapEmbed:
     "https://www.google.com/maps?q=San+Martin+57,+Lobos,+Buenos+Aires,+Argentina&output=embed",
-  logo: logo.url,
+  logo: logo,
 };
 
-export const heroBackground = img4.url;
+export const heroBackground = img4;
 
 export type TimelineItem = {
   date: string;
@@ -109,42 +109,42 @@ export type GalleryItem = {
 // Publicaciones de Instagram (imagen limpia + título + descripción)
 export const gallery: GalleryItem[] = [
   {
-    url: post1.url,
+    url: post1,
     category: "Actos",
     title: "9 de Julio — Día de la Independencia",
     description:
       "¡Feliz Día de la Independencia! Estudiantes abanderados y escoltas representaron a la institución en el acto por una nueva conmemoración patria.",
   },
   {
-    url: g.url,
+    url: g,
     category: "Actos",
     title: "18 de Mayo — Día de la Escarapela",
     description:
       "Conmemoramos la creación de la escarapela nacional, uno de los primeros símbolos patrios de nuestro país.",
   },
   {
-    url: ss.url,
+    url: ss,
     category: "Aniversarios",
     title: "224° Aniversario de Lobos",
     description:
       "Los estudiantes participaron de los festejos por un nuevo aniversario de la fundación de nuestra querida ciudad.",
   },
   {
-    url: aa.url,
+    url: aa,
     category: "Salidas Educativas",
     title: "Encuentro con Veteranos de Malvinas",
     description:
       "5.º 1.ª visitó a los Veteranos de Malvinas de Lobos en el marco de la materia Comunicación, Cultura y Sociedad.",
   },
   {
-    url: post2.url,
+    url: post2,
     category: "Proyectos",
     title: "Cuidados en Invierno",
     description:
       "Recomendaciones para cuidarnos con la llegada de las bajas temperaturas y disfrutar mejor de la estación.",
   },
   {
-    url: post5.url,
+    url: post5,
     category: "Comunicados",
     title: "Período de Intensificación",
     description:
@@ -154,21 +154,21 @@ export const gallery: GalleryItem[] = [
 
 export const news = [
   {
-    image: img1.url,
+    image: img1,
     date: "9 de Julio, 2026",
     title: "Acto por el Día de la Independencia",
     excerpt:
       "La comunidad educativa celebró un nuevo aniversario de la Declaración de la Independencia con un emotivo acto.",
   },
   {
-    image: aa3.url,
+    image: aa3,
     date: "Junio, 2026",
     title: "Entrevista a Veteranos de Malvinas",
     excerpt:
       "Estudiantes de 5.º 1.ª compartieron un encuentro con veteranos de nuestra ciudad, cargado de historias, valores y emoción.",
   },
   {
-    image: ss2.url,
+    image: ss2,
     date: "2 de Junio, 2026",
     title: "224° Aniversario de Lobos",
     excerpt:
@@ -188,7 +188,7 @@ export const events = [
 ];
 
 export const videos = [
-  { url: video1.url, title: "Video institucional EES N.º 6" },
+  { url: video1, title: "Video institucional EES N.º 6" },
 ];
 
 export type ChatOption = {

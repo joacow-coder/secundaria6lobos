@@ -18,8 +18,8 @@ function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.reject(new Error("sin navegador"));
   if (window.google?.maps) return Promise.resolve();
   if (mapsPromise) return mapsPromise;
-  const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-  const channel = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ?? "";
+  const key = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+  const channel = (import.meta.env.VITE_GOOGLE_MAPS_TRACKING_ID as string | undefined) ?? "";
   if (!key) return Promise.reject(new Error("Falta la clave de Google Maps"));
   mapsPromise = new Promise((resolve, reject) => {
     window.__initEes6Map = () => resolve();

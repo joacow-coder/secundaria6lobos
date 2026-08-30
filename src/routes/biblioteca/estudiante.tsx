@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
-import logoAsset from "@/assets/logo.png.asset.json";
+import logoAsset from "@/assets/logo.png";
 import { blockedWordsQuery } from "@/lib/biblioteca/data";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
 import { suggestName, toTitleCase, validateStudentName } from "@/lib/biblioteca/utils";
@@ -59,7 +59,7 @@ function IngresoEstudiante() {
       <div className="w-full max-w-lg">
         <div className="flex flex-col items-center text-center">
           <img
-            src={logoAsset.url}
+            src={logoAsset}
             alt="Escudo de la E.E.S. N.º 6"
             className="size-16 rounded-full bg-white/95 p-2 shadow-soft"
           />

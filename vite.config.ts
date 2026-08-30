@@ -1,18 +1,16 @@
 import { defineConfig } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { cloudflare } from "@cloudflare/vite-plugin";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
 
 export default defineConfig({
-  base: "/",
   plugins: [
     tsconfigPaths(),
-    TanStackRouterVite({
-      autoCodeSplitting: true,
-      target: "react",
-    }),
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    tanstackStart(),
     react(),
     tailwindcss(),
   ],
@@ -27,8 +25,5 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 2000,
-  },
-  define: {
-    "process.env": {},
   },
 });

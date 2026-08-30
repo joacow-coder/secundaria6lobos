@@ -1,0 +1,10 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "secundaria-6-lobos",
+	"compatibility_date": "2026-08-28",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "@tanstack/react-start/server-entry",
+	"observability": {
+		"enabled": true
+	}
+}

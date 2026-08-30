@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-import logoAsset from "@/assets/logo.png.asset.json";
+import logoAsset from "@/assets/logo.png";
 import type { StaffRole } from "@/lib/biblioteca/messages.functions";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
 
@@ -79,7 +79,7 @@ function IngresoPersonal() {
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center text-center">
           <img
-            src={logoAsset.url}
+            src={logoAsset}
             alt="Escudo de la E.E.S. N.º 6"
             className="size-16 rounded-full bg-white/95 p-2 shadow-soft"
           />

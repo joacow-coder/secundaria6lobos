@@ -2,13 +2,17 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
+  HeadContent,
+  Scripts,
   createRootRouteWithContext,
   useRouter,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
+import type { ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -71,10 +75,33 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+      { title: "Secundaria 6 Lobos" },
+    ],
+    links: [{ rel: "stylesheet", href: appCss }],
+  }),
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
+  shellComponent: RootDocument,
 });
+
+function RootDocument({ children }: { children: ReactNode }) {
+  return (
+    <html lang="es">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();

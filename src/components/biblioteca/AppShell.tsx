@@ -1,6 +1,6 @@
 import { LogOut, Menu, Sparkles, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import logoAsset from "@/assets/logo.png.asset.json";
+import logoAsset from "@/assets/logo.png";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
 
 const STUDENT_NAV = [
@@ -75,7 +75,7 @@ export function AppShell({
             className="flex min-w-0 items-center gap-3"
           >
             <img
-              src={logoAsset.url}
+              src={logoAsset}
               alt="Escudo de la Escuela de Educación Secundaria N.º 6"
               className="size-11 shrink-0 rounded-full bg-white/95 p-1 shadow-soft"
             />
