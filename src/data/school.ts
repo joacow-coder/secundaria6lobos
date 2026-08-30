@@ -40,8 +40,6 @@ export const school = {
       "5.º año: tiene extensión horaria la mayoría de los días",
     ],
   },
-  mapEmbed:
-    "https://www.google.com/maps?q=San+Martin+57,+Lobos,+Buenos+Aires,+Argentina&output=embed",
   logo: logo,
 };
 

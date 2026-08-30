@@ -4,7 +4,9 @@ import { GraduationCap, Rocket, Building2, Banknote, Compass, Map, ArrowRight } 
 import { Lobi } from "@/components/Lobi";
 import { Intro, hasSeenIntro } from "@/components/Intro";
 import { AppBottomNav } from "@/components/AppBottomNav";
+import { LeafletMap } from "@/components/LeafletMap";
 import { loadSiteContent } from "@/lib/site.functions";
+import { LOBOS } from "@/lib/futuro/site";
 import {
   SECTION_LABELS,
   defaultContent,
@@ -554,12 +556,21 @@ function Contact() {
             <HoursCard />
           </div>
           <div className="overflow-hidden rounded-2xl shadow-card">
-            <iframe
-              title="Mapa EES N.º 6"
-              src={school.mapEmbed}
-              className="h-[420px] w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
+            <LeafletMap
+              markers={[
+                {
+                  id: "escuela",
+                  lat: LOBOS.lat,
+                  lng: LOBOS.lng,
+                  label: school.name,
+                  sublabel: `${school.address}, ${school.city}`,
+                  variant: "primary",
+                },
+              ]}
+              zoom={15}
+              height={420}
+              bordered={false}
+              ariaLabel={`Mapa de ubicación de ${school.name}`}
             />
           </div>
         </div>

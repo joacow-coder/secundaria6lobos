@@ -1,8 +1,19 @@
 import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowUpRight, Globe, Heart, Mail, MapPin, Route as RouteIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Globe,
+  Heart,
+  Mail,
+  MapPin,
+  Route as RouteIcon,
+  WifiOff,
+} from "lucide-react";
 import { PageHeader } from "@/components/futuro/Layout";
+import { EmptyState } from "@/components/biblioteca/EmptyState";
+import { LeafletMap } from "@/components/LeafletMap";
 import { carrerasQuery, formatDistancia, institucionesQuery } from "@/lib/futuro/data";
 import { labelTipoInstitucion } from "@/lib/futuro/site";
 import { registrarVisitaInstitucion, toggleFavoritoInstitucion, useMemoria } from "@/lib/futuro/store";
@@ -48,6 +59,27 @@ function InstitucionDetalle() {
     return (
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <p className="text-sm text-muted-foreground">Cargando ficha…</p>
+      </div>
+    );
+  }
+
+  if (institucionesQ.isError) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <EmptyState
+          icon={WifiOff}
+          title="No pudimos cargar esta institución"
+          description="Revisá tu conexión a internet y volvé a intentar."
+          action={
+            <button
+              type="button"
+              onClick={() => institucionesQ.refetch()}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Reintentar
+            </button>
+          }
+        />
       </div>
     );
   }
@@ -170,11 +202,25 @@ function InstitucionDetalle() {
                   )}
                 </div>
               ))}
-              {carreras.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Todavía no cargamos carreras para esta institución: la información está en proceso de actualización.
-                  {sitioOficial ? " Mientras tanto podés consultar el sitio oficial." : ""}
+              {carrerasQ.isError ? (
+                <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  No pudimos cargar las carreras de esta institución.
+                  <button
+                    type="button"
+                    onClick={() => carrerasQ.refetch()}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Reintentar
+                  </button>
                 </p>
+              ) : (
+                carreras.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Todavía no cargamos carreras para esta institución: la información está en proceso de
+                    actualización.
+                    {sitioOficial ? " Mientras tanto podés consultar el sitio oficial." : ""}
+                  </p>
+                )
               )}
             </div>
           </div>
@@ -226,25 +272,32 @@ function InstitucionDetalle() {
 
             {tieneCoords && (
               <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${institucion.lat},${institucion.lng}`}
+                href={`https://www.openstreetmap.org/directions?to=${institucion.lat}%2C${institucion.lng}`}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
-                Cómo llegar en Google Maps
+                Cómo llegar
               </a>
             )}
           </div>
 
           {tieneCoords ? (
-            <div className="overflow-hidden rounded-xl border border-border" style={{ height: 300 }}>
-              <iframe
-                title={`Mapa de ${institucion.nombre}`}
-                className="h-full w-full"
-                loading="lazy"
-                src={`https://www.google.com/maps?q=${institucion.lat},${institucion.lng}&z=14&output=embed`}
-              />
-            </div>
+            <LeafletMap
+              markers={[
+                {
+                  id: institucion.id,
+                  lat: Number(institucion.lat),
+                  lng: Number(institucion.lng),
+                  label: institucion.nombre,
+                  sublabel: institucion.ciudad ?? undefined,
+                  variant: "primary",
+                },
+              ]}
+              zoom={14}
+              height={300}
+              ariaLabel={`Mapa de ${institucion.nombre}`}
+            />
           ) : (
             <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center text-sm text-muted-foreground">
               Todavía no tenemos la ubicación exacta de esta institución. Estamos actualizando el mapa.

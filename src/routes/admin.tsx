@@ -432,7 +432,6 @@ function Editor({
         <Text label="Instagram (usuario)" value={s.instagramHandle} onChange={(v) => set({ instagramHandle: v })} />
         <Text label="Facebook (URL)" value={s.facebook} onChange={(v) => set({ facebook: v })} />
         <Text label="Facebook (nombre)" value={s.facebookHandle} onChange={(v) => set({ facebookHandle: v })} />
-        <Area label="Mapa (URL embed)" value={s.mapEmbed} onChange={(v) => set({ mapEmbed: v })} />
         <Text label="Ingreso general" value={s.hours.entryGeneral} onChange={(v) => set({ hours: { ...s.hours, entryGeneral: v } })} />
         <Text label="Excepción de ingreso" value={s.hours.entryException} onChange={(v) => set({ hours: { ...s.hours, entryException: v } })} />
         <Text label="Salida general" value={s.hours.exitGeneral} onChange={(v) => set({ hours: { ...s.hours, exitGeneral: v } })} />
