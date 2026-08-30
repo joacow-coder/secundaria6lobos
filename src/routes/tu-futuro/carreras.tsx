@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Heart, Search, X } from "lucide-react";
+import { Heart, Search, WifiOff, X } from "lucide-react";
 import { PageHeader } from "@/components/futuro/Layout";
+import { EmptyState as ErrorState } from "@/components/biblioteca/EmptyState";
 import { carrerasQuery, formatDistancia } from "@/lib/futuro/data";
 import { labelTipoInstitucion } from "@/lib/futuro/site";
 import {
@@ -57,7 +58,7 @@ function FiltroChip({
 }
 
 function CarrerasPage() {
-  const { data, isLoading } = useQuery(carrerasQuery);
+  const { data, isLoading, isError, refetch } = useQuery(carrerasQuery);
   const search = useSearch({ from: "/tu-futuro/carreras" });
   const memoria = useMemoria();
   const [q, setQ] = useState(search.q ?? "");
@@ -226,11 +227,16 @@ function CarrerasPage() {
         </div>
 
         <p className="mt-8 text-sm text-muted-foreground">
-          {isLoading ? "Cargando carreras…" : `${filtradas.length} carreras encontradas`}
+          {isError
+            ? "No pudimos cargar las carreras"
+            : isLoading
+              ? "Cargando carreras…"
+              : `${filtradas.length} carreras encontradas`}
         </p>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          {filtradas.map((c) => (
+          {!isError &&
+            filtradas.map((c) => (
             <article
               key={c.id}
               className="flex flex-col rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-card"
@@ -305,10 +311,30 @@ function CarrerasPage() {
           ))}
         </div>
 
-        {!isLoading && filtradas.length === 0 && (
+        {isError ? (
           <div className="mt-5">
-            <EmptyState mensaje="No encontramos carreras con esos filtros. Probá quitando alguno o buscando por otra palabra." />
+            <ErrorState
+              icon={WifiOff}
+              title="No pudimos cargar las carreras"
+              description="Revisá tu conexión a internet y volvé a intentar."
+              action={
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  className="mt-2 text-sm font-medium text-primary hover:underline"
+                >
+                  Reintentar
+                </button>
+              }
+            />
           </div>
+        ) : (
+          !isLoading &&
+          filtradas.length === 0 && (
+            <div className="mt-5">
+              <EmptyState mensaje="No encontramos carreras con esos filtros. Probá quitando alguno o buscando por otra palabra." />
+            </div>
+          )
         )}
       </div>
     </>

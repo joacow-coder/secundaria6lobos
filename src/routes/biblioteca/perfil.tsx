@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Heart, History, LogOut, UserRound } from "lucide-react";
+import { Heart, History, LogOut, UserRound, WifiOff } from "lucide-react";
 import { useEffect } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
@@ -28,7 +28,11 @@ function PerfilPage() {
     if (ready && !student && !teacher) navigate({ to: "/biblioteca" });
   }, [ready, student, teacher, navigate]);
 
-  const { data: resources = [] } = useQuery(resourcesQuery);
+  const {
+    data: resources = [],
+    isError: resourcesError,
+    refetch: refetchResources,
+  } = useQuery(resourcesQuery);
   const { data: subjects = [] } = useQuery(subjectsQuery);
   const subjectByCode = new Map(subjects.map((s) => [s.code, s]));
 
@@ -88,7 +92,24 @@ function PerfilPage() {
 
         <section>
           <h2 className="font-display text-lg font-semibold">Vistos recientemente</h2>
-          {recentResources.length === 0 ? (
+          {resourcesError ? (
+            <div className="mt-3">
+              <EmptyState
+                icon={WifiOff}
+                title="No pudimos cargar tus materiales vistos"
+                description="Revisá tu conexión a internet y volvé a intentar."
+                action={
+                  <button
+                    type="button"
+                    onClick={() => refetchResources()}
+                    className="mt-2 text-sm font-medium text-primary hover:underline"
+                  >
+                    Reintentar
+                  </button>
+                }
+              />
+            </div>
+          ) : recentResources.length === 0 ? (
             <div className="mt-3">
               <EmptyState
                 icon={History}

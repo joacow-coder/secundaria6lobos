@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Search } from "lucide-react";
+import { BookOpen, Search, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
@@ -31,7 +31,11 @@ function MateriaPage() {
   }, [ready, student, teacher, navigate]);
 
   const { data: subjects = [] } = useQuery(subjectsQuery);
-  const { data: resources = [] } = useQuery(resourcesQuery);
+  const {
+    data: resources = [],
+    isError: resourcesError,
+    refetch: refetchResources,
+  } = useQuery(resourcesQuery);
 
   const subject = subjects.find((s) => s.code === code);
   const [query, setQuery] = useState("");
@@ -59,6 +63,27 @@ function MateriaPage() {
     return (
       <AppShell area="alumno">
         <div className="h-40 animate-pulse rounded-xl bg-secondary" />
+      </AppShell>
+    );
+  }
+
+  if (resourcesError) {
+    return (
+      <AppShell area="alumno">
+        <EmptyState
+          icon={WifiOff}
+          title="No pudimos cargar los materiales"
+          description="Revisá tu conexión a internet y volvé a intentar."
+          action={
+            <button
+              type="button"
+              onClick={() => refetchResources()}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Reintentar
+            </button>
+          }
+        />
       </AppShell>
     );
   }

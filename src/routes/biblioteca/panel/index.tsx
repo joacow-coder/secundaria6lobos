@@ -11,6 +11,7 @@ import {
   Settings,
   Sparkles,
   Users,
+  WifiOff,
 } from "lucide-react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -136,7 +137,18 @@ function PanelInicio() {
                 Ver todos
               </a>
             </div>
-            {resources.length === 0 ? (
+            {resourcesQ.isError ? (
+              <p className="flex flex-wrap items-center gap-2 text-sm text-destructive">
+                <WifiOff className="size-4" /> No pudimos cargar los materiales.
+                <button
+                  type="button"
+                  onClick={() => resourcesQ.refetch()}
+                  className="font-medium underline underline-offset-2"
+                >
+                  Reintentar
+                </button>
+              </p>
+            ) : resources.length === 0 ? (
               <p className="text-sm text-muted-foreground">Todavía no hay materiales publicados.</p>
             ) : (
               <ul className="space-y-2">
@@ -162,7 +174,18 @@ function PanelInicio() {
                 Ver todas
               </a>
             </div>
-            {announcements.length === 0 ? (
+            {announcementsQ.isError ? (
+              <p className="flex flex-wrap items-center gap-2 text-sm text-destructive">
+                <WifiOff className="size-4" /> No pudimos cargar las novedades.
+                <button
+                  type="button"
+                  onClick={() => announcementsQ.refetch()}
+                  className="font-medium underline underline-offset-2"
+                >
+                  Reintentar
+                </button>
+              </p>
+            ) : announcements.length === 0 ? (
               <p className="text-sm text-muted-foreground">Todavía no hay novedades publicadas.</p>
             ) : (
               <ul className="space-y-2">

@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, WifiOff } from "lucide-react";
 import { PageHeader } from "@/components/futuro/Layout";
+import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { noticiasQuery, formatFecha } from "@/lib/futuro/data";
 
 export const Route = createFileRoute("/tu-futuro/noticias")({
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/tu-futuro/noticias")({
 });
 
 function NoticiasPage() {
-  const { data, isLoading } = useQuery(noticiasQuery);
+  const { data, isLoading, isError, refetch } = useQuery(noticiasQuery);
   const noticias = data ?? [];
 
   return (
@@ -29,11 +30,12 @@ function NoticiasPage() {
         description="Información publicada y verificada por el equipo de orientación de la escuela."
       />
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        {isLoading && (
+        {isLoading && !isError && (
           <p className="text-sm text-muted-foreground">Cargando novedades…</p>
         )}
         <div className="grid gap-5 md:grid-cols-2">
-          {noticias.map((n) => (
+          {!isError &&
+            noticias.map((n) => (
             <article
               key={n.id}
               className="flex flex-col overflow-hidden rounded-xl border border-border bg-card"
@@ -76,10 +78,28 @@ function NoticiasPage() {
           ))}
         </div>
 
-        {!isLoading && noticias.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
-            <p className="text-sm text-muted-foreground">Todavía no hay novedades publicadas.</p>
-          </div>
+        {isError ? (
+          <EmptyState
+            icon={WifiOff}
+            title="No pudimos cargar las novedades"
+            description="Revisá tu conexión a internet y volvé a intentar."
+            action={
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="mt-2 text-sm font-medium text-primary hover:underline"
+              >
+                Reintentar
+              </button>
+            }
+          />
+        ) : (
+          !isLoading &&
+          noticias.length === 0 && (
+            <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
+              <p className="text-sm text-muted-foreground">Todavía no hay novedades publicadas.</p>
+            </div>
+          )
         )}
       </section>
     </>

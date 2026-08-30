@@ -113,7 +113,8 @@ export const blockedWordsQuery = queryOptions({
   queryKey: ["biblioteca", "blocked_words"],
   staleTime: 1000 * 60 * 30,
   queryFn: async (): Promise<string[]> => {
-    const { data } = await supabase.from("bib_blocked_words").select("word");
+    const { data, error } = await supabase.from("bib_blocked_words").select("word");
+    if (error) throw error;
     return ((data ?? []) as { word: string }[]).map((row) => row.word);
   },
 });

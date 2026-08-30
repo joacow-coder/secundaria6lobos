@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BellRing, BookOpen, CalendarDays, Heart, Search, Sparkles } from "lucide-react";
+import { BellRing, BookOpen, CalendarDays, Heart, Search, Sparkles, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
@@ -32,8 +32,12 @@ function InicioAlumno() {
     if (ready && !student && !teacher) navigate({ to: "/biblioteca" });
   }, [ready, student, teacher, navigate]);
 
-  const { data: subjects = [] } = useQuery(subjectsQuery);
-  const { data: resources = [] } = useQuery(resourcesQuery);
+  const { data: subjects = [], isError: subjectsError } = useQuery(subjectsQuery);
+  const {
+    data: resources = [],
+    isError: resourcesError,
+    refetch: refetchResources,
+  } = useQuery(resourcesQuery);
 
   const [query, setQuery] = useState("");
   const [year, setYear] = useState<number | null>(null);
@@ -72,6 +76,27 @@ function InicioAlumno() {
     return (
       <AppShell area="alumno">
         <div className="h-40 animate-pulse rounded-xl bg-secondary" />
+      </AppShell>
+    );
+  }
+
+  if (subjectsError || resourcesError) {
+    return (
+      <AppShell area="alumno">
+        <EmptyState
+          icon={WifiOff}
+          title="No pudimos cargar la biblioteca"
+          description="Revisá tu conexión a internet y volvé a intentar."
+          action={
+            <button
+              type="button"
+              onClick={() => refetchResources()}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Reintentar
+            </button>
+          }
+        />
       </AppShell>
     );
   }

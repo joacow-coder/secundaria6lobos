@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Archive, Bell, Check, Inbox } from "lucide-react";
+import { Archive, Bell, Check, Inbox, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
@@ -52,7 +52,12 @@ function NotificacionesPage() {
     if (ready && !audience) navigate({ to: "/biblioteca" });
   }, [ready, audience, navigate]);
 
-  const { data: messages = [], isLoading } = useQuery({
+  const {
+    data: messages = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["bib-inbox", audience],
     enabled: Boolean(audience),
     queryFn: () => bibInbox({ data: { audience: audience as Audience } }),
@@ -97,6 +102,21 @@ function NotificacionesPage() {
 
         {isLoading ? (
           <div className="h-32 animate-pulse rounded-xl bg-secondary" />
+        ) : isError ? (
+          <EmptyState
+            icon={WifiOff}
+            title="No pudimos cargar tus comunicados"
+            description="Revisá tu conexión a internet y volvé a intentar."
+            action={
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="mt-2 text-sm font-medium text-primary hover:underline"
+              >
+                Reintentar
+              </button>
+            }
+          />
         ) : visible.length === 0 ? (
           <EmptyState
             icon={Inbox}

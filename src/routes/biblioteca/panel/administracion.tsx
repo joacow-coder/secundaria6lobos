@@ -35,8 +35,16 @@ function AdministracionPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { teacher, ready } = useBibliotecaSession();
-  const { data: subjects = [] } = useQuery(subjectsQuery);
-  const { data: blocked = [] } = useQuery(blockedWordsQuery);
+  const {
+    data: subjects = [],
+    isError: subjectsError,
+    refetch: refetchSubjects,
+  } = useQuery(subjectsQuery);
+  const {
+    data: blocked = [],
+    isError: blockedError,
+    refetch: refetchBlocked,
+  } = useQuery(blockedWordsQuery);
 
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
@@ -140,6 +148,18 @@ function AdministracionPage() {
           </button>
         </div>
 
+        {subjectsError && (
+          <p className="mt-4 flex flex-wrap items-center gap-2 text-sm text-destructive">
+            No pudimos cargar las materias existentes.
+            <button
+              type="button"
+              onClick={() => refetchSubjects()}
+              className="font-medium underline underline-offset-2"
+            >
+              Reintentar
+            </button>
+          </p>
+        )}
         <ul className="mt-5 divide-y divide-border">
           {subjects.map((s) => (
             <li key={s.code} className="flex items-center justify-between gap-3 py-2.5 text-sm">
@@ -166,6 +186,19 @@ function AdministracionPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Una por línea o separadas por comas. Se usan para validar los nombres de estudiantes.
         </p>
+        {blockedError && (
+          <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-destructive">
+            No pudimos cargar la lista actual de palabras bloqueadas. Guardar ahora la reemplazaría por
+            una lista vacía.
+            <button
+              type="button"
+              onClick={() => refetchBlocked()}
+              className="font-medium underline underline-offset-2"
+            >
+              Reintentar
+            </button>
+          </p>
+        )}
         <textarea
           aria-label="Palabras bloqueadas"
           value={words ?? blocked.join("\n")}
@@ -176,7 +209,7 @@ function AdministracionPage() {
         <button
           type="button"
           onClick={() => saveWords.mutate()}
-          disabled={saveWords.isPending}
+          disabled={saveWords.isPending || (blockedError && words === null)}
           className="mt-3 rounded-lg bg-primary px-4 py-2.5 font-medium text-primary-foreground disabled:opacity-60"
         >
           Guardar filtro

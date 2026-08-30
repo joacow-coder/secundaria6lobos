@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, WifiOff, X } from "lucide-react";
 import { AppShell } from "@/components/biblioteca/AppShell";
+import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -167,6 +168,21 @@ function PanelCalendario() {
         <div className="space-y-3">
           {eventsQ.isLoading ? (
             Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)
+          ) : eventsQ.isError ? (
+            <EmptyState
+              icon={WifiOff}
+              title="No pudimos cargar el calendario"
+              description="Revisá tu conexión a internet y volvé a intentar."
+              action={
+                <button
+                  type="button"
+                  onClick={() => eventsQ.refetch()}
+                  className="mt-2 text-sm font-medium text-primary hover:underline"
+                >
+                  Reintentar
+                </button>
+              }
+            />
           ) : (eventsQ.data ?? []).length === 0 ? (
             <p className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
               Todavía no hay eventos cargados.

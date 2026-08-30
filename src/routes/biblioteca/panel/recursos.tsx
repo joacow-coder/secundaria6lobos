@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Plus, Search, Star, Trash2, Upload, X } from "lucide-react";
+import { Pencil, Plus, Search, Star, Trash2, Upload, WifiOff, X } from "lucide-react";
 import { AppShell } from "@/components/biblioteca/AppShell";
+import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -330,6 +331,23 @@ function PanelRecursos() {
           {resourcesQ.isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+            </div>
+          ) : resourcesQ.isError ? (
+            <div className="p-4">
+              <EmptyState
+                icon={WifiOff}
+                title="No pudimos cargar los materiales"
+                description="Revisá tu conexión a internet y volvé a intentar."
+                action={
+                  <button
+                    type="button"
+                    onClick={() => resourcesQ.refetch()}
+                    className="mt-2 text-sm font-medium text-primary hover:underline"
+                  >
+                    Reintentar
+                  </button>
+                }
+              />
             </div>
           ) : filtered.length === 0 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">No hay materiales que coincidan.</p>

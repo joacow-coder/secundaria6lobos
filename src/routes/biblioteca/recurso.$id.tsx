@@ -8,6 +8,7 @@ import {
   Heart,
   Tag,
   User,
+  WifiOff,
 } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
@@ -39,7 +40,11 @@ function RecursoDetalle() {
     if (ready && !student && !teacher) navigate({ to: "/biblioteca" });
   }, [ready, student, teacher, navigate]);
 
-  const { data: resources = [] } = useQuery(resourcesQuery);
+  const {
+    data: resources = [],
+    isError: resourcesError,
+    refetch: refetchResources,
+  } = useQuery(resourcesQuery);
   const { data: subjects = [] } = useQuery(subjectsQuery);
   const trackMetric = useMutation({
     mutationFn: (metric: "views" | "downloads") => bibTrackMetric({ data: { id, metric } }),
@@ -69,6 +74,27 @@ function RecursoDetalle() {
     return (
       <AppShell area="alumno">
         <div className="h-40 animate-pulse rounded-xl bg-secondary" />
+      </AppShell>
+    );
+  }
+
+  if (resourcesError) {
+    return (
+      <AppShell area="alumno">
+        <EmptyState
+          icon={WifiOff}
+          title="No pudimos cargar este material"
+          description="Revisá tu conexión a internet y volvé a intentar."
+          action={
+            <button
+              type="button"
+              onClick={() => refetchResources()}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Reintentar
+            </button>
+          }
+        />
       </AppShell>
     );
   }

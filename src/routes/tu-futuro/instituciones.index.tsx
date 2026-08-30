@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Heart, MapPin } from "lucide-react";
+import { ArrowRight, Heart, MapPin, WifiOff } from "lucide-react";
 import { PageHeader } from "@/components/futuro/Layout";
+import { EmptyState as ErrorState } from "@/components/biblioteca/EmptyState";
 import { institucionesQuery, formatDistancia } from "@/lib/futuro/data";
 import { TIPOS_INSTITUCION, labelTipoInstitucion } from "@/lib/futuro/site";
 import { useMemoria, toggleFavoritoInstitucion } from "@/lib/futuro/store";
@@ -16,7 +17,7 @@ function EmptyState({ mensaje }: { mensaje: string }) {
 }
 
 function InstitucionesPage() {
-  const { data, isLoading } = useQuery(institucionesQuery);
+  const { data, isLoading, isError, refetch } = useQuery(institucionesQuery);
   const [tipo, setTipo] = useState<string | null>(null);
   const memoria = useMemoria();
   const instituciones = (data ?? []).filter((i) => !tipo || i.tipo === tipo);
@@ -58,7 +59,8 @@ function InstitucionesPage() {
         </div>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {instituciones.map((i) => {
+          {!isError &&
+            instituciones.map((i) => {
             const esFavorita = memoria.favoritosInstituciones.some((f) => f.id === i.id);
             return (
               <div key={i.id} className="relative">
@@ -114,10 +116,30 @@ function InstitucionesPage() {
           })}
         </div>
 
-        {!isLoading && instituciones.length === 0 && (
+        {isError ? (
           <div className="mt-8">
-            <EmptyState mensaje="Todavía no hay instituciones cargadas para este filtro." />
+            <ErrorState
+              icon={WifiOff}
+              title="No pudimos cargar las instituciones"
+              description="Revisá tu conexión a internet y volvé a intentar."
+              action={
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  className="mt-2 text-sm font-medium text-primary hover:underline"
+                >
+                  Reintentar
+                </button>
+              }
+            />
           </div>
+        ) : (
+          !isLoading &&
+          instituciones.length === 0 && (
+            <div className="mt-8">
+              <EmptyState mensaje="Todavía no hay instituciones cargadas para este filtro." />
+            </div>
+          )
         )}
       </div>
     </>

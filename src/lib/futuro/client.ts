@@ -1,8 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
 // Backend propio de la plataforma "Tu Futuro" (orientación estudiantil).
-const FUTURO_URL = "https://jkgwdvprmcrymajeysxh.supabase.co";
-const FUTURO_KEY = "sb_publishable_whbwVpavw2FeuzpyYmFEGw_CdLnihPF";
+// Proyecto Supabase distinto al de la escuela: se configura por variables de
+// entorno, con el proyecto compartido actual como valor por defecto.
+const FUTURO_URL =
+  import.meta.env["VITE_FUTURO_SUPABASE_URL"] || "https://jkgwdvprmcrymajeysxh.supabase.co";
+const FUTURO_KEY =
+  import.meta.env["VITE_FUTURO_SUPABASE_PUBLISHABLE_KEY"] ||
+  "sb_publishable_whbwVpavw2FeuzpyYmFEGw_CdLnihPF";
 
 function futuroFetch(key: string): typeof fetch {
   return (input, init) => {

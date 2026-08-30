@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CalendarDays, Clock } from "lucide-react";
+import { CalendarDays, Clock, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
@@ -28,7 +28,7 @@ function CalendarioPage() {
     if (ready && !student && !teacher) navigate({ to: "/biblioteca" });
   }, [ready, student, teacher, navigate]);
 
-  const { data: events = [] } = useQuery(calendarQuery);
+  const { data: events = [], isError: eventsError, refetch: refetchEvents } = useQuery(calendarQuery);
   const { data: subjects = [] } = useQuery(subjectsQuery);
   const subjectByCode = new Map(subjects.map((s) => [s.code, s]));
 
@@ -69,6 +69,27 @@ function CalendarioPage() {
     return (
       <AppShell area="alumno">
         <div className="h-40 animate-pulse rounded-xl bg-secondary" />
+      </AppShell>
+    );
+  }
+
+  if (eventsError) {
+    return (
+      <AppShell area="alumno">
+        <EmptyState
+          icon={WifiOff}
+          title="No pudimos cargar el calendario"
+          description="Revisá tu conexión a internet y volvé a intentar."
+          action={
+            <button
+              type="button"
+              onClick={() => refetchEvents()}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Reintentar
+            </button>
+          }
+        />
       </AppShell>
     );
   }

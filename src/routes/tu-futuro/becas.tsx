@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { CalendarClock, ExternalLink } from "lucide-react";
+import { CalendarClock, ExternalLink, WifiOff } from "lucide-react";
 import { PageHeader } from "@/components/futuro/Layout";
+import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { becasQuery, formatFecha } from "@/lib/futuro/data";
 import { TIPOS_BECA, labelTipoBeca } from "@/lib/futuro/site";
 
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/tu-futuro/becas")({
 });
 
 function BecasPage() {
-  const { data, isLoading } = useQuery(becasQuery);
+  const { data, isLoading, isError, refetch } = useQuery(becasQuery);
   const [tipo, setTipo] = useState<string | null>(null);
   const becas = (data ?? []).filter((b) => !tipo || b.tipo === tipo);
   const hoy = new Date().toISOString().slice(0, 10);
@@ -117,14 +118,34 @@ function BecasPage() {
           })}
         </div>
 
-        {!isLoading && becas.length === 0 && (
+        {isError ? (
           <div className="mt-8">
-            <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
-              <p className="text-sm text-muted-foreground">
-                No hay becas cargadas para este filtro.
-              </p>
-            </div>
+            <EmptyState
+              icon={WifiOff}
+              title="No pudimos cargar las becas"
+              description="Revisá tu conexión a internet y volvé a intentar."
+              action={
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  className="mt-2 text-sm font-medium text-primary hover:underline"
+                >
+                  Reintentar
+                </button>
+              }
+            />
           </div>
+        ) : (
+          !isLoading &&
+          becas.length === 0 && (
+            <div className="mt-8">
+              <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No hay becas cargadas para este filtro.
+                </p>
+              </div>
+            </div>
+          )
         )}
       </section>
     </>

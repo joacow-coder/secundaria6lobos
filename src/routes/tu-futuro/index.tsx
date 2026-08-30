@@ -439,8 +439,25 @@ function HomePage() {
               Próximas fechas clave
             </p>
             <ul className="mt-5 grid gap-4">
-              {proximasFechas.length === 0 && (
-                <li className="text-sm text-white/70">Cargando el calendario del ciclo lectivo…</li>
+              {eventos.isError ? (
+                <li className="flex flex-wrap items-center gap-2 text-sm text-white/70">
+                  No pudimos cargar el calendario.
+                  <button
+                    type="button"
+                    onClick={() => eventos.refetch()}
+                    className="font-semibold text-white hover:underline"
+                  >
+                    Reintentar
+                  </button>
+                </li>
+              ) : (
+                proximasFechas.length === 0 && (
+                  <li className="text-sm text-white/70">
+                    {eventos.isLoading
+                      ? "Cargando el calendario del ciclo lectivo…"
+                      : "No hay fechas próximas cargadas."}
+                  </li>
+                )
               )}
               {proximasFechas.map((e) => (
                 <li key={e.id} className="border-b border-white/10 pb-4 last:border-0 last:pb-0">

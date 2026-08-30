@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BellRing, Pin } from "lucide-react";
+import { BellRing, Pin, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
@@ -28,7 +28,11 @@ function NovedadesPage() {
     if (ready && !student && !teacher) navigate({ to: "/biblioteca" });
   }, [ready, student, teacher, navigate]);
 
-  const { data: announcements = [] } = useQuery(announcementsQuery);
+  const {
+    data: announcements = [],
+    isError: announcementsError,
+    refetch: refetchAnnouncements,
+  } = useQuery(announcementsQuery);
   const { data: subjects = [] } = useQuery(subjectsQuery);
   const subjectByCode = new Map(subjects.map((s) => [s.code, s]));
 
@@ -49,6 +53,27 @@ function NovedadesPage() {
     return (
       <AppShell area="alumno">
         <div className="h-40 animate-pulse rounded-xl bg-secondary" />
+      </AppShell>
+    );
+  }
+
+  if (announcementsError) {
+    return (
+      <AppShell area="alumno">
+        <EmptyState
+          icon={WifiOff}
+          title="No pudimos cargar las novedades"
+          description="Revisá tu conexión a internet y volvé a intentar."
+          action={
+            <button
+              type="button"
+              onClick={() => refetchAnnouncements()}
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Reintentar
+            </button>
+          }
+        />
       </AppShell>
     );
   }

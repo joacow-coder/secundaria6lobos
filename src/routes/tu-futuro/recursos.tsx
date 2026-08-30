@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, WifiOff } from "lucide-react";
 import { PageHeader } from "@/components/futuro/Layout";
+import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { recursosQuery } from "@/lib/futuro/data";
 
 export const Route = createFileRoute("/tu-futuro/recursos")({
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/tu-futuro/recursos")({
 });
 
 function RecursosPage() {
-  const { data, isLoading } = useQuery(recursosQuery);
+  const { data, isLoading, isError, refetch } = useQuery(recursosQuery);
   const recursos = data ?? [];
   const categorias = Array.from(new Set(recursos.map((r) => r.categoria)));
 
@@ -31,11 +32,12 @@ function RecursosPage() {
         description="Todo lo que conviene tener a mano: documentación, trámites, consejos para mudarse a estudiar y contactos de apoyo."
       />
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        {isLoading && (
+        {isLoading && !isError && (
           <p className="text-sm text-muted-foreground">Cargando recursos…</p>
         )}
         <div className="grid gap-12">
-          {categorias.map((categoria) => (
+          {!isError &&
+            categorias.map((categoria) => (
             <div key={categoria}>
               <h2 className="font-display text-xl font-bold capitalize">{categoria}</h2>
               <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -74,10 +76,28 @@ function RecursosPage() {
           ))}
         </div>
 
-        {!isLoading && recursos.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
-            <p className="text-sm text-muted-foreground">Todavía no hay recursos publicados.</p>
-          </div>
+        {isError ? (
+          <EmptyState
+            icon={WifiOff}
+            title="No pudimos cargar los recursos"
+            description="Revisá tu conexión a internet y volvé a intentar."
+            action={
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="mt-2 text-sm font-medium text-primary hover:underline"
+              >
+                Reintentar
+              </button>
+            }
+          />
+        ) : (
+          !isLoading &&
+          recursos.length === 0 && (
+            <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
+              <p className="text-sm text-muted-foreground">Todavía no hay recursos publicados.</p>
+            </div>
+          )
         )}
       </section>
     </>
