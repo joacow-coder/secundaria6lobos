@@ -31,6 +31,7 @@ function Index() {
   const content = Route.useLoaderData() as SiteContent;
   const [showIntro, setShowIntro] = useState(true);
   const [checked, setChecked] = useState(false);
+  const [installSettled, setInstallSettled] = useState(false);
 
   useEffect(() => {
     if (hasSeenIntro()) setShowIntro(false);
@@ -69,8 +70,8 @@ function Index() {
         <Lobi />
         <BackToTop />
         <AppBottomNav />
-        <InstallPrompt />
-        <PushOptIn />
+        <InstallPrompt onSettled={() => setInstallSettled(true)} />
+        <PushOptIn active={installSettled} />
       </div>
     </ContentCtx.Provider>
   );
