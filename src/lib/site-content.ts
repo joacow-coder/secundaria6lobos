@@ -35,6 +35,8 @@ export type NewsItem = Hidden & {
   date: string;
   title: string;
   excerpt: string;
+  /** Cuerpo completo de la noticia, mostrado en el modal. Si no está, se usa `excerpt`. */
+  content?: string;
 };
 export type EventItem = Hidden & {
   id: string;

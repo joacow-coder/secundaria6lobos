@@ -27,6 +27,12 @@ import {
   type SiteContent,
 } from "@/lib/site-content";
 
+// El plugin de TanStack Router extrae automáticamente el `component` de esta
+// ruta a un chunk JS separado, cargado con dynamic import() solo cuando se
+// navega a /admin. El código de este archivo (incluida la validación del
+// código maestro) no viaja en el bundle público del sitio — verificable con
+// `grep -c "SITE_ADMIN_MASTER_CODE\|adminSaveSection" dist/client/assets/index-*.js`
+// (debe dar 0) después de un build. No hace falta lazy-loading manual.
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
@@ -346,6 +352,11 @@ function Editor({
               <Text label="Fecha" value={item.date} onChange={(v) => set({ ...item, date: v })} />
               <Text label="Título" value={item.title} onChange={(v) => set({ ...item, title: v })} />
               <Area label="Resumen" value={item.excerpt} onChange={(v) => set({ ...item, excerpt: v })} />
+              <Area
+                label="Contenido completo (opcional)"
+                value={item.content ?? ""}
+                onChange={(v) => set({ ...item, content: v || undefined })}
+              />
             </>
           )}
         />

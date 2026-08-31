@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { buildContent, type SiteContent } from "@/lib/site-content";
+import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 
 // Carga el contenido público directamente desde Supabase en el cliente
 export async function loadSiteContent(): Promise<SiteContent> {
@@ -24,6 +26,7 @@ function timingSafeEqual(a: string, b: string): boolean {
  * el cliente de rol de servicio (bypassa RLS) — nunca con el cliente anon.
  */
 function assertSiteAdmin(code: unknown): void {
+  checkRateLimit(clientKey("site-admin"));
   const expected = process.env["SITE_ADMIN_MASTER_CODE"];
   if (!expected) throw new Error("El acceso al panel no está configurado.");
   if (typeof code !== "string" || !timingSafeEqual(code.trim(), expected)) {
@@ -36,22 +39,39 @@ async function admin() {
   return supabaseAdmin;
 }
 
+const codeSchema = z.object({ code: z.string().min(1).max(200) });
+
 export const adminVerifyCode = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string }) => d)
+  .inputValidator(codeSchema)
   .handler(async ({ data }) => {
     assertSiteAdmin(data.code);
     return { ok: true as const };
   });
 
 export const adminSaveSection = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; section: string; data: unknown }) => d)
+  .inputValidator(
+    z.object({
+      code: z.string().min(1).max(200),
+      section: z.string().min(1).max(40),
+      data: z.unknown(),
+    }),
+  )
   .handler(async ({ data }) => {
     assertSiteAdmin(data.code);
-    if (typeof data.section !== "string" || data.section.length > 40) {
-      throw new Error("Sección inválida.");
-    }
 
     const db = await admin();
+
+    let previousNewsIds = new Set<string>();
+    if (data.section === "news") {
+      const { data: prevRow } = await db
+        .from("site_content")
+        .select("data")
+        .eq("section", "news")
+        .maybeSingle();
+      const prevItems = (prevRow?.data as { items?: { id: string }[] } | null)?.items ?? [];
+      previousNewsIds = new Set(prevItems.map((it) => it.id));
+    }
+
     const { error } = await db
       .from("site_content")
       .upsert(
@@ -60,11 +80,30 @@ export const adminSaveSection = createServerFn({ method: "POST" })
       );
 
     if (error) throw new Error(error.message);
+
+    if (data.section === "news") {
+      const items = (data.data as { items?: { id: string; title: string; excerpt: string }[] })?.items ?? [];
+      const newItems = items.filter((it) => !previousNewsIds.has(it.id));
+      if (newItems.length > 0) {
+        const { sendPushToAllSubscriptions } = await import("@/lib/push.functions");
+        for (const it of newItems) {
+          await sendPushToAllSubscriptions({ title: it.title, body: it.excerpt, url: "/#noticias" });
+        }
+      }
+    }
+
     return { ok: true as const };
   });
 
 export const adminUploadMedia = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; filename: string; contentType: string; base64: string }) => d)
+  .inputValidator(
+    z.object({
+      code: z.string().min(1).max(200),
+      filename: z.string().min(1).max(255),
+      contentType: z.string().max(100),
+      base64: z.string().min(1),
+    }),
+  )
   .handler(async ({ data }) => {
     assertSiteAdmin(data.code);
 

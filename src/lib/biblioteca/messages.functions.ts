@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 
 export type StaffRole = "profesor" | "preceptor" | "directivo";
 export type Audience = { role: "alumno" | StaffRole; name: string; year: number | null };
@@ -8,6 +10,20 @@ export type TargetInput = {
   target_year: number | null;
   target_person: string | null;
 };
+
+const staffRoleSchema = z.enum(["profesor", "preceptor", "directivo"]);
+const audienceSchema = z.object({
+  role: z.enum(["alumno", "profesor", "preceptor", "directivo"]),
+  name: z.string().min(1).max(120),
+  year: z.number().int().nullable(),
+});
+const targetSchema = z.object({
+  target_type: z.enum(["all", "role", "year", "person"]),
+  target_role: z.string().max(20).nullable(),
+  target_year: z.number().int().nullable(),
+  target_person: z.string().max(120).nullable(),
+});
+
 export type InboxMessage = {
   id: string;
   title: string;
@@ -35,6 +51,7 @@ const CODE_ENV: Record<StaffRole, string> = {
 
 /** Verificación central de credenciales del personal (docente, preceptor, directivo). */
 function assertStaff(role: unknown, code: unknown): StaffRole {
+  checkRateLimit(clientKey("staff"));
   const value = String(role ?? "") as StaffRole;
   const envName = CODE_ENV[value];
   if (!envName) throw new Error("Perfil no válido.");
@@ -77,7 +94,7 @@ function matches(target: TargetInput, audience: Audience): boolean {
 }
 
 export const bibVerifyStaffCode = createServerFn({ method: "POST" })
-  .inputValidator((d: { role: StaffRole; code: string }) => d)
+  .inputValidator(z.object({ role: staffRoleSchema, code: z.string().min(1).max(200) }))
   .handler(async ({ data }) => {
     assertStaff(data.role, data.code);
     return { ok: true as const };
@@ -85,14 +102,14 @@ export const bibVerifyStaffCode = createServerFn({ method: "POST" })
 
 export const bibSendMessage = createServerFn({ method: "POST" })
   .inputValidator(
-    (d: {
-      role: StaffRole;
-      code: string;
-      title: string;
-      body: string;
-      senderName: string;
-      targets: TargetInput[];
-    }) => d,
+    z.object({
+      role: staffRoleSchema,
+      code: z.string().min(1).max(200),
+      title: z.string().max(200),
+      body: z.string().max(5000),
+      senderName: z.string().max(120),
+      targets: z.array(targetSchema).max(60),
+    }),
   )
   .handler(async ({ data }) => {
     const role = assertStaff(data.role, data.code);
@@ -130,7 +147,7 @@ export const bibSendMessage = createServerFn({ method: "POST" })
   });
 
 export const bibInbox = createServerFn({ method: "POST" })
-  .inputValidator((d: { audience: Audience }) => d)
+  .inputValidator(z.object({ audience: audienceSchema }))
   .handler(async ({ data }): Promise<InboxMessage[]> => {
     const audience = data.audience;
     if (!audience?.name?.trim()) return [];
@@ -187,7 +204,12 @@ export const bibInbox = createServerFn({ method: "POST" })
 
 export const bibUpdateInboxState = createServerFn({ method: "POST" })
   .inputValidator(
-    (d: { audience: Audience; id: string; read?: boolean; archived?: boolean }) => d,
+    z.object({
+      audience: audienceSchema,
+      id: z.string().uuid(),
+      read: z.boolean().optional(),
+      archived: z.boolean().optional(),
+    }),
   )
   .handler(async ({ data }) => {
     const db = await admin();
@@ -205,7 +227,9 @@ export const bibUpdateInboxState = createServerFn({ method: "POST" })
   });
 
 export const bibSentMessages = createServerFn({ method: "POST" })
-  .inputValidator((d: { role: StaffRole; code: string; senderName: string }) => d)
+  .inputValidator(
+    z.object({ role: staffRoleSchema, code: z.string().min(1).max(200), senderName: z.string().max(120) }),
+  )
   .handler(async ({ data }) => {
     const role = assertStaff(data.role, data.code);
     const db = await admin();

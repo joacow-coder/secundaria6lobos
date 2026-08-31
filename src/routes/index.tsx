@@ -4,13 +4,17 @@ import { GraduationCap, Rocket, Building2, Banknote, Compass, Map, ArrowRight } 
 import { Lobi } from "@/components/Lobi";
 import { Intro, hasSeenIntro } from "@/components/Intro";
 import { AppBottomNav } from "@/components/AppBottomNav";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { PushOptIn } from "@/components/PushOptIn";
 import { LeafletMap } from "@/components/LeafletMap";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { loadSiteContent } from "@/lib/site.functions";
 import { LOBOS } from "@/lib/futuro/site";
 import {
   SECTION_LABELS,
   defaultContent,
   visible,
+  type NewsItem,
   type SectionKey,
   type SiteContent,
 } from "@/lib/site-content";
@@ -65,6 +69,8 @@ function Index() {
         <Lobi />
         <BackToTop />
         <AppBottomNav />
+        <InstallPrompt />
+        <PushOptIn />
       </div>
     </ContentCtx.Provider>
   );
@@ -167,7 +173,7 @@ function Hero() {
           className="animate-float h-32 w-32 object-contain drop-shadow-2xl sm:h-40 sm:w-40"
         />
         <div className="animate-fade-up space-y-4">
-          <span className="inline-block rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ring-1 ring-white/30">
+          <span className="inline-block max-w-[92vw] text-balance rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest ring-1 ring-white/30">
             Desde {hero.badgeYear} · {years} {years === 1 ? "año" : "años"} formando comunidad · Lobos, Buenos Aires
           </span>
           <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">{hero.title}</h1>
@@ -423,14 +429,17 @@ function Anniversary() {
 
 function News() {
   const { news } = useContent();
+  const [selected, setSelected] = useState<NewsItem | null>(null);
   return (
     <section id="noticias" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
       <SectionTitle eyebrow="Noticias" title="Últimas novedades" />
       <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {visible(news.items).map((n) => (
-          <article
+          <button
             key={n.id}
-            className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
+            type="button"
+            onClick={() => setSelected(n)}
+            className="flex flex-col overflow-hidden rounded-2xl bg-card text-left shadow-card transition hover:-translate-y-1 hover:shadow-elegant"
           >
             <div className="aspect-video overflow-hidden">
               <img src={n.image} alt={n.title} className="h-full w-full object-cover" loading="lazy" />
@@ -442,9 +451,32 @@ function News() {
               <h3 className="mt-1 text-lg font-bold text-brand-navy">{n.title}</h3>
               <p className="mt-2 flex-1 text-sm text-muted-foreground">{n.excerpt}</p>
             </div>
-          </article>
+          </button>
         ))}
       </div>
+
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto p-0">
+          {selected ? (
+            <>
+              <div className="aspect-video overflow-hidden">
+                <img src={selected.image} alt={selected.title} className="h-full w-full object-cover" />
+              </div>
+              <div className="p-6 pt-4">
+                <DialogHeader>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-brand-sky">
+                    {selected.date}
+                  </div>
+                  <DialogTitle className="text-xl text-brand-navy">{selected.title}</DialogTitle>
+                </DialogHeader>
+                <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                  {selected.content || selected.excerpt}
+                </p>
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
@@ -702,10 +734,11 @@ function ComingSoon() {
           {comingSoon.intro}
         </p>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {visible(comingSoon.items).map((it) => (
+          {visible(comingSoon.items).map((it, idx) => (
             <div
               key={it.id}
-              className="group relative overflow-hidden rounded-2xl bg-card p-6 shadow-card ring-1 ring-border/50 transition hover:-translate-y-1 hover:shadow-elegant"
+              className="group animate-soft-pulse relative overflow-hidden rounded-2xl bg-card p-6 shadow-card ring-1 ring-border/50 transition hover:-translate-y-1 hover:shadow-elegant"
+              style={{ animationDelay: `${idx * 0.3}s` }}
             >
               <div className="absolute right-4 top-4 rounded-full bg-brand-sky/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-navy">
                 Pronto
@@ -713,7 +746,7 @@ function ComingSoon() {
               <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-navy text-2xl text-primary-foreground">
                 {it.icon}
               </div>
-              <h3 className="mt-4 text-lg font-bold text-brand-navy">{it.title}</h3>
+              <h3 className="mt-4 pr-16 text-lg font-bold text-brand-navy">{it.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{it.desc}</p>
             </div>
           ))}
@@ -736,7 +769,7 @@ function BackToTop() {
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Volver arriba"
-      className={`fixed bottom-5 right-5 z-50 grid h-12 w-12 place-items-center rounded-full bg-brand-navy text-primary-foreground shadow-elegant ring-1 ring-white/20 transition-all duration-500 hover:scale-110 hover:bg-brand-sky hover:text-brand-navy sm:bottom-6 sm:right-6 ${
+      className={`fixed bottom-24 right-4 z-50 grid h-12 w-12 place-items-center rounded-full bg-brand-navy text-primary-foreground shadow-elegant ring-1 ring-white/20 transition-all duration-500 hover:scale-110 hover:bg-brand-sky hover:text-brand-navy sm:bottom-6 sm:right-6 lg:bottom-6 lg:right-6 ${
         visibleBtn ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       }`}
     >

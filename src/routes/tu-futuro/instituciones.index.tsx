@@ -69,7 +69,7 @@ function InstitucionesPage() {
                   aria-label={esFavorita ? "Quitar de guardadas" : "Guardar institución"}
                   aria-pressed={esFavorita}
                   onClick={() => toggleFavoritoInstitucion({ id: i.id, nombre: i.nombre, detalle: i.ciudad ?? undefined })}
-                  className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/90 backdrop-blur hover:bg-muted"
+                  className="absolute right-2 top-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-background/90 backdrop-blur hover:bg-muted sm:right-3 sm:top-3 sm:h-9 sm:w-9"
                 >
                   <Heart className={esFavorita ? "h-4 w-4 fill-primary text-primary" : "h-4 w-4"} />
                 </button>

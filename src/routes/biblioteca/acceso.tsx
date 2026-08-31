@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import logoAsset from "@/assets/logo.png";
@@ -105,12 +105,12 @@ function AccesoDocente() {
           </button>
 
           <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm">
-            <a href="/biblioteca" className="text-primary hover:underline">
+            <Link to="/biblioteca" className="text-primary hover:underline">
               Soy estudiante
-            </a>
-            <a href="/" className="text-muted-foreground hover:text-foreground">
+            </Link>
+            <Link to="/" className="text-muted-foreground hover:text-foreground">
               Volver al sitio
-            </a>
+            </Link>
           </div>
         </form>
       </div>

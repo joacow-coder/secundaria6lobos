@@ -1,46 +1,54 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 
-type ResourceInput = {
-  id?: string;
-  title: string;
-  description: string;
-  subject_code: string;
-  year: number;
-  unit: string | null;
-  topic: string | null;
-  tags: string[];
-  kind: string;
-  file_path: string | null;
-  file_size: number | null;
-  mime_type: string | null;
-  external_url: string | null;
-  provider: string | null;
-  featured: boolean;
-  teacher_name: string;
-};
+const resourceSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().max(200),
+  description: z.string().max(5000),
+  subject_code: z.string().max(20),
+  year: z.number().int(),
+  unit: z.string().max(200).nullable(),
+  topic: z.string().max(200).nullable(),
+  tags: z.array(z.string().max(50)).max(50),
+  kind: z.string().max(30),
+  file_path: z.string().max(500).nullable(),
+  file_size: z.number().nullable(),
+  mime_type: z.string().max(150).nullable(),
+  external_url: z.string().max(2000).nullable(),
+  provider: z.string().max(50).nullable(),
+  featured: z.boolean(),
+  teacher_name: z.string().max(120),
+});
+type ResourceInput = z.infer<typeof resourceSchema>;
 
-type AnnouncementInput = {
-  id?: string;
-  title: string;
-  body: string;
-  subject_code: string | null;
-  year: number | null;
-  importance: string;
-  pinned: boolean;
-  teacher_name: string;
-};
+const announcementSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().max(200),
+  body: z.string().max(5000),
+  subject_code: z.string().max(20).nullable(),
+  year: z.number().int().nullable(),
+  importance: z.string().max(20),
+  pinned: z.boolean(),
+  teacher_name: z.string().max(120),
+});
+type AnnouncementInput = z.infer<typeof announcementSchema>;
 
-type EventInput = {
-  id?: string;
-  title: string;
-  description: string;
-  event_type: string;
-  subject_code: string | null;
-  year: number | null;
-  starts_at: string;
-  ends_at: string | null;
-  teacher_name: string;
-};
+const eventSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().max(200),
+  description: z.string().max(5000),
+  event_type: z.string().max(30),
+  subject_code: z.string().max(20).nullable(),
+  year: z.number().int().nullable(),
+  starts_at: z.string().max(40),
+  ends_at: z.string().max(40).nullable(),
+  teacher_name: z.string().max(120),
+});
+type EventInput = z.infer<typeof eventSchema>;
+
+const codeSchema = z.object({ code: z.string().min(1).max(200) });
+const codeIdSchema = z.object({ code: z.string().min(1).max(200), id: z.string().uuid() });
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -56,6 +64,7 @@ function timingSafeEqual(a: string, b: string): boolean {
  * validación del token/sesión: el resto de las funciones no cambia.
  */
 function assertTeacher(code: unknown): void {
+  checkRateLimit(clientKey("teacher"));
   const expected = process.env["TEACHER_MASTER_CODE"];
   if (!expected) throw new Error("El acceso docente no está configurado.");
   if (typeof code !== "string" || !timingSafeEqual(code.trim(), expected)) {
@@ -69,14 +78,14 @@ async function admin() {
 }
 
 export const bibVerifyCode = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string }) => d)
+  .inputValidator(codeSchema)
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     return { ok: true as const };
   });
 
 export const bibSaveResource = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; resource: ResourceInput }) => d)
+  .inputValidator(z.object({ code: z.string().min(1).max(200), resource: resourceSchema }))
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -91,7 +100,7 @@ export const bibSaveResource = createServerFn({ method: "POST" })
   });
 
 export const bibDeleteResource = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; id: string }) => d)
+  .inputValidator(codeIdSchema)
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -104,7 +113,7 @@ export const bibDeleteResource = createServerFn({ method: "POST" })
   });
 
 export const bibSaveAnnouncement = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; announcement: AnnouncementInput }) => d)
+  .inputValidator(z.object({ code: z.string().min(1).max(200), announcement: announcementSchema }))
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -118,7 +127,7 @@ export const bibSaveAnnouncement = createServerFn({ method: "POST" })
   });
 
 export const bibDeleteAnnouncement = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; id: string }) => d)
+  .inputValidator(codeIdSchema)
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -128,7 +137,7 @@ export const bibDeleteAnnouncement = createServerFn({ method: "POST" })
   });
 
 export const bibSaveEvent = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; event: EventInput }) => d)
+  .inputValidator(z.object({ code: z.string().min(1).max(200), event: eventSchema }))
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -143,7 +152,7 @@ export const bibSaveEvent = createServerFn({ method: "POST" })
   });
 
 export const bibDeleteEvent = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; id: string }) => d)
+  .inputValidator(codeIdSchema)
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -153,7 +162,16 @@ export const bibDeleteEvent = createServerFn({ method: "POST" })
   });
 
 export const bibSaveSubject = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; subject: { code: string; name: string; year: number } }) => d)
+  .inputValidator(
+    z.object({
+      code: z.string().min(1).max(200),
+      subject: z.object({
+        code: z.string().max(20),
+        name: z.string().max(120),
+        year: z.number().int(),
+      }),
+    }),
+  )
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -171,7 +189,7 @@ export const bibSaveSubject = createServerFn({ method: "POST" })
   });
 
 export const bibDeleteSubject = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; subjectCode: string }) => d)
+  .inputValidator(z.object({ code: z.string().min(1).max(200), subjectCode: z.string().max(20) }))
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -181,7 +199,9 @@ export const bibDeleteSubject = createServerFn({ method: "POST" })
   });
 
 export const bibSaveBlockedWords = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; words: string[] }) => d)
+  .inputValidator(
+    z.object({ code: z.string().min(1).max(200), words: z.array(z.string().max(100)).max(1000) }),
+  )
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const db = await admin();
@@ -199,7 +219,14 @@ export const bibSaveBlockedWords = createServerFn({ method: "POST" })
   });
 
 export const bibUploadFile = createServerFn({ method: "POST" })
-  .inputValidator((d: { code: string; filename: string; contentType: string; base64: string }) => d)
+  .inputValidator(
+    z.object({
+      code: z.string().min(1).max(200),
+      filename: z.string().min(1).max(255),
+      contentType: z.string().max(100),
+      base64: z.string().min(1),
+    }),
+  )
   .handler(async ({ data }) => {
     assertTeacher(data.code);
     const clean = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-70);
@@ -219,9 +246,8 @@ export const bibUploadFile = createServerFn({ method: "POST" })
 
 /** Contador público de vistas y descargas (no requiere acceso docente). */
 export const bibTrackMetric = createServerFn({ method: "POST" })
-  .inputValidator((d: { id: string; metric: "views" | "downloads" }) => d)
+  .inputValidator(z.object({ id: z.string().uuid(), metric: z.enum(["views", "downloads"]) }))
   .handler(async ({ data }) => {
-    if (data.metric !== "views" && data.metric !== "downloads") return { ok: false as const };
     const db = await admin();
     const { data: row } = await db
       .from("bib_resources")

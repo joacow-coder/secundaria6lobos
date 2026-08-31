@@ -18,7 +18,10 @@ export function ScreenHeader({
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <button
             type="button"
-            onClick={() => router.history.back()}
+            onClick={() => {
+              if (window.history.length > 1) router.history.back();
+              else router.navigate({ to: "/" });
+            }}
             className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-sm font-medium ring-1 ring-white/20 transition hover:bg-white/20"
           >
             <ArrowLeft className="size-4" /> Volver

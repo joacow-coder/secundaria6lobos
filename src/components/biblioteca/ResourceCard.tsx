@@ -29,7 +29,7 @@ export function ResourceCard({
             type="button"
             aria-label={isFavorite ? "Quitar de favoritos" : "Guardar en favoritos"}
             onClick={() => onToggleFavorite(resource.id)}
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-md hover:bg-secondary"
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md hover:bg-secondary sm:size-9"
           >
             <Heart
               className={

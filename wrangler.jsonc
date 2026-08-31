@@ -20,6 +20,12 @@
 		"SUPABASE_PROJECT_ID": "owmxbcsverzskddcaczx",
 		"SUPABASE_PUBLISHABLE_KEY": "sb_publishable_8liswFvZ03oiCJxFda4ONg_8eY_xz1Q",
 		"VITE_FUTURO_SUPABASE_URL": "https://etztcmivbufdjnuarzwd.supabase.co",
-		"VITE_FUTURO_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_8liswFvZ03oiCJxFda4ONg_8eY_xz1Q"
+		"VITE_FUTURO_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_8liswFvZ03oiCJxFda4ONg_8eY_xz1Q",
+		// Notificaciones push (src/lib/push.functions.ts). La clave pública VAPID
+		// no es secreta (viaja al cliente). VAPID_PRIVATE_KEY va aparte con
+		// `wrangler secret put VAPID_PRIVATE_KEY` — nunca en este archivo.
+		"VITE_VAPID_PUBLIC_KEY": "BFsZb6E5S-u-ddgjJCztCFH6BAIpWNxMnExUXqy7WInylxItIVHJtmY1nzaVX8vImxlqgvXEj5s5iUU01yRB13w",
+		// TODO: completar con el mail institucional real antes de desplegar, ej: "mailto:direccion@ees6lobos.edu.ar"
+		"VAPID_SUBJECT": ""
 	}
 }

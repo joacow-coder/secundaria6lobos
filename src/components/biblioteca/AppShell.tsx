@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { LogOut, Menu, Sparkles, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import logoAsset from "@/assets/logo.png";
@@ -168,15 +169,15 @@ export function AppShell({
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>Escuela de Educación Secundaria N.º 6 · Lobos, Buenos Aires</p>
           <div className="flex flex-wrap items-center gap-4">
-            <a
-              href="/biblioteca/asistente"
+            <Link
+              to="/biblioteca/asistente"
               className="inline-flex items-center gap-1.5 hover:text-foreground"
             >
               <Sparkles className="size-4" /> Asistente de la biblioteca
-            </a>
-            <a href="/" className="hover:text-foreground">
+            </Link>
+            <Link to="/" className="hover:text-foreground">
               Volver al sitio de la escuela
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

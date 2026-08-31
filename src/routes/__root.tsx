@@ -10,6 +10,7 @@ import {
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 
+import { PwaRegister } from "@/components/PwaRegister";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import appCss from "../styles.css?url";
@@ -80,8 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
       { title: "Secundaria 6 Lobos" },
+      { name: "theme-color", content: "#03125b" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+    ],
   }),
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -110,6 +116,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <Toaster />
+      <PwaRegister />
     </QueryClientProvider>
   );
 }

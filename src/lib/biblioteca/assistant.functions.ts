@@ -1,6 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
-type ChatMessage = { role: "user" | "assistant"; content: string };
+const chatSchema = z.object({
+  messages: z
+    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) }))
+    .max(50),
+});
 
 const SYSTEM_PROMPT = `Sos el Asistente de la Biblioteca Digital de la Escuela de Educación Secundaria N.º 6 de Lobos.
 Respondé siempre en español rioplatense (es-AR), de forma breve, clara y amable.
@@ -35,7 +40,7 @@ async function buildContext(): Promise<string> {
 }
 
 export const bibAssistantChat = createServerFn({ method: "POST" })
-  .inputValidator((d: { messages: ChatMessage[] }) => d)
+  .inputValidator(chatSchema)
   .handler(async ({ data }) => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("El asistente no está configurado en este momento.");
