@@ -26,24 +26,28 @@ export const Route = createFileRoute("/biblioteca/")({
 const PROFILES = [
   {
     to: "/biblioteca/estudiante",
+    params: undefined,
     icon: GraduationCap,
     title: "Estudiante",
     description: "Materiales, actividades y comunicados de tu año.",
   },
   {
     to: "/biblioteca/acceso",
+    params: undefined,
     icon: UserRound,
     title: "Docente",
     description: "Subí materiales y enviá comunicados a tus cursos.",
   },
   {
-    to: "/biblioteca/ingreso/preceptor",
+    to: "/biblioteca/ingreso/$rol",
+    params: { rol: "preceptor" },
     icon: ClipboardList,
     title: "Preceptor/a",
     description: "Comunicados a cursos y personas, con historial de envíos.",
   },
   {
-    to: "/biblioteca/ingreso/directivo",
+    to: "/biblioteca/ingreso/$rol",
+    params: { rol: "directivo" },
     icon: Briefcase,
     title: "Directivo/a",
     description: "Comunicación con toda la comunidad educativa.",
@@ -84,9 +88,10 @@ function BibliotecaPortal() {
           </p>
           <ul className="mt-4 flex flex-col gap-3">
             {PROFILES.map((p) => (
-              <li key={p.to}>
+              <li key={p.title}>
                 <Link
                   to={p.to}
+                  params={p.params}
                   className="card-lift flex items-center gap-4 rounded-xl border border-border bg-background px-4 py-4 text-left"
                 >
                   <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
