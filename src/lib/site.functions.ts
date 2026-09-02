@@ -139,7 +139,7 @@ export const adminSaveSection = createServerFn({ method: "POST" })
         (data.data as { items?: { id: string; title: string; excerpt: string }[] })?.items ?? [];
       const newItems = items.filter((it) => !previousNewsIds.has(it.id));
       if (newItems.length > 0) {
-        const { sendPushToAllSubscriptions } = await import("@/lib/push.functions");
+        const { sendPushToAllSubscriptions } = await import("@/lib/push-broadcast.server");
         for (const it of newItems) {
           await sendPushToAllSubscriptions({
             title: it.title,
