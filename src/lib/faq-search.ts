@@ -42,7 +42,7 @@ export function scoreFaq(entry: FaqEntry, query: string): number {
 
   let total = 0;
   for (const term of terms) {
-    if (term.length < 3) continue; // ignora "de", "la", "el", etc.
+    if (term.length < 4) continue; // ignora "de", "la", "el", "que", "por", etc.
     let best = 0;
     for (const [raw, weight] of fields) {
       const value = normalize(raw);
