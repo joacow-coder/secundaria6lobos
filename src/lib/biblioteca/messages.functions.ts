@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
+import { getSecret } from "@/lib/secrets.server";
 
 export type StaffRole = "profesor" | "preceptor" | "directivo";
 export type Audience = { role: "alumno" | StaffRole; name: string; year: number | null };
@@ -50,12 +51,12 @@ const CODE_ENV: Record<StaffRole, string> = {
 };
 
 /** Verificación central de credenciales del personal (docente, preceptor, directivo). */
-function assertStaff(role: unknown, code: unknown): StaffRole {
+async function assertStaff(role: unknown, code: unknown): Promise<StaffRole> {
   checkRateLimit(clientKey("staff"));
   const value = String(role ?? "") as StaffRole;
   const envName = CODE_ENV[value];
   if (!envName) throw new Error("Perfil no válido.");
-  const expected = process.env[envName];
+  const expected = await getSecret(envName);
   if (!expected) throw new Error("Este acceso todavía no está configurado.");
   if (typeof code !== "string" || !safeEqual(code.trim(), expected.trim())) {
     throw new Error("El código de acceso no es correcto.");
@@ -64,13 +65,15 @@ function assertStaff(role: unknown, code: unknown): StaffRole {
 }
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+  const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return getSupabaseAdmin();
 }
 
 export function readerKeyOf(audience: Audience): string {
   const name = audience.name.trim().toLowerCase();
-  return audience.role === "alumno" ? `alumno:${audience.year ?? 0}:${name}` : `${audience.role}:${name}`;
+  return audience.role === "alumno"
+    ? `alumno:${audience.year ?? 0}:${name}`
+    : `${audience.role}:${name}`;
 }
 
 function matches(target: TargetInput, audience: Audience): boolean {
@@ -96,7 +99,7 @@ function matches(target: TargetInput, audience: Audience): boolean {
 export const bibVerifyStaffCode = createServerFn({ method: "POST" })
   .inputValidator(z.object({ role: staffRoleSchema, code: z.string().min(1).max(200) }))
   .handler(async ({ data }) => {
-    assertStaff(data.role, data.code);
+    await assertStaff(data.role, data.code);
     return { ok: true as const };
   });
 
@@ -112,7 +115,7 @@ export const bibSendMessage = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const role = assertStaff(data.role, data.code);
+    const role = await assertStaff(data.role, data.code);
     const title = data.title.trim();
     if (!title) throw new Error("El título es obligatorio.");
     if (!data.targets.length) throw new Error("Elegí al menos un destinatario.");
@@ -228,10 +231,14 @@ export const bibUpdateInboxState = createServerFn({ method: "POST" })
 
 export const bibSentMessages = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({ role: staffRoleSchema, code: z.string().min(1).max(200), senderName: z.string().max(120) }),
+    z.object({
+      role: staffRoleSchema,
+      code: z.string().min(1).max(200),
+      senderName: z.string().max(120),
+    }),
   )
   .handler(async ({ data }) => {
-    const role = assertStaff(data.role, data.code);
+    const role = await assertStaff(data.role, data.code);
     const db = await admin();
     const { data: messages, error } = await db
       .from("bib_messages")

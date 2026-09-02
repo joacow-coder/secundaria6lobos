@@ -22,10 +22,32 @@
 		"VITE_FUTURO_SUPABASE_URL": "https://etztcmivbufdjnuarzwd.supabase.co",
 		"VITE_FUTURO_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_8liswFvZ03oiCJxFda4ONg_8eY_xz1Q",
 		// Notificaciones push (src/lib/push.functions.ts). La clave pública VAPID
-		// no es secreta (viaja al cliente). VAPID_PRIVATE_KEY va aparte con
-		// `wrangler secret put VAPID_PRIVATE_KEY` — nunca en este archivo.
+		// no es secreta (viaja al cliente). VAPID_PRIVATE_KEY es secreta — ver
+		// "secrets_store_secrets" más abajo.
 		"VITE_VAPID_PUBLIC_KEY": "BFsZb6E5S-u-ddgjJCztCFH6BAIpWNxMnExUXqy7WInylxItIVHJtmY1nzaVX8vImxlqgvXEj5s5iUU01yRB13w",
 		// TODO: completar con el mail institucional real antes de desplegar, ej: "mailto:direccion@ees6lobos.edu.ar"
 		"VAPID_SUBJECT": ""
-	}
+	},
+	// Secretos reales (service role, códigos de acceso, VAPID privada): viven en
+	// Cloudflare Secrets Store, no en "Variables and Secrets" del Worker — ese
+	// panel (y `wrangler secret put`) se borra en cada deploy automático desde
+	// GitHub, es un bug conocido y sin fix de Cloudflare:
+	// https://github.com/cloudflare/workers-sdk/issues/8871
+	// Este binding solo referencia el secreto por ID (no expone el valor), así
+	// que es seguro tenerlo en el repo y sobrevive a cualquier redeploy.
+	//
+	// Setup (una sola vez):
+	//   1. npx wrangler secrets-store secret create <STORE_ID> --name SUPABASE_SERVICE_ROLE_KEY --scopes workers --remote
+	//      (repetir por cada secret_name de la lista de abajo, con su valor real)
+	//   2. Reemplazar "REEMPLAZAR_CON_STORE_ID" por el Store ID real (te lo
+	//      muestra el comando de arriba, o Dashboard → Secrets Store).
+	// Código que los lee: src/lib/secrets.server.ts (getSecret).
+	"secrets_store_secrets": [
+		{ "binding": "SUPABASE_SERVICE_ROLE_KEY", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "SUPABASE_SERVICE_ROLE_KEY" },
+		{ "binding": "TEACHER_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "TEACHER_MASTER_CODE" },
+		{ "binding": "PRECEPTOR_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "PRECEPTOR_MASTER_CODE" },
+		{ "binding": "DIRECTOR_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "DIRECTOR_MASTER_CODE" },
+		{ "binding": "SITE_ADMIN_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "SITE_ADMIN_MASTER_CODE" },
+		{ "binding": "VAPID_PRIVATE_KEY", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "VAPID_PRIVATE_KEY" }
+	]
 }

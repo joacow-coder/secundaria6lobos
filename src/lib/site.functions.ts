@@ -5,6 +5,7 @@ import { school } from "@/data/school";
 import { buildContent, visible, type SiteContent } from "@/lib/site-content";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 import { bestFaqMatch, lastUserMessage, normalize, type FaqEntry } from "@/lib/faq-search";
+import { getSecret } from "@/lib/secrets.server";
 
 // Carga el contenido público directamente desde Supabase en el cliente
 export async function loadSiteContent(): Promise<SiteContent> {
@@ -77,9 +78,9 @@ function timingSafeEqual(a: string, b: string): boolean {
  * Valida contra el código maestro institucional, del lado del servidor, con
  * el cliente de rol de servicio (bypassa RLS) — nunca con el cliente anon.
  */
-function assertSiteAdmin(code: unknown): void {
+async function assertSiteAdmin(code: unknown): Promise<void> {
   checkRateLimit(clientKey("site-admin"));
-  const expected = process.env["SITE_ADMIN_MASTER_CODE"];
+  const expected = await getSecret("SITE_ADMIN_MASTER_CODE");
   if (!expected) throw new Error("El acceso al panel no está configurado.");
   if (typeof code !== "string" || !timingSafeEqual(code.trim(), expected)) {
     throw new Error("Código de acceso incorrecto.");
@@ -87,8 +88,8 @@ function assertSiteAdmin(code: unknown): void {
 }
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+  const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return getSupabaseAdmin();
 }
 
 const codeSchema = z.object({ code: z.string().min(1).max(200) });
@@ -96,7 +97,7 @@ const codeSchema = z.object({ code: z.string().min(1).max(200) });
 export const adminVerifyCode = createServerFn({ method: "POST" })
   .inputValidator(codeSchema)
   .handler(async ({ data }) => {
-    assertSiteAdmin(data.code);
+    await assertSiteAdmin(data.code);
     return { ok: true as const };
   });
 
@@ -109,7 +110,7 @@ export const adminSaveSection = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    assertSiteAdmin(data.code);
+    await assertSiteAdmin(data.code);
 
     const db = await admin();
 
@@ -162,7 +163,7 @@ export const adminUploadMedia = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    assertSiteAdmin(data.code);
+    await assertSiteAdmin(data.code);
 
     const clean = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${clean}`;

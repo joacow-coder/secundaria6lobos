@@ -9,8 +9,8 @@ const dniSchema = z
   .regex(/^\d{7,8}$/, "El DNI debe tener 7 u 8 números, sin puntos.");
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+  const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return getSupabaseAdmin();
 }
 
 export type StudentIdentity = { dni: string; name: string; year: number; since: string };

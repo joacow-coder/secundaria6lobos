@@ -12,8 +12,8 @@ const FALLBACK_REPLY =
   "No encontré materiales ni información sobre eso. Probá buscarlo desde Inicio, o revisá Novedades y Calendario en el menú.";
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+  const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return getSupabaseAdmin();
 }
 
 const YEAR_WORDS: Record<string, number> = {

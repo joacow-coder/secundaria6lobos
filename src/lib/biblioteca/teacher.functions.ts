@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
+import { getSecret } from "@/lib/secrets.server";
 
 const resourceSchema = z.object({
   id: z.string().uuid().optional(),
@@ -63,9 +64,9 @@ function timingSafeEqual(a: string, b: string): boolean {
  * y contraseñas, solo hay que reemplazar el cuerpo de esta función por la
  * validación del token/sesión: el resto de las funciones no cambia.
  */
-function assertTeacher(code: unknown): void {
+async function assertTeacher(code: unknown): Promise<void> {
   checkRateLimit(clientKey("teacher"));
-  const expected = process.env["TEACHER_MASTER_CODE"];
+  const expected = await getSecret("TEACHER_MASTER_CODE");
   if (!expected) throw new Error("El acceso docente no está configurado.");
   if (typeof code !== "string" || !timingSafeEqual(code.trim(), expected)) {
     throw new Error("El código institucional no es correcto.");
@@ -73,27 +74,30 @@ function assertTeacher(code: unknown): void {
 }
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+  const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return getSupabaseAdmin();
 }
 
 export const bibVerifyCode = createServerFn({ method: "POST" })
   .inputValidator(codeSchema)
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     return { ok: true as const };
   });
 
 export const bibSaveResource = createServerFn({ method: "POST" })
   .inputValidator(z.object({ code: z.string().min(1).max(200), resource: resourceSchema }))
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const { id, ...values } = data.resource;
     if (!values.title?.trim()) throw new Error("El título es obligatorio.");
     const row = { ...values, title: values.title.trim() };
     const { error } = id
-      ? await db.from("bib_resources").update(row as never).eq("id", id)
+      ? await db
+          .from("bib_resources")
+          .update(row as never)
+          .eq("id", id)
       : await db.from("bib_resources").insert(row as never);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -102,7 +106,7 @@ export const bibSaveResource = createServerFn({ method: "POST" })
 export const bibDeleteResource = createServerFn({ method: "POST" })
   .inputValidator(codeIdSchema)
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const { error } = await db
       .from("bib_resources")
@@ -115,12 +119,15 @@ export const bibDeleteResource = createServerFn({ method: "POST" })
 export const bibSaveAnnouncement = createServerFn({ method: "POST" })
   .inputValidator(z.object({ code: z.string().min(1).max(200), announcement: announcementSchema }))
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const { id, ...values } = data.announcement;
     if (!values.title?.trim()) throw new Error("El título es obligatorio.");
     const { error } = id
-      ? await db.from("bib_announcements").update(values as never).eq("id", id)
+      ? await db
+          .from("bib_announcements")
+          .update(values as never)
+          .eq("id", id)
       : await db.from("bib_announcements").insert(values as never);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -129,7 +136,7 @@ export const bibSaveAnnouncement = createServerFn({ method: "POST" })
 export const bibDeleteAnnouncement = createServerFn({ method: "POST" })
   .inputValidator(codeIdSchema)
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const { error } = await db.from("bib_announcements").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -139,13 +146,16 @@ export const bibDeleteAnnouncement = createServerFn({ method: "POST" })
 export const bibSaveEvent = createServerFn({ method: "POST" })
   .inputValidator(z.object({ code: z.string().min(1).max(200), event: eventSchema }))
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const { id, ...values } = data.event;
     if (!values.title?.trim()) throw new Error("El título es obligatorio.");
     if (!values.starts_at) throw new Error("La fecha de inicio es obligatoria.");
     const { error } = id
-      ? await db.from("bib_calendar_events").update(values as never).eq("id", id)
+      ? await db
+          .from("bib_calendar_events")
+          .update(values as never)
+          .eq("id", id)
       : await db.from("bib_calendar_events").insert(values as never);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -154,7 +164,7 @@ export const bibSaveEvent = createServerFn({ method: "POST" })
 export const bibDeleteEvent = createServerFn({ method: "POST" })
   .inputValidator(codeIdSchema)
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const { error } = await db.from("bib_calendar_events").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -173,7 +183,7 @@ export const bibSaveSubject = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const subject = {
       code: data.subject.code.trim().toUpperCase(),
@@ -191,7 +201,7 @@ export const bibSaveSubject = createServerFn({ method: "POST" })
 export const bibDeleteSubject = createServerFn({ method: "POST" })
   .inputValidator(z.object({ code: z.string().min(1).max(200), subjectCode: z.string().max(20) }))
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const { error } = await db.from("bib_subjects").delete().eq("code", data.subjectCode);
     if (error) throw new Error(error.message);
@@ -203,7 +213,7 @@ export const bibSaveBlockedWords = createServerFn({ method: "POST" })
     z.object({ code: z.string().min(1).max(200), words: z.array(z.string().max(100)).max(1000) }),
   )
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const db = await admin();
     const words = Array.from(
       new Set(data.words.map((w) => w.trim().toLowerCase()).filter(Boolean)),
@@ -228,7 +238,7 @@ export const bibUploadFile = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    assertTeacher(data.code);
+    await assertTeacher(data.code);
     const clean = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-70);
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${clean}`;
     const binary = atob(data.base64);

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
+import { getSecret } from "@/lib/secrets.server";
 
 const subscribeSchema = z.object({
   endpoint: z.string().url(),
@@ -8,8 +9,8 @@ const subscribeSchema = z.object({
 });
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+  const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return getSupabaseAdmin();
 }
 
 export const pushSubscribe = createServerFn({ method: "POST" })
@@ -51,7 +52,7 @@ export async function sendPushToAllSubscriptions(payload: {
 }): Promise<void> {
   const subject = process.env["VAPID_SUBJECT"];
   const publicKey = process.env["VITE_VAPID_PUBLIC_KEY"];
-  const privateKey = process.env["VAPID_PRIVATE_KEY"];
+  const privateKey = await getSecret("VAPID_PRIVATE_KEY");
   if (!subject || !publicKey || !privateKey) {
     console.warn("Push notifications: faltan variables VAPID, no se envía nada.");
     return;
