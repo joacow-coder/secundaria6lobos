@@ -36,18 +36,16 @@
 	// Este binding solo referencia el secreto por ID (no expone el valor), así
 	// que es seguro tenerlo en el repo y sobrevive a cualquier redeploy.
 	//
-	// Setup (una sola vez):
-	//   1. npx wrangler secrets-store secret create <STORE_ID> --name SUPABASE_SERVICE_ROLE_KEY --scopes workers --remote
-	//      (repetir por cada secret_name de la lista de abajo, con su valor real)
-	//   2. Reemplazar "REEMPLAZAR_CON_STORE_ID" por el Store ID real (te lo
-	//      muestra el comando de arriba, o Dashboard → Secrets Store).
+	// Store "secundaria6lobos" (5886fb244612403b8d0569c8d5efc90d). Para cargar
+	// o rotar un valor:
+	//   npx wrangler secrets-store secret create 5886fb244612403b8d0569c8d5efc90d --name <SECRET_NAME> --scopes workers --remote
 	// Código que los lee: src/lib/secrets.server.ts (getSecret).
 	"secrets_store_secrets": [
-		{ "binding": "SUPABASE_SERVICE_ROLE_KEY", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "SUPABASE_SERVICE_ROLE_KEY" },
-		{ "binding": "TEACHER_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "TEACHER_MASTER_CODE" },
-		{ "binding": "PRECEPTOR_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "PRECEPTOR_MASTER_CODE" },
-		{ "binding": "DIRECTOR_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "DIRECTOR_MASTER_CODE" },
-		{ "binding": "SITE_ADMIN_MASTER_CODE", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "SITE_ADMIN_MASTER_CODE" },
-		{ "binding": "VAPID_PRIVATE_KEY", "store_id": "REEMPLAZAR_CON_STORE_ID", "secret_name": "VAPID_PRIVATE_KEY" }
+		{ "binding": "SUPABASE_SERVICE_ROLE_KEY", "store_id": "5886fb244612403b8d0569c8d5efc90d", "secret_name": "SUPABASE_SERVICE_ROLE_KEY" },
+		{ "binding": "TEACHER_MASTER_CODE", "store_id": "5886fb244612403b8d0569c8d5efc90d", "secret_name": "TEACHER_MASTER_CODE" },
+		{ "binding": "PRECEPTOR_MASTER_CODE", "store_id": "5886fb244612403b8d0569c8d5efc90d", "secret_name": "PRECEPTOR_MASTER_CODE" },
+		{ "binding": "DIRECTOR_MASTER_CODE", "store_id": "5886fb244612403b8d0569c8d5efc90d", "secret_name": "DIRECTOR_MASTER_CODE" },
+		{ "binding": "SITE_ADMIN_MASTER_CODE", "store_id": "5886fb244612403b8d0569c8d5efc90d", "secret_name": "SITE_ADMIN_MASTER_CODE" },
+		{ "binding": "VAPID_PRIVATE_KEY", "store_id": "5886fb244612403b8d0569c8d5efc90d", "secret_name": "VAPID_PRIVATE_KEY" }
 	]
 }
