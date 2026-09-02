@@ -17,6 +17,12 @@ GRANT ALL ON public.site_faq TO service_role;
 ALTER TABLE public.site_faq ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "FAQ visible para todos" ON public.site_faq FOR SELECT USING (true);
 
+-- Puede ya existir (la crea la migración de bib_subjects); CREATE OR REPLACE
+-- la deja definida acá también por si esa migración nunca se corrió.
+CREATE OR REPLACE FUNCTION public.bib_touch_updated_at()
+RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = now(); RETURN NEW; END; $$
+LANGUAGE plpgsql SET search_path = public;
+
 CREATE TRIGGER site_faq_touch BEFORE UPDATE ON public.site_faq
 FOR EACH ROW EXECUTE FUNCTION public.bib_touch_updated_at();
 
