@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { bestFaqMatch, lastUserMessage, normalize, type FaqEntry } from "@/lib/faq-search";
 
 const chatSchema = z.object({
   messages: z
@@ -7,88 +8,104 @@ const chatSchema = z.object({
     .max(50),
 });
 
-const SYSTEM_PROMPT = `Sos el Asistente de la Biblioteca Digital de la Escuela de Educación Secundaria N.º 6 de Lobos.
-Respondé siempre en español rioplatense (es-AR), de forma breve, clara y amable.
-Tu única función es ayudar a estudiantes y docentes a encontrar y entender los materiales, novedades y fechas publicados en esta biblioteca digital institucional.
-Si te preguntan algo que no tiene relación con la biblioteca o su contenido, respondé amablemente que solo podés ayudar con temas de la biblioteca digital.
-Usá la lista de materias y materiales disponibles que te paso a continuación como contexto para orientar tus respuestas, pero no inventes materiales que no figuren ahí.`;
+const FALLBACK_REPLY =
+  "No encontré materiales ni información sobre eso. Probá buscarlo desde Inicio, o revisá Novedades y Calendario en el menú.";
 
-async function buildContext(): Promise<string> {
+async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const [{ data: subjects }, { data: resources }] = await Promise.all([
-    supabaseAdmin.from("bib_subjects").select("code, name, year").order("name"),
-    supabaseAdmin
+  return supabaseAdmin;
+}
+
+const YEAR_WORDS: Record<string, number> = {
+  primero: 1,
+  "1ro": 1,
+  "1er": 1,
+  segundo: 2,
+  "2do": 2,
+  tercero: 3,
+  "3ro": 3,
+  "3er": 3,
+  cuarto: 4,
+  "4to": 4,
+  quinto: 5,
+  "5to": 5,
+  sexto: 6,
+  "6to": 6,
+};
+
+/** Detecta un año escolar (1 a 6) mencionado en la consulta, en dígito o en palabras. */
+function detectYear(flat: string): number | null {
+  const digitMatch = flat.match(/\b([1-6])\s*(°|o|to|do|er|ro)?\s*an?o\b/);
+  if (digitMatch?.[1]) return Number(digitMatch[1]);
+  for (const [word, year] of Object.entries(YEAR_WORDS)) {
+    if (flat.includes(word)) return year;
+  }
+  return null;
+}
+
+/**
+ * Asistente de la Biblioteca Digital: responde por búsqueda directa sobre las
+ * materias y materiales reales cargados, más una tabla de preguntas
+ * frecuentes — sin IA ni claves de API externas, así nunca puede "inventar"
+ * un material que no existe.
+ */
+export const bibAssistantChat = createServerFn({ method: "POST" })
+  .inputValidator(chatSchema)
+  .handler(async ({ data }) => {
+    const question = lastUserMessage(data.messages);
+    if (!question.trim()) return { reply: FALLBACK_REPLY };
+    const flat = normalize(question);
+    const db = await admin();
+
+    if (/materia/.test(flat)) {
+      const year = detectYear(flat);
+      let query = db.from("bib_subjects").select("code, name, year").order("name");
+      if (year) query = query.eq("year", year);
+      const { data: subjects } = await query;
+      const list = (subjects ?? []) as { code: string; name: string; year: number }[];
+      if (list.length > 0) {
+        const heading = year ? `Materias de ${year}.º año:` : "Materias cargadas:";
+        return {
+          reply: `${heading}\n${list.map((s) => `• ${s.name}${year ? "" : ` (${s.year}.º año)`}`).join("\n")}`,
+        };
+      }
+    }
+
+    const { data: resources } = await db
       .from("bib_resources")
       .select("title, subject_code, year, kind, topic")
       .is("deleted_at", null)
       .order("created_at", { ascending: false })
-      .limit(120),
-  ]);
+      .limit(300);
 
-  const subjectLines = (subjects ?? [])
-    .map(
-      (s: { code: string; name: string; year: number }) =>
-        `- ${s.code}: ${s.name} (${s.year}° año)`,
-    )
-    .join("\n");
-
-  const resourceLines = (resources ?? [])
-    .map(
-      (r: {
+    const terms = flat.split(/\s+/).filter((t) => t.length > 3);
+    const matches = (
+      (resources ?? []) as {
         title: string;
         subject_code: string;
         year: number;
         kind: string;
         topic: string | null;
-      }) =>
-        `- "${r.title}" [${r.kind}] · ${r.subject_code} · ${r.year}° año${r.topic ? ` · tema: ${r.topic}` : ""}`,
+      }[]
     )
-    .join("\n");
+      .filter((r) => {
+        const haystack = normalize(`${r.title} ${r.topic ?? ""} ${r.subject_code}`);
+        return terms.some((term) => haystack.includes(term));
+      })
+      .slice(0, 6);
 
-  return `Materias disponibles:\n${subjectLines || "(sin materias cargadas)"}\n\nMateriales publicados recientemente:\n${resourceLines || "(sin materiales cargados)"}`;
-}
-
-export const bibAssistantChat = createServerFn({ method: "POST" })
-  .inputValidator(chatSchema)
-  .handler(async ({ data }) => {
-    const apiKey = process.env["GEMINI_API_KEY"];
-    if (!apiKey) throw new Error("El asistente no está configurado en este momento.");
-
-    const context = await buildContext();
-    const messages = [
-      { role: "system", content: `${SYSTEM_PROMPT}\n\n${context}` },
-      ...data.messages.slice(-16),
-    ];
-
-    // Endpoint OpenAI-compatible de Gemini: mismo formato de request/response que
-    // OpenAI, pero contra la API de Google directamente (sin pasar por Lovable).
-    // https://ai.google.dev/gemini-api/docs/openai
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ model: "gemini-3.7-flash", messages }),
-      },
-    );
-
-    if (response.status === 429) {
-      throw new Error("Demasiadas consultas, probá en unos minutos.");
-    }
-    if (response.status === 400 || response.status === 403) {
-      throw new Error("El asistente no está configurado correctamente.");
-    }
-    if (!response.ok) {
-      throw new Error("No pudimos comunicarnos con el asistente. Intentá de nuevo.");
+    if (matches.length > 0) {
+      return {
+        reply: `Encontré estos materiales:\n${matches.map((r) => `• "${r.title}" · ${r.subject_code} · ${r.year}.º año`).join("\n")}`,
+      };
     }
 
-    const json = (await response.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const reply = json.choices?.[0]?.message?.content?.trim();
-    if (!reply) throw new Error("El asistente no pudo generar una respuesta.");
-    return { reply };
+    const { data: faqRows, error } = await db
+      .from("site_faq")
+      .select("id, question, answer, keywords")
+      .eq("category", "biblioteca");
+    if (error) console.error("Error al buscar FAQ de biblioteca:", error);
+
+    const match = bestFaqMatch((faqRows ?? []) as FaqEntry[], question);
+    return { reply: match?.answer ?? FALLBACK_REPLY };
   });

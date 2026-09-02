@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { chatbot } from "@/data/school";
-import { buildContent, SECTION_LABELS, visible, type SiteContent } from "@/lib/site-content";
+import { school } from "@/data/school";
+import { buildContent, visible, type SiteContent } from "@/lib/site-content";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
+import { bestFaqMatch, lastUserMessage, normalize, type FaqEntry } from "@/lib/faq-search";
 
 // Carga el contenido público directamente desde Supabase en el cliente
 export async function loadSiteContent(): Promise<SiteContent> {
@@ -20,98 +21,48 @@ const siteChatSchema = z.object({
     .max(30),
 });
 
-const SITE_ASSISTANT_PROMPT = `Sos "Lobi", el asistente virtual del sitio web institucional de la Escuela de Educación Secundaria N.º 6 de Lobos, Buenos Aires.
-Respondé siempre en español rioplatense (es-AR), de forma breve, cálida y directa (2 a 4 oraciones como máximo).
-Tu función es ayudar a quien visita la página a encontrar información y orientarlo hacia la sección correspondiente del sitio, nombrándola (ej: "Mirá la sección Noticias" o "Lo encontrás en Contacto").
-Si te preguntan algo que no tiene nada que ver con la escuela o con el contenido de esta página, respondé amablemente que solo podés ayudar con eso.
-Usá el contexto a continuación como única fuente de verdad; si no tenés el dato, decilo y sugerí contactar a la escuela por teléfono, correo o Instagram en vez de inventar.`;
+const FALLBACK_REPLY = `No encontré información sobre eso. Podés contactar a la escuela: San Martín N.º 57, Lobos. Teléfono ${school.phone}, correo ${school.email} o Instagram ${school.instagramHandle}.`;
 
-async function buildSiteAssistantContext(): Promise<string> {
-  const content = await loadSiteContent();
-
-  const sectionLines = content.sections.order
-    .filter((s) => !s.hidden)
-    .map((s) => `- ${SECTION_LABELS[s.key] ?? s.label}`)
-    .join("\n");
-
-  const faqLines = chatbot.options.map((o) => `- ${o.question}: ${o.answer}`).join("\n");
-
-  const newsLines = visible(content.news.items)
-    .slice(0, 6)
-    .map((n) => `- [${n.date}] ${n.title}: ${n.excerpt}`)
-    .join("\n");
-
-  const eventsLines = visible(content.events.items)
-    .slice(0, 8)
-    .map((e) => `- ${e.date} (${e.type}): ${e.title}`)
-    .join("\n");
-
-  const { school } = content;
-  return `Secciones disponibles en el sitio:
-${sectionLines}
-
-Preguntas frecuentes:
-${faqLines}
-
-Datos de la escuela:
-- Nombre: ${school.name}
-- Dirección: ${school.address}, ${school.city}
-- Teléfono: ${school.phone}
-- Correo: ${school.email}
-- Instagram: ${school.instagramHandle}
-- Ingreso: ${school.hours.entryGeneral}. ${school.hours.entryException}
-- Salida: ${school.hours.exitGeneral}. ${school.hours.exitExceptions.join(". ")}
-
-Noticias recientes:
-${newsLines || "(sin noticias cargadas)"}
-
-Próximos eventos:
-${eventsLines || "(sin eventos cargados)"}`;
-}
-
+/**
+ * Asistente "Lobi": responde por búsqueda de palabras clave contra la tabla
+ * site_faq y el contenido real del sitio (noticias, eventos) — sin IA ni
+ * claves de API externas. Determinístico y siempre basado en datos propios.
+ */
 export const siteAssistantChat = createServerFn({ method: "POST" })
   .inputValidator(siteChatSchema)
   .handler(async ({ data }) => {
-    const apiKey = process.env["GEMINI_API_KEY"];
-    if (!apiKey) throw new Error("El asistente no está configurado en este momento.");
+    const question = lastUserMessage(data.messages);
+    if (!question.trim()) return { reply: FALLBACK_REPLY };
+    const flat = normalize(question);
 
-    const context = await buildSiteAssistantContext();
-    const messages = [
-      { role: "system", content: `${SITE_ASSISTANT_PROMPT}\n\n${context}` },
-      ...data.messages.slice(-16),
-    ];
-
-    // Endpoint OpenAI-compatible de Gemini: mismo formato de request/response que
-    // OpenAI, pero contra la API de Google directamente (sin pasar por Lovable).
-    // https://ai.google.dev/gemini-api/docs/openai
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ model: "gemini-3.7-flash", messages }),
-      },
-    );
-
-    if (response.status === 429) {
-      throw new Error("Demasiadas consultas, probá en unos minutos.");
-    }
-    if (response.status === 400 || response.status === 403) {
-      throw new Error("El asistente no está configurado correctamente.");
-    }
-    if (!response.ok) {
-      throw new Error("No pudimos comunicarnos con el asistente. Intentá de nuevo.");
+    if (/\bnoticia/.test(flat)) {
+      const content = await loadSiteContent();
+      const items = visible(content.news.items).slice(0, 5);
+      if (items.length > 0) {
+        return {
+          reply: `Noticias recientes:\n${items.map((n) => `• [${n.date}] ${n.title}`).join("\n")}\n\nMirá la sección Noticias del sitio para más detalle.`,
+        };
+      }
     }
 
-    const json = (await response.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const reply = json.choices?.[0]?.message?.content?.trim();
-    if (!reply) throw new Error("El asistente no pudo generar una respuesta.");
-    return { reply };
+    if (/\bevento|\bfecha/.test(flat)) {
+      const content = await loadSiteContent();
+      const items = visible(content.events.items).slice(0, 6);
+      if (items.length > 0) {
+        return {
+          reply: `Próximos eventos:\n${items.map((e) => `• ${e.date} — ${e.title} (${e.type})`).join("\n")}\n\nMirá la sección Eventos del sitio para más detalle.`,
+        };
+      }
+    }
+
+    const { data: faqRows, error } = await supabase
+      .from("site_faq")
+      .select("id, question, answer, keywords")
+      .eq("category", "general");
+    if (error) console.error("Error al buscar FAQ:", error);
+
+    const match = bestFaqMatch((faqRows ?? []) as FaqEntry[], question);
+    return { reply: match?.answer ?? FALLBACK_REPLY };
   });
 
 function timingSafeEqual(a: string, b: string): boolean {
