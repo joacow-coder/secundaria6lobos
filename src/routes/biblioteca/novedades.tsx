@@ -36,17 +36,22 @@ function NovedadesPage() {
   const { data: subjects = [] } = useQuery(subjectsQuery);
   const subjectByCode = new Map(subjects.map((s) => [s.code, s]));
 
+  /** Los estudiantes quedan fijos en el año que eligieron al ingresar; solo docentes/personal ven todos. */
+  const lockedYear = student?.year ?? null;
   const [year, setYear] = useState<number | null>(null);
+  const effectiveYear = lockedYear ?? year;
   const [subjectCode, setSubjectCode] = useState<string | null>(null);
+  const subjectOptions =
+    lockedYear === null ? subjects : subjects.filter((s) => s.year === lockedYear);
 
   const filtered = useMemo(
     () =>
       announcements.filter(
         (a) =>
-          (year === null || a.year === null || a.year === year) &&
+          (effectiveYear === null || a.year === null || a.year === effectiveYear) &&
           (subjectCode === null || a.subject_code === null || a.subject_code === subjectCode),
       ),
-    [announcements, year, subjectCode],
+    [announcements, effectiveYear, subjectCode],
   );
 
   if (!ready || (!student && !teacher)) {
@@ -89,19 +94,25 @@ function NovedadesPage() {
         </div>
 
         <div className="flex flex-wrap gap-3 rounded-xl border border-border bg-card p-4 shadow-soft">
-          <select
-            aria-label="Filtrar por año"
-            value={year ?? ""}
-            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">Todos los años</option>
-            {YEARS.map((y) => (
-              <option key={y} value={y}>
-                {yearLabel(y)}
-              </option>
-            ))}
-          </select>
+          {lockedYear === null ? (
+            <select
+              aria-label="Filtrar por año"
+              value={year ?? ""}
+              onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}
+              className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Todos los años</option>
+              {YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {yearLabel(y)}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground">
+              {yearLabel(lockedYear)}
+            </span>
+          )}
           <select
             aria-label="Filtrar por materia"
             value={subjectCode ?? ""}
@@ -109,7 +120,7 @@ function NovedadesPage() {
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Todas las materias</option>
-            {subjects.map((s) => (
+            {subjectOptions.map((s) => (
               <option key={s.code} value={s.code}>
                 {s.name}
               </option>
@@ -118,7 +129,11 @@ function NovedadesPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <EmptyState icon={BellRing} title="No hay novedades" description="Todavía no se publicaron avisos." />
+          <EmptyState
+            icon={BellRing}
+            title="No hay novedades"
+            description="Todavía no se publicaron avisos."
+          />
         ) : (
           <div className="flex flex-col gap-3">
             {filtered.map((a) => {
@@ -130,7 +145,9 @@ function NovedadesPage() {
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     {a.pinned ? <Pin className="size-4 text-primary" aria-label="Fijado" /> : null}
-                    <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${importance.className}`}>
+                    <span
+                      className={`rounded-md px-2 py-0.5 text-xs font-medium ${importance.className}`}
+                    >
                       {importance.label}
                     </span>
                     {a.subject_code ? (

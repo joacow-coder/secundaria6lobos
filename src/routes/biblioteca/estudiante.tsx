@@ -33,12 +33,14 @@ function IngresoEstudiante() {
   const { signInStudent } = useBibliotecaSession();
   const { data: blocked = [] } = useQuery(blockedWordsQuery);
   const [name, setName] = useState("");
+  const [dni, setDni] = useState("");
   const [year, setYear] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const suggestion = suggestName(name);
 
-  function submit(event: React.FormEvent) {
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
     const pretty = toTitleCase(name);
     const check = validateStudentName(pretty, blocked);
@@ -46,12 +48,25 @@ function IngresoEstudiante() {
       setError(check.message ?? "Revisá tu nombre.");
       return;
     }
+    const cleanDni = dni.trim();
+    if (!/^\d{7,8}$/.test(cleanDni)) {
+      setError("Ingresá tu DNI (7 u 8 números, sin puntos).");
+      return;
+    }
     if (!year) {
       setError("Elegí el año que estás cursando.");
       return;
     }
-    signInStudent(pretty, year);
-    navigate({ to: "/biblioteca/inicio" });
+    setLoading(true);
+    setError(null);
+    try {
+      await signInStudent({ dni: cleanDni, name: pretty, year });
+      navigate({ to: "/biblioteca/inicio" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No pudimos verificar tus datos.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -69,7 +84,10 @@ function IngresoEstudiante() {
           </p>
         </div>
 
-        <form onSubmit={submit} className="mt-7 rounded-2xl bg-card p-6 text-card-foreground shadow-xl">
+        <form
+          onSubmit={submit}
+          className="mt-7 rounded-2xl bg-card p-6 text-card-foreground shadow-xl"
+        >
           <label className="block text-sm font-medium" htmlFor="bib-nombre">
             Nombre y apellido
           </label>
@@ -93,6 +111,27 @@ function IngresoEstudiante() {
               ¿Quisiste decir “{suggestion}”?
             </button>
           ) : null}
+
+          <label className="mt-4 block text-sm font-medium" htmlFor="bib-dni">
+            DNI
+          </label>
+          <input
+            id="bib-dni"
+            value={dni}
+            onChange={(e) => {
+              setDni(e.target.value.replace(/[^0-9]/g, "").slice(0, 8));
+              setError(null);
+            }}
+            placeholder="Ej.: 45123456"
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={8}
+            className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-base outline-none focus:ring-2 focus:ring-ring"
+          />
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Lo usamos para identificarte de forma única y que tu año quede fijo, sin duplicar tu
+            acceso si hay otro estudiante con el mismo nombre.
+          </p>
 
           <p className="mt-5 text-sm font-medium">¿Qué año cursás?</p>
           <div className="mt-2 grid grid-cols-3 gap-2">
@@ -119,9 +158,10 @@ function IngresoEstudiante() {
 
           <button
             type="submit"
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            disabled={loading}
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
-            <BookOpen className="size-4" /> Entrar a la biblioteca
+            <BookOpen className="size-4" /> {loading ? "Verificando…" : "Entrar a la biblioteca"}
           </button>
 
           <div className="mt-5 border-t border-border pt-4 text-sm">

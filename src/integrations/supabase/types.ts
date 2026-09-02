@@ -297,6 +297,30 @@ export type Database = {
         }
         Relationships: []
       }
+      bib_students: {
+        Row: {
+          created_at: string
+          dni: string
+          full_name: string
+          last_seen_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          dni: string
+          full_name: string
+          last_seen_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          dni?: string
+          full_name?: string
+          last_seen_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       bib_subjects: {
         Row: {
           code: string

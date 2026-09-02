@@ -26,12 +26,21 @@ async function buildContext(): Promise<string> {
   ]);
 
   const subjectLines = (subjects ?? [])
-    .map((s: { code: string; name: string; year: number }) => `- ${s.code}: ${s.name} (${s.year}° año)`)
+    .map(
+      (s: { code: string; name: string; year: number }) =>
+        `- ${s.code}: ${s.name} (${s.year}° año)`,
+    )
     .join("\n");
 
   const resourceLines = (resources ?? [])
     .map(
-      (r: { title: string; subject_code: string; year: number; kind: string; topic: string | null }) =>
+      (r: {
+        title: string;
+        subject_code: string;
+        year: number;
+        kind: string;
+        topic: string | null;
+      }) =>
         `- "${r.title}" [${r.kind}] · ${r.subject_code} · ${r.year}° año${r.topic ? ` · tema: ${r.topic}` : ""}`,
     )
     .join("\n");
@@ -42,7 +51,7 @@ async function buildContext(): Promise<string> {
 export const bibAssistantChat = createServerFn({ method: "POST" })
   .inputValidator(chatSchema)
   .handler(async ({ data }) => {
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) throw new Error("El asistente no está configurado en este momento.");
 
     const context = await buildContext();
@@ -51,20 +60,26 @@ export const bibAssistantChat = createServerFn({ method: "POST" })
       ...data.messages.slice(-16),
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+    // Endpoint OpenAI-compatible de Gemini: mismo formato de request/response que
+    // OpenAI, pero contra la API de Google directamente (sin pasar por Lovable).
+    // https://ai.google.dev/gemini-api/docs/openai
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ model: "gemini-3.7-flash", messages }),
       },
-      body: JSON.stringify({ model: "google/gemini-3-flash", messages }),
-    });
+    );
 
     if (response.status === 429) {
       throw new Error("Demasiadas consultas, probá en unos minutos.");
     }
-    if (response.status === 402) {
-      throw new Error("Se agotaron los créditos de IA.");
+    if (response.status === 400 || response.status === 403) {
+      throw new Error("El asistente no está configurado correctamente.");
     }
     if (!response.ok) {
       throw new Error("No pudimos comunicarnos con el asistente. Intentá de nuevo.");

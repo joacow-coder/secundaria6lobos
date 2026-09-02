@@ -12,7 +12,10 @@ export const Route = createFileRoute("/biblioteca/calendario")({
   head: () => ({
     meta: [
       { title: "Calendario — Biblioteca Digital E.E.S. N.º 6" },
-      { name: "description", content: "Fechas importantes, evaluaciones y eventos institucionales." },
+      {
+        name: "description",
+        content: "Fechas importantes, evaluaciones y eventos institucionales.",
+      },
       { property: "og:title", content: "Calendario — Biblioteca Digital E.E.S. N.º 6" },
       { property: "og:description", content: "Próximas fechas y eventos escolares." },
     ],
@@ -28,12 +31,21 @@ function CalendarioPage() {
     if (ready && !student && !teacher) navigate({ to: "/biblioteca" });
   }, [ready, student, teacher, navigate]);
 
-  const { data: events = [], isError: eventsError, refetch: refetchEvents } = useQuery(calendarQuery);
+  const {
+    data: events = [],
+    isError: eventsError,
+    refetch: refetchEvents,
+  } = useQuery(calendarQuery);
   const { data: subjects = [] } = useQuery(subjectsQuery);
   const subjectByCode = new Map(subjects.map((s) => [s.code, s]));
 
+  /** Los estudiantes quedan fijos en el año que eligieron al ingresar; solo docentes/personal ven todos. */
+  const lockedYear = student?.year ?? null;
   const [year, setYear] = useState<number | null>(null);
+  const effectiveYear = lockedYear ?? year;
   const [subjectCode, setSubjectCode] = useState<string | null>(null);
+  const subjectOptions =
+    lockedYear === null ? subjects : subjects.filter((s) => s.year === lockedYear);
 
   const now = Date.now();
 
@@ -42,12 +54,12 @@ function CalendarioPage() {
       events
         .filter(
           (e) =>
-            (year === null || e.year === null || e.year === year) &&
+            (effectiveYear === null || e.year === null || e.year === effectiveYear) &&
             (subjectCode === null || e.subject_code === null || e.subject_code === subjectCode),
         )
         .filter((e) => new Date(e.starts_at).getTime() >= now - 1000 * 60 * 60 * 24)
         .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()),
-    [events, year, subjectCode, now],
+    [events, effectiveYear, subjectCode, now],
   );
 
   const next7 = filtered.filter(
@@ -57,7 +69,10 @@ function CalendarioPage() {
   const byMonth = useMemo(() => {
     const map = new Map<string, typeof filtered>();
     for (const e of filtered) {
-      const key = new Date(e.starts_at).toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+      const key = new Date(e.starts_at).toLocaleDateString("es-AR", {
+        month: "long",
+        year: "numeric",
+      });
       const list = map.get(key) ?? [];
       list.push(e);
       map.set(key, list);
@@ -105,19 +120,25 @@ function CalendarioPage() {
         </div>
 
         <div className="flex flex-wrap gap-3 rounded-xl border border-border bg-card p-4 shadow-soft">
-          <select
-            aria-label="Filtrar por año"
-            value={year ?? ""}
-            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">Todos los años</option>
-            {YEARS.map((y) => (
-              <option key={y} value={y}>
-                {yearLabel(y)}
-              </option>
-            ))}
-          </select>
+          {lockedYear === null ? (
+            <select
+              aria-label="Filtrar por año"
+              value={year ?? ""}
+              onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}
+              className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Todos los años</option>
+              {YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {yearLabel(y)}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm font-medium text-primary-foreground">
+              {yearLabel(lockedYear)}
+            </span>
+          )}
           <select
             aria-label="Filtrar por materia"
             value={subjectCode ?? ""}
@@ -125,7 +146,7 @@ function CalendarioPage() {
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Todas las materias</option>
-            {subjects.map((s) => (
+            {subjectOptions.map((s) => (
               <option key={s.code} value={s.code}>
                 {s.name}
               </option>
@@ -161,7 +182,10 @@ function CalendarioPage() {
               <h2 className="font-display text-lg font-semibold capitalize">{month}</h2>
               <div className="mt-3 flex flex-col gap-3">
                 {items.map((e) => (
-                  <article key={e.id} className="rounded-xl border border-border bg-card p-4 shadow-soft">
+                  <article
+                    key={e.id}
+                    className="rounded-xl border border-border bg-card p-4 shadow-soft"
+                  >
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                         {EVENT_TYPES[e.event_type] ?? e.event_type}
@@ -171,7 +195,9 @@ function CalendarioPage() {
                           {subjectByCode.get(e.subject_code)?.name ?? e.subject_code}
                         </span>
                       ) : null}
-                      {e.year ? <span className="text-xs text-muted-foreground">· {yearLabel(e.year)}</span> : null}
+                      {e.year ? (
+                        <span className="text-xs text-muted-foreground">· {yearLabel(e.year)}</span>
+                      ) : null}
                     </div>
                     <h3 className="mt-1.5 font-medium">{e.title}</h3>
                     {e.description ? (

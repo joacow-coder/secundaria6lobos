@@ -43,6 +43,10 @@ function InicioAlumno() {
   const [year, setYear] = useState<number | null>(null);
   const [kind, setKind] = useState<string | null>(null);
 
+  /** Los estudiantes quedan fijos en el año que eligieron al ingresar; solo docentes/personal ven todos. */
+  const lockedYear = student?.year ?? null;
+  const effectiveYear = lockedYear ?? year;
+
   const subjectByCode = useMemo(() => new Map(subjects.map((s) => [s.code, s])), [subjects]);
 
   const searchResults = useMemo(() => {
@@ -55,22 +59,26 @@ function InicioAlumno() {
       .filter(
         (x) =>
           x.score > 0 &&
-          (year === null || x.resource.year === year) &&
+          (effectiveYear === null || x.resource.year === effectiveYear) &&
           (kind === null || x.resource.kind === kind),
       )
       .sort((a, b) => b.score - a.score)
       .slice(0, 24)
       .map((x) => x.resource);
-  }, [resources, query, year, kind, subjectByCode]);
+  }, [resources, query, effectiveYear, kind, subjectByCode]);
 
-  const featured = useMemo(
-    () => resources.filter((r) => r.featured).slice(0, 6),
-    [resources],
+  const yearScopedResources = useMemo(
+    () => (lockedYear === null ? resources : resources.filter((r) => r.year === lockedYear)),
+    [resources, lockedYear],
   );
-  const recent = useMemo(() => resources.slice(0, 6), [resources]);
+  const featured = useMemo(
+    () => yearScopedResources.filter((r) => r.featured).slice(0, 6),
+    [yearScopedResources],
+  );
+  const recent = useMemo(() => yearScopedResources.slice(0, 6), [yearScopedResources]);
 
-  const [subjectsYear, setSubjectsYear] = useState<number>(YEARS[0]);
-  const subjectsForYear = subjects.filter((s) => s.year === subjectsYear);
+  const [subjectsYear, setSubjectsYear] = useState<number>(lockedYear ?? YEARS[0]);
+  const subjectsForYear = subjects.filter((s) => s.year === (lockedYear ?? subjectsYear));
 
   if (!ready || (!student && !teacher)) {
     return (
@@ -124,33 +132,39 @@ function InicioAlumno() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-1.5">
-              <button
-                type="button"
-                onClick={() => setYear(null)}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  year === null
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/70"
-                }`}
-              >
-                Todos los años
-              </button>
-              {YEARS.map((y) => (
+            {lockedYear === null ? (
+              <div className="flex flex-wrap gap-1.5">
                 <button
-                  key={y}
                   type="button"
-                  onClick={() => setYear(y)}
+                  onClick={() => setYear(null)}
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    year === y
+                    year === null
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/70"
                   }`}
                 >
-                  {yearLabel(y)}
+                  Todos los años
                 </button>
-              ))}
-            </div>
+                {YEARS.map((y) => (
+                  <button
+                    key={y}
+                    type="button"
+                    onClick={() => setYear(y)}
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                      year === y
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/70"
+                    }`}
+                  >
+                    {yearLabel(y)}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <span className="w-fit rounded-full border border-primary bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                {yearLabel(lockedYear)}
+              </span>
+            )}
 
             <div className="flex flex-wrap gap-1.5">
               <button
@@ -196,7 +210,11 @@ function InicioAlumno() {
             ) : (
               <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {searchResults.map((r) => (
-                  <ResourceCardLazy key={r.id} resource={r} subjectName={subjectByCode.get(r.subject_code)?.name} />
+                  <ResourceCardLazy
+                    key={r.id}
+                    resource={r}
+                    subjectName={subjectByCode.get(r.subject_code)?.name}
+                  />
                 ))}
               </div>
             )}
@@ -227,7 +245,9 @@ function InicioAlumno() {
             <section>
               <h2 className="font-display text-lg font-semibold">Recientes</h2>
               {recent.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">Todavía no hay materiales cargados.</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Todavía no hay materiales cargados.
+                </p>
               ) : (
                 <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {recent.map((r) => (
@@ -244,22 +264,24 @@ function InicioAlumno() {
             <section>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="font-display text-lg font-semibold">Materias</h2>
-                <div className="flex flex-wrap gap-1.5">
-                  {YEARS.map((y) => (
-                    <button
-                      key={y}
-                      type="button"
-                      onClick={() => setSubjectsYear(y)}
-                      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                        subjectsYear === y
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/70"
-                      }`}
-                    >
-                      {yearLabel(y)}
-                    </button>
-                  ))}
-                </div>
+                {lockedYear === null ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {YEARS.map((y) => (
+                      <button
+                        key={y}
+                        type="button"
+                        onClick={() => setSubjectsYear(y)}
+                        className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                          subjectsYear === y
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-secondary text-secondary-foreground hover:bg-secondary/70"
+                        }`}
+                      >
+                        {yearLabel(y)}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
               {subjectsForYear.length === 0 ? (
                 <div className="mt-3">
@@ -298,7 +320,15 @@ function InicioAlumno() {
   );
 }
 
-function QuickLink({ to, icon: Icon, label }: { to: string; icon: typeof BellRing; label: string }) {
+function QuickLink({
+  to,
+  icon: Icon,
+  label,
+}: {
+  to: string;
+  icon: typeof BellRing;
+  label: string;
+}) {
   return (
     <a
       href={to}

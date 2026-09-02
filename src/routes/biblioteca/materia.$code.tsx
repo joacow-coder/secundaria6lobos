@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Search, WifiOff } from "lucide-react";
+import { BookOpen, Lock, Search, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
@@ -38,6 +38,7 @@ function MateriaPage() {
   } = useQuery(resourcesQuery);
 
   const subject = subjects.find((s) => s.code === code);
+  const blockedByYear = Boolean(student && subject && subject.year !== student.year);
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<string | null>(null);
 
@@ -82,6 +83,26 @@ function MateriaPage() {
             >
               Reintentar
             </button>
+          }
+        />
+      </AppShell>
+    );
+  }
+
+  if (blockedByYear) {
+    return (
+      <AppShell area="alumno">
+        <EmptyState
+          icon={Lock}
+          title="Esta materia no es de tu año"
+          description="Solo podés ver los materiales del año con el que ingresaste a la biblioteca."
+          action={
+            <a
+              href="/biblioteca/inicio"
+              className="mt-2 text-sm font-medium text-primary hover:underline"
+            >
+              Volver a inicio
+            </a>
           }
         />
       </AppShell>

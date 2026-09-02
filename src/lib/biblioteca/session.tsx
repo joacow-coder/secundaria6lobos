@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { bibVerifyStaffCode, type StaffRole, type Audience } from "./messages.functions";
+import { bibVerifyStudent } from "./student.functions";
 
 /**
  * Sesión de la Biblioteca Digital.
@@ -31,7 +32,11 @@ export const masterCodeStrategy: TeacherAuthStrategy = {
     return {
       full_name:
         (name ?? "").trim() ||
-        (role === "preceptor" ? "Preceptoría" : role === "directivo" ? "Dirección" : "Equipo docente"),
+        (role === "preceptor"
+          ? "Preceptoría"
+          : role === "directivo"
+            ? "Dirección"
+            : "Equipo docente"),
       credential: value,
       role,
     };
@@ -40,7 +45,7 @@ export const masterCodeStrategy: TeacherAuthStrategy = {
 
 export const teacherAuth: TeacherAuthStrategy = masterCodeStrategy;
 
-export type Student = { name: string; since: string; year: number | null };
+export type Student = { dni: string; name: string; since: string; year: number };
 
 type SessionState = {
   student: Student | null;
@@ -51,7 +56,7 @@ type SessionState = {
   favorites: string[];
   recents: string[];
   ready: boolean;
-  signInStudent: (name: string, year?: number | null) => void;
+  signInStudent: (input: { dni: string; name: string; year: number }) => Promise<void>;
   signInTeacher: (input: { code?: string; name?: string; role?: StaffRole }) => Promise<void>;
   signOut: () => void;
   toggleFavorite: (id: string) => void;
@@ -101,17 +106,26 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
     setReady(true);
   }, []);
 
-  const signInStudent = useCallback((name: string, year: number | null = null) => {
-    const value: Student = { name: name.trim(), since: new Date().toISOString(), year };
+  const signInStudent = useCallback(async (input: { dni: string; name: string; year: number }) => {
+    const identity = await bibVerifyStudent({ data: input });
+    const value: Student = {
+      dni: identity.dni,
+      name: identity.name,
+      since: identity.since,
+      year: identity.year,
+    };
     setStudent(value);
     write(KEYS.student, value);
   }, []);
 
-  const signInTeacher = useCallback(async (input: { code?: string; name?: string; role?: StaffRole }) => {
-    const identity = await teacherAuth.signIn(input);
-    setTeacher(identity);
-    write(KEYS.teacher, identity);
-  }, []);
+  const signInTeacher = useCallback(
+    async (input: { code?: string; name?: string; role?: StaffRole }) => {
+      const identity = await teacherAuth.signIn(input);
+      setTeacher(identity);
+      write(KEYS.teacher, identity);
+    },
+    [],
+  );
 
   const signOut = useCallback(() => {
     setStudent(null);

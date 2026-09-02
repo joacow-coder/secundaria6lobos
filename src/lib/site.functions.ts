@@ -72,7 +72,7 @@ ${eventsLines || "(sin eventos cargados)"}`;
 export const siteAssistantChat = createServerFn({ method: "POST" })
   .inputValidator(siteChatSchema)
   .handler(async ({ data }) => {
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) throw new Error("El asistente no está configurado en este momento.");
 
     const context = await buildSiteAssistantContext();
@@ -81,20 +81,26 @@ export const siteAssistantChat = createServerFn({ method: "POST" })
       ...data.messages.slice(-16),
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+    // Endpoint OpenAI-compatible de Gemini: mismo formato de request/response que
+    // OpenAI, pero contra la API de Google directamente (sin pasar por Lovable).
+    // https://ai.google.dev/gemini-api/docs/openai
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ model: "gemini-3.7-flash", messages }),
       },
-      body: JSON.stringify({ model: "google/gemini-3-flash", messages }),
-    });
+    );
 
     if (response.status === 429) {
       throw new Error("Demasiadas consultas, probá en unos minutos.");
     }
-    if (response.status === 402) {
-      throw new Error("Se agotaron los créditos de IA.");
+    if (response.status === 400 || response.status === 403) {
+      throw new Error("El asistente no está configurado correctamente.");
     }
     if (!response.ok) {
       throw new Error("No pudimos comunicarnos con el asistente. Intentá de nuevo.");
@@ -177,12 +183,17 @@ export const adminSaveSection = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     if (data.section === "news") {
-      const items = (data.data as { items?: { id: string; title: string; excerpt: string }[] })?.items ?? [];
+      const items =
+        (data.data as { items?: { id: string; title: string; excerpt: string }[] })?.items ?? [];
       const newItems = items.filter((it) => !previousNewsIds.has(it.id));
       if (newItems.length > 0) {
         const { sendPushToAllSubscriptions } = await import("@/lib/push.functions");
         for (const it of newItems) {
-          await sendPushToAllSubscriptions({ title: it.title, body: it.excerpt, url: "/#noticias" });
+          await sendPushToAllSubscriptions({
+            title: it.title,
+            body: it.excerpt,
+            url: "/#noticias",
+          });
         }
       }
     }
