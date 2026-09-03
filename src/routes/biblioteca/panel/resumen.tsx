@@ -121,38 +121,23 @@ function ResumenPage() {
             description="Cuando cargues materiales, van a aparecer acá agrupados por año lectivo."
           />
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-border bg-card">
-            <table className="w-full text-sm">
-              <thead className="bg-secondary/50 text-left text-xs tracking-wide text-muted-foreground uppercase">
-                <tr>
-                  <th className="px-4 py-3">Título</th>
-                  <th className="px-4 py-3">Materia</th>
-                  <th className="px-4 py-3">Año</th>
-                  {isDirector ? <th className="px-4 py-3">Autor</th> : null}
-                  <th className="px-4 py-3">Tamaño</th>
-                  <th className="px-4 py-3">Fecha</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {rows.map((r) => (
-                  <tr key={r.id}>
-                    <td className="px-4 py-2.5 font-medium">{r.title}</td>
-                    <td className="px-4 py-2.5 text-muted-foreground">
-                      {subjectName.get(r.subject_code) ?? r.subject_code}
-                    </td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{yearLabel(r.year)}</td>
-                    {isDirector ? (
-                      <td className="px-4 py-2.5 text-muted-foreground">{r.teacher_name}</td>
-                    ) : null}
-                    <td className="px-4 py-2.5 text-muted-foreground">
-                      {r.file_size ? formatFileSize(r.file_size) : "—"}
-                    </td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{formatDate(r.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {rows.map((r) => (
+              <li key={r.id} className="rounded-xl border border-border bg-card p-4 shadow-soft">
+                <p className="truncate font-medium text-foreground">{r.title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {subjectName.get(r.subject_code) ?? r.subject_code} · {yearLabel(r.year)}
+                </p>
+                {isDirector ? (
+                  <p className="mt-1 text-xs text-muted-foreground">{r.teacher_name}</p>
+                ) : null}
+                <p className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{r.file_size ? formatFileSize(r.file_size) : "Enlace"}</span>
+                  <span>{formatDate(r.created_at)}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </AppShell>

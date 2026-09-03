@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { LogOut, Menu, Sparkles, X } from "lucide-react";
+import { LogOut, Sparkles, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import logoAsset from "@/assets/logo.png";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
+import { BottomNav } from "@/components/biblioteca/BottomNav";
 
 const STUDENT_NAV = [
   { to: "/biblioteca/inicio", label: "Inicio" },
@@ -53,6 +54,8 @@ export function AppShell({
       : teacher && teacher.role !== "profesor"
         ? STAFF_NAV
         : TEACHER_NAV;
+  const bottomNavRole: "alumno" | "profesor" | "preceptor" | "directivo" =
+    area === "alumno" ? "alumno" : (teacher?.role ?? "profesor");
   const displayName = area === "alumno" ? student?.name : (teacher?.full_name ?? "Administración");
   const initials = (displayName ?? "?")
     .split(" ")
@@ -122,15 +125,6 @@ export function AppShell({
             >
               <LogOut className="size-5" />
             </button>
-
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              aria-label="Abrir menú"
-              className="inline-flex size-9 items-center justify-center rounded-md transition-colors hover:bg-white/10 lg:hidden"
-            >
-              <Menu className="size-5" />
-            </button>
           </div>
         </div>
       </header>
@@ -185,6 +179,8 @@ export function AppShell({
           </div>
         </div>
       </footer>
+
+      <BottomNav role={bottomNavRole} onMore={() => setOpen(true)} />
     </div>
   );
 }

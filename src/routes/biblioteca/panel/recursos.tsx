@@ -345,43 +345,45 @@ function PanelRecursos() {
           Ver años anteriores (histórico)
         </label>
 
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
-          {resourcesQ.isLoading ? (
-            <div className="space-y-2 p-4">
-              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
-            </div>
-          ) : resourcesQ.isError ? (
-            <div className="p-4">
-              <EmptyState
-                icon={WifiOff}
-                title="No pudimos cargar los materiales"
-                description="Revisá tu conexión a internet y volvé a intentar."
-                action={
-                  <button
-                    type="button"
-                    onClick={() => resourcesQ.refetch()}
-                    className="mt-2 text-sm font-medium text-primary hover:underline"
-                  >
-                    Reintentar
-                  </button>
-                }
-              />
-            </div>
-          ) : filtered.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">No hay materiales que coincidan.</p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {filtered.map((r) => {
-                const subject = subjects.find((s) => s.code === r.subject_code);
-                return (
-                  <li key={r.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+        {resourcesQ.isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
+          </div>
+        ) : resourcesQ.isError ? (
+          <EmptyState
+            icon={WifiOff}
+            title="No pudimos cargar los materiales"
+            description="Revisá tu conexión a internet y volvé a intentar."
+            action={
+              <button
+                type="button"
+                onClick={() => resourcesQ.refetch()}
+                className="mt-2 text-sm font-medium text-primary hover:underline"
+              >
+                Reintentar
+              </button>
+            }
+          />
+        ) : filtered.length === 0 ? (
+          <p className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+            No hay materiales que coincidan.
+          </p>
+        ) : (
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((r) => {
+              const subject = subjects.find((s) => s.code === r.subject_code);
+              return (
+                <li key={r.id} className="rounded-xl border border-border bg-card p-4 shadow-soft">
+                  <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <p className="truncate font-medium text-foreground">{r.title}</p>
                         {r.featured && <Star className="size-3.5 fill-warning text-warning" />}
                       </div>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {KIND_LABELS[r.kind] ?? r.kind} · {subject?.name ?? r.subject_code} · {yearLabel(r.year)} ·{" "}
+                      <p className="mt-1 truncate text-xs text-muted-foreground">
+                        {KIND_LABELS[r.kind] ?? r.kind} · {subject?.name ?? r.subject_code} · {yearLabel(r.year)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
                         {formatFileSize(r.file_size)} · {formatDate(r.created_at)}
                       </p>
                     </div>
@@ -403,12 +405,12 @@ function PanelRecursos() {
                         <Trash2 className="size-4" />
                       </button>
                     </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
