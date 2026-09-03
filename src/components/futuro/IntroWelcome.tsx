@@ -29,6 +29,14 @@ export function IntroWelcome() {
   useEffect(() => {
     if (skip || typeof window === "undefined") return;
 
+    // Sincroniza el nombre de la Biblioteca (alumno o personal) en cada
+    // montaje, sin importar si la intro animada ya se mostró antes en esta
+    // pestaña: si no se hiciera acá, alguien que se identifica por DNI
+    // *después* de haber visto la intro (o de que otra persona la vio en el
+    // mismo dispositivo) se quedaría con un nombre viejo en la bienvenida.
+    const identidad = readBibliotecaIdentity();
+    if (identidad) guardarNombre(identidad.name, identidad.role);
+
     let yaMostrada = false;
     try {
       yaMostrada = window.sessionStorage.getItem(SESSION_FLAG) === "1";
@@ -36,9 +44,6 @@ export function IntroWelcome() {
       yaMostrada = false;
     }
     if (yaMostrada) return;
-
-    const identidad = readBibliotecaIdentity();
-    if (identidad) guardarNombre(identidad.name, identidad.role);
 
     const reducida =
       typeof window.matchMedia === "function" &&

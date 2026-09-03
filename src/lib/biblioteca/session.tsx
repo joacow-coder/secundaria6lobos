@@ -129,6 +129,12 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
         courseId: identity.courseId,
         shift: identity.shift,
       };
+      // Un dispositivo tiene una única sesión activa: si había un docente
+      // logueado antes (código maestro sin expiración en localStorage), se
+      // descarta para que no quede "tapando" al alumno que acaba de
+      // identificarse con su DNI (por ejemplo, en la bienvenida de Tu Futuro).
+      setTeacher(null);
+      write(KEYS.teacher, null);
       setStudent(value);
       write(KEYS.student, value);
     },
@@ -138,6 +144,8 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
   const signInTeacher = useCallback(
     async (input: { code?: string; name?: string; role?: StaffRole }) => {
       const identity = await teacherAuth.signIn(input);
+      setStudent(null);
+      write(KEYS.student, null);
       setTeacher(identity);
       write(KEYS.teacher, identity);
     },

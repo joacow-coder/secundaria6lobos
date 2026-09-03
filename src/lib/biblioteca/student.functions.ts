@@ -95,7 +95,7 @@ export const bibVerifyStudent = createServerFn({ method: "POST" })
     const nameCheck = validateStudentName(pretty);
     if (!nameCheck.ok) throw new Error(nameCheck.message ?? "Revisá tu nombre.");
 
-    // Si eligió un curso (turno+división), el año lectivo se toma de ahí —
+    // Si eligió un curso (año+turno), el año lectivo se toma de ahí —
     // nunca del valor suelto que mandó el cliente — para que no puedan
     // desincronizarse.
     let year = data.year;

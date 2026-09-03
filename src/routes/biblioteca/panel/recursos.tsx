@@ -487,15 +487,15 @@ function PanelRecursos() {
                   }
                 >
                   <SelectTrigger id="r-curso" className="mt-1">
-                    <SelectValue placeholder="Todas las divisiones de este año" />
+                    <SelectValue placeholder="Todos los turnos de este año" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__todas__">Todas las divisiones de este año</SelectItem>
+                    <SelectItem value="__todas__">Todos los turnos de este año</SelectItem>
                     {courses
                       .filter((c) => c.year === form.year)
                       .map((c) => (
                         <SelectItem key={c.id} value={c.id}>
-                          {SHIFT_LABELS[c.shift] ?? c.shift} · {c.division}
+                          {SHIFT_LABELS[c.shift] ?? c.shift}
                         </SelectItem>
                       ))}
                   </SelectContent>

@@ -18,22 +18,16 @@ export const bibSaveCourse = createServerFn({ method: "POST" })
       course: z.object({
         year: z.number().int().min(1).max(6),
         shift: shiftSchema,
-        division: z.string().min(1).max(10),
       }),
     }),
   )
   .handler(async ({ data }) => {
     await assertStaff(data.role, data.code);
     const db = await admin();
-    const course = {
-      year: data.course.year,
-      shift: data.course.shift,
-      division: data.course.division.trim().toUpperCase(),
-    };
-    if (!course.division) throw new Error("Completá la división.");
+    const course = { year: data.course.year, shift: data.course.shift };
     const { error } = await db
       .from("bib_courses")
-      .upsert(course as never, { onConflict: "year,shift,division" });
+      .upsert(course as never, { onConflict: "year,shift" });
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });

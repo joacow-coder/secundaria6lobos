@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type Subject = { code: string; name: string; year: number };
 
 export type Shift = "manana" | "tarde" | "vespertino";
-export type Course = { id: string; year: number; shift: Shift; division: string };
+export type Course = { id: string; year: number; shift: Shift };
 
 export type Resource = {
   id: string;
@@ -79,10 +79,9 @@ export const coursesQuery = queryOptions({
   queryFn: async (): Promise<Course[]> => {
     const { data, error } = await supabase
       .from("bib_courses")
-      .select("id, year, shift, division")
+      .select("id, year, shift")
       .order("year")
-      .order("shift")
-      .order("division");
+      .order("shift");
     if (error) throw error;
     return (data ?? []) as Course[];
   },

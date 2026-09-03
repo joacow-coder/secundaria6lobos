@@ -58,7 +58,6 @@ function AdministracionPage() {
   const [words, setWords] = useState<string | null>(null);
   const [courseYear, setCourseYear] = useState(1);
   const [courseShift, setCourseShift] = useState<string>(SHIFTS[0]);
-  const [division, setDivision] = useState("");
 
   useEffect(() => {
     if (ready && !teacher) navigate({ to: "/biblioteca/acceso" });
@@ -94,12 +93,11 @@ function AdministracionPage() {
         data: {
           role: teacher!.role,
           code: teacher?.credential ?? "",
-          course: { year: courseYear, shift: courseShift as never, division },
+          course: { year: courseYear, shift: courseShift as never },
         },
       }),
     onSuccess: async () => {
       toast.success("Curso guardado.");
-      setDivision("");
       await qc.invalidateQueries({ queryKey: ["biblioteca", "courses"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -146,12 +144,12 @@ function AdministracionPage() {
       </p>
 
       <section className="mt-6 rounded-xl border border-border bg-card p-4 sm:p-6">
-        <h2 className="font-display text-lg font-semibold">Cursos (turno, año y división)</h2>
+        <h2 className="font-display text-lg font-semibold">Cursos (año y turno)</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Definí acá los cursos reales de la escuela para poder dirigir comunicados y materiales
           con precisión (turno completo, un curso puntual, o un alumno).
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,9rem)_minmax(0,9rem)_minmax(0,8rem)_auto]">
+        <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,9rem)_minmax(0,9rem)_auto]">
           <select
             aria-label="Turno"
             value={courseShift}
@@ -176,18 +174,10 @@ function AdministracionPage() {
               </option>
             ))}
           </select>
-          <input
-            aria-label="División"
-            value={division}
-            onChange={(e) => setDivision(e.target.value)}
-            placeholder="División (ej.: A)"
-            maxLength={10}
-            className="rounded-lg border border-input bg-background px-3 py-2.5"
-          />
           <button
             type="button"
             onClick={() => saveCourse.mutate()}
-            disabled={!division.trim() || saveCourse.isPending}
+            disabled={saveCourse.isPending}
             className="rounded-lg bg-primary px-4 py-2.5 font-medium text-primary-foreground disabled:opacity-60"
           >
             Guardar

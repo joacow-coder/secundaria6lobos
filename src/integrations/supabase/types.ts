@@ -243,21 +243,18 @@ export type Database = {
       bib_courses: {
         Row: {
           created_at: string
-          division: string
           id: string
           shift: string
           year: number
         }
         Insert: {
           created_at?: string
-          division: string
           id?: string
           shift: string
           year: number
         }
         Update: {
           created_at?: string
-          division?: string
           id?: string
           shift?: string
           year?: number

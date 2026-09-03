@@ -265,8 +265,8 @@ export const SHIFT_LABELS: Record<string, string> = {
   vespertino: "Turno Vespertino",
 };
 
-export function courseLabel(course: { year: number; shift: string; division: string }): string {
-  return `${yearLabel(course.year)} · ${SHIFT_LABELS[course.shift] ?? course.shift} · ${course.division}`;
+export function courseLabel(course: { year: number; shift: string }): string {
+  return `${yearLabel(course.year)} · ${SHIFT_LABELS[course.shift] ?? course.shift}`;
 }
 
 /** El "año lectivo" de un recurso/comunicado es el año calendario en que se creó. */

@@ -43,16 +43,13 @@ function IngresoEstudiante() {
 
   const suggestion = suggestName(name);
 
-  // Si todavía no hay cursos cargados (turno+división), se degrada al
+  // Si todavía no hay cursos cargados (año+turno), se degrada al
   // selector simple de año que había antes — no bloquea el ingreso.
   const hasCourses = courses.length > 0;
   const shifts = Array.from(new Set(courses.map((c) => c.shift)));
   const yearsForShift = Array.from(
     new Set(courses.filter((c) => c.shift === shift).map((c) => c.year)),
   ).sort((a, b) => a - b);
-  const divisionsForYear = courses
-    .filter((c) => c.shift === shift && c.year === year)
-    .sort((a, b) => a.division.localeCompare(b.division));
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -72,7 +69,7 @@ function IngresoEstudiante() {
       return;
     }
     if (hasCourses && !courseId) {
-      setError("Elegí turno, año y división.");
+      setError("Elegí turno y año.");
       return;
     }
     setLoading(true);
@@ -186,7 +183,9 @@ function IngresoEstudiante() {
                         type="button"
                         onClick={() => {
                           setYear(y);
-                          setCourseId(null);
+                          setCourseId(
+                            courses.find((c) => c.shift === shift && c.year === y)?.id ?? null,
+                          );
                           setError(null);
                         }}
                         className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
@@ -196,31 +195,6 @@ function IngresoEstudiante() {
                         }`}
                       >
                         {y}.º año
-                      </button>
-                    ))}
-                  </div>
-                </>
-              ) : null}
-
-              {shift && year ? (
-                <>
-                  <p className="mt-4 text-sm font-medium">¿Qué división?</p>
-                  <div className="mt-2 grid grid-cols-3 gap-2">
-                    {divisionsForYear.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          setCourseId(c.id);
-                          setError(null);
-                        }}
-                        className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
-                          courseId === c.id
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-input bg-background hover:bg-secondary"
-                        }`}
-                      >
-                        {c.division}
                       </button>
                     ))}
                   </div>
