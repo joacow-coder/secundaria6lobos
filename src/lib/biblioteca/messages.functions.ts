@@ -3,11 +3,19 @@ import { z } from "zod";
 import { assertStaff, type StaffRole } from "@/lib/biblioteca/staff-auth.server";
 
 export type { StaffRole };
-export type Audience = { role: "alumno" | StaffRole; name: string; year: number | null };
+export type Audience = {
+  role: "alumno" | StaffRole;
+  name: string;
+  year: number | null;
+  shift: string | null;
+  courseId: string | null;
+};
 export type TargetInput = {
-  target_type: "all" | "role" | "year" | "person";
+  target_type: "all" | "role" | "year" | "shift" | "course" | "person";
   target_role: string | null;
   target_year: number | null;
+  target_shift: string | null;
+  target_course_id: string | null;
   target_person: string | null;
 };
 
@@ -16,11 +24,15 @@ const audienceSchema = z.object({
   role: z.enum(["alumno", "profesor", "preceptor", "directivo"]),
   name: z.string().min(1).max(120),
   year: z.number().int().nullable(),
+  shift: z.string().max(20).nullable(),
+  courseId: z.string().uuid().nullable(),
 });
 const targetSchema = z.object({
-  target_type: z.enum(["all", "role", "year", "person"]),
+  target_type: z.enum(["all", "role", "year", "shift", "course", "person"]),
   target_role: z.string().max(20).nullable(),
   target_year: z.number().int().nullable(),
+  target_shift: z.string().max(20).nullable(),
+  target_course_id: z.string().uuid().nullable(),
   target_person: z.string().max(120).nullable(),
 });
 
@@ -96,6 +108,10 @@ export function matches(target: TargetInput, audience: Audience): boolean {
         target.target_year === audience.year &&
         (!target.target_role || target.target_role === audience.role)
       );
+    case "shift":
+      return audience.shift != null && target.target_shift === audience.shift;
+    case "course":
+      return audience.courseId != null && target.target_course_id === audience.courseId;
     case "person":
       return (target.target_person ?? "").trim().toLowerCase() === name;
     default:
@@ -154,6 +170,8 @@ export const bibSendMessage = createServerFn({ method: "POST" })
       target_type: t.target_type,
       target_role: t.target_role,
       target_year: t.target_year,
+      target_shift: t.target_shift,
+      target_course_id: t.target_course_id,
       target_person: t.target_person?.trim() || null,
     }));
     const { error: targetError } = await db.from("bib_message_targets").insert(rows as never);
@@ -181,7 +199,7 @@ export const bibInbox = createServerFn({ method: "POST" })
     const ids = list.map((m) => m.id);
     const { data: targets } = await db
       .from("bib_message_targets")
-      .select("message_id, target_type, target_role, target_year, target_person")
+      .select("message_id, target_type, target_role, target_year, target_shift, target_course_id, target_person")
       .in("message_id", ids);
     const { data: reads } = await db
       .from("bib_message_reads")
@@ -256,7 +274,7 @@ export const bibSentMessages = createServerFn({ method: "POST" })
     if (list.length === 0) return [];
     const { data: targets } = await db
       .from("bib_message_targets")
-      .select("message_id, target_type, target_role, target_year, target_person")
+      .select("message_id, target_type, target_role, target_year, target_shift, target_course_id, target_person")
       .in(
         "message_id",
         list.map((m) => m.id),

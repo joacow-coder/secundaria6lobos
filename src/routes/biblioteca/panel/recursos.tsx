@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { resourcesQuery, subjectsQuery, type Resource } from "@/lib/biblioteca/data";
+import { coursesQuery, resourcesQuery, subjectsQuery, type Resource } from "@/lib/biblioteca/data";
 import {
   bibDeleteResource,
   bibSaveResource,
@@ -27,10 +27,12 @@ import {
   ACCEPTED_EXTENSIONS,
   KIND_FILTERS,
   KIND_LABELS,
+  SHIFT_LABELS,
   YEARS,
   detectProvider,
   formatDate,
   formatFileSize,
+  isCurrentSchoolYear,
   kindFromFilename,
   yearLabel,
 } from "@/lib/biblioteca/utils";
@@ -59,6 +61,7 @@ type FormState = {
   description: string;
   subject_code: string;
   year: number;
+  course_id: string | null;
   unit: string;
   topic: string;
   tags: string;
@@ -76,6 +79,7 @@ const EMPTY_FORM: FormState = {
   description: "",
   subject_code: "",
   year: 1,
+  course_id: null,
   unit: "",
   topic: "",
   tags: "",
@@ -99,11 +103,14 @@ function PanelRecursos() {
 
   const resourcesQ = useQuery(resourcesQuery);
   const subjectsQ = useQuery(subjectsQuery);
+  const coursesQ = useQuery(coursesQuery);
+  const courses = coursesQ.data ?? [];
 
   const [search, setSearch] = useState("");
   const [filterYear, setFilterYear] = useState<string>("todos");
   const [filterSubject, setFilterSubject] = useState<string>("todas");
   const [filterKind, setFilterKind] = useState<string>("todos");
+  const [showHistorical, setShowHistorical] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -117,13 +124,14 @@ function PanelRecursos() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return resources.filter((r) => {
+      if (!showHistorical && !isCurrentSchoolYear(r.created_at)) return false;
       if (filterYear !== "todos" && String(r.year) !== filterYear) return false;
       if (filterSubject !== "todas" && r.subject_code !== filterSubject) return false;
       if (filterKind !== "todos" && r.kind !== filterKind) return false;
       if (q && !`${r.title} ${r.description} ${r.topic ?? ""}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [resources, search, filterYear, filterSubject, filterKind]);
+  }, [resources, search, filterYear, filterSubject, filterKind, showHistorical]);
 
   function openCreate() {
     setForm({ ...EMPTY_FORM, subject_code: subjects[0]?.code ?? "" });
@@ -138,6 +146,7 @@ function PanelRecursos() {
       description: resource.description,
       subject_code: resource.subject_code,
       year: resource.year,
+      course_id: resource.course_id,
       unit: resource.unit ?? "",
       topic: resource.topic ?? "",
       tags: resource.tags.join(", "),
@@ -163,6 +172,8 @@ function PanelRecursos() {
       let provider: string | null = null;
       let kind = form.kind;
 
+      const selectedCourse = form.course_id ? courses.find((c) => c.id === form.course_id) : null;
+
       if (form.sourceMode === "archivo") {
         if (pendingFile) {
           setUploading(true);
@@ -174,6 +185,7 @@ function PanelRecursos() {
               code: teacher.credential,
               category: "recursos",
               subjectCode: form.subject_code || null,
+              shift: selectedCourse?.shift ?? null,
               filename: optimized.name,
               contentType: optimized.type,
               base64,
@@ -208,6 +220,7 @@ function PanelRecursos() {
             description: form.description.trim(),
             subject_code: form.subject_code,
             year: Number(form.year),
+            course_id: form.course_id,
             unit: form.unit.trim() || null,
             topic: form.topic.trim() || null,
             tags: form.tags
@@ -321,6 +334,16 @@ function PanelRecursos() {
             </SelectContent>
           </Select>
         </div>
+
+        <label className="flex w-fit items-center gap-2 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={showHistorical}
+            onChange={(e) => setShowHistorical(e.target.checked)}
+            className="size-4"
+          />
+          Ver años anteriores (histórico)
+        </label>
 
         <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
           {resourcesQ.isLoading ? (
@@ -447,6 +470,34 @@ function PanelRecursos() {
                 </Select>
               </div>
             </div>
+
+            {courses.length > 0 ? (
+              <div>
+                <label htmlFor="r-curso" className="block text-sm font-medium text-foreground">
+                  Curso (opcional, más preciso que el año)
+                </label>
+                <Select
+                  value={form.course_id ?? "__todas__"}
+                  onValueChange={(v) =>
+                    setForm((f) => ({ ...f, course_id: v === "__todas__" ? null : v }))
+                  }
+                >
+                  <SelectTrigger id="r-curso" className="mt-1">
+                    <SelectValue placeholder="Todas las divisiones de este año" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__todas__">Todas las divisiones de este año</SelectItem>
+                    {courses
+                      .filter((c) => c.year === form.year)
+                      .map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {SHIFT_LABELS[c.shift] ?? c.shift} · {c.division}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
 
             <div className="grid grid-cols-2 gap-3">
               <div>

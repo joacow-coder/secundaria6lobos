@@ -7,7 +7,13 @@ import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { ResourceCard } from "@/components/biblioteca/ResourceCard";
 import { resourcesQuery, subjectsQuery } from "@/lib/biblioteca/data";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { KIND_FILTERS, KIND_LABELS, scoreResource, yearLabel } from "@/lib/biblioteca/utils";
+import {
+  isCurrentSchoolYear,
+  KIND_FILTERS,
+  KIND_LABELS,
+  scoreResource,
+  yearLabel,
+} from "@/lib/biblioteca/utils";
 
 export const Route = createFileRoute("/biblioteca/materia/$code")({
   head: ({ params }) => ({
@@ -41,13 +47,15 @@ function MateriaPage() {
   const blockedByYear = Boolean(student && subject && subject.year !== student.year);
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<string | null>(null);
+  const [showHistorical, setShowHistorical] = useState(false);
 
   const subjectResources = useMemo(() => {
     return resources
       .filter((r) => r.subject_code === code)
+      .filter((r) => showHistorical || isCurrentSchoolYear(r.created_at))
       .filter((r) => kind === null || r.kind === kind)
       .filter((r) => (query.trim() ? scoreResource(r, query, subject?.name) > 0 : true));
-  }, [resources, code, kind, query, subject]);
+  }, [resources, code, kind, query, subject, showHistorical]);
 
   const groups = useMemo(() => {
     const map = new Map<string, typeof subjectResources>();
@@ -168,6 +176,16 @@ function MateriaPage() {
             ))}
           </div>
         </div>
+
+        <label className="flex w-fit items-center gap-2 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={showHistorical}
+            onChange={(e) => setShowHistorical(e.target.checked)}
+            className="size-4"
+          />
+          Ver material de años anteriores
+        </label>
 
         {groups.length === 0 ? (
           <EmptyState

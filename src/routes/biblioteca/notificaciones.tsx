@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { bibInbox, bibUpdateInboxState } from "@/lib/biblioteca/messages.functions";
-import type { Audience, InboxMessage } from "@/lib/biblioteca/messages.functions";
+import type { Audience, InboxMessage, TargetInput } from "@/lib/biblioteca/messages.functions";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { formatDate, formatFileSize } from "@/lib/biblioteca/utils";
+import { coursesQuery, type Course } from "@/lib/biblioteca/data";
+import { courseLabel, formatDate, formatFileSize, SHIFT_LABELS } from "@/lib/biblioteca/utils";
 
 function attachmentUrl(message: InboxMessage, audience: Audience): string {
   const params = new URLSearchParams({
@@ -16,6 +17,8 @@ function attachmentUrl(message: InboxMessage, audience: Audience): string {
     descargar: "1",
   });
   if (audience.year != null) params.set("year", String(audience.year));
+  if (audience.shift) params.set("shift", audience.shift);
+  if (audience.courseId) params.set("courseId", audience.courseId);
   return `/api/private/comunicados/${message.id}?${params.toString()}`;
 }
 
@@ -41,15 +44,20 @@ const ROLE_LABEL: Record<string, string> = {
   directivo: "Dirección",
 };
 
-function targetsLabel(message: InboxMessage): string {
-  return message.targets
-    .map((t) => {
-      if (t.target_type === "all") return "Toda la institución";
-      if (t.target_type === "role") return ROLE_LABEL[t.target_role ?? ""] ?? "Comunidad";
-      if (t.target_type === "year") return `${t.target_year}.º año`;
-      return t.target_person ?? "Persona";
-    })
-    .join(" · ");
+function targetLabel(t: TargetInput, coursesById: Map<string, Course>): string {
+  if (t.target_type === "all") return "Toda la institución";
+  if (t.target_type === "role") return ROLE_LABEL[t.target_role ?? ""] ?? "Comunidad";
+  if (t.target_type === "year") return `${t.target_year}.º año`;
+  if (t.target_type === "shift") return SHIFT_LABELS[t.target_shift ?? ""] ?? "Turno";
+  if (t.target_type === "course") {
+    const course = t.target_course_id ? coursesById.get(t.target_course_id) : undefined;
+    return course ? courseLabel(course) : "Curso";
+  }
+  return t.target_person ?? "Persona";
+}
+
+function targetsLabel(message: InboxMessage, coursesById: Map<string, Course>): string {
+  return message.targets.map((t) => targetLabel(t, coursesById)).join(" · ");
 }
 
 function NotificacionesPage() {
@@ -57,6 +65,8 @@ function NotificacionesPage() {
   const queryClient = useQueryClient();
   const { audience, ready, role } = useBibliotecaSession();
   const [tab, setTab] = useState<"activas" | "archivadas">("activas");
+  const { data: courses = [] } = useQuery(coursesQuery);
+  const coursesById = new Map(courses.map((c) => [c.id, c]));
 
   useEffect(() => {
     if (ready && !audience) navigate({ to: "/biblioteca" });
@@ -166,7 +176,9 @@ function NotificacionesPage() {
                     {m.attachment_size ? ` (${formatFileSize(m.attachment_size)})` : ""}
                   </a>
                 ) : null}
-                <p className="mt-2 text-xs text-muted-foreground">Para: {targetsLabel(m)}</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Para: {targetsLabel(m, coursesById)}
+                </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"

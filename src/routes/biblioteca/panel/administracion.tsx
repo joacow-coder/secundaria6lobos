@@ -3,14 +3,15 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/biblioteca/AppShell";
-import { blockedWordsQuery, subjectsQuery } from "@/lib/biblioteca/data";
+import { blockedWordsQuery, coursesQuery, subjectsQuery } from "@/lib/biblioteca/data";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
 import {
   bibDeleteSubject,
   bibSaveBlockedWords,
   bibSaveSubject,
 } from "@/lib/biblioteca/teacher.functions";
-import { YEARS, yearLabel } from "@/lib/biblioteca/utils";
+import { bibDeleteCourse, bibSaveCourse } from "@/lib/biblioteca/courses.functions";
+import { courseLabel, SHIFT_LABELS, SHIFTS, YEARS, yearLabel } from "@/lib/biblioteca/utils";
 
 export const Route = createFileRoute("/biblioteca/panel/administracion")({
   head: () => ({
@@ -45,11 +46,19 @@ function AdministracionPage() {
     isError: blockedError,
     refetch: refetchBlocked,
   } = useQuery(blockedWordsQuery);
+  const {
+    data: courses = [],
+    isError: coursesError,
+    refetch: refetchCourses,
+  } = useQuery(coursesQuery);
 
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [year, setYear] = useState(1);
   const [words, setWords] = useState<string | null>(null);
+  const [courseYear, setCourseYear] = useState(1);
+  const [courseShift, setCourseShift] = useState<string>(SHIFTS[0]);
+  const [division, setDivision] = useState("");
 
   useEffect(() => {
     if (ready && !teacher) navigate({ to: "/biblioteca/acceso" });
@@ -75,6 +84,33 @@ function AdministracionPage() {
     onSuccess: async () => {
       toast.success("Materia eliminada.");
       await qc.invalidateQueries({ queryKey: ["biblioteca", "subjects"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const saveCourse = useMutation({
+    mutationFn: async () =>
+      bibSaveCourse({
+        data: {
+          role: teacher!.role,
+          code: teacher?.credential ?? "",
+          course: { year: courseYear, shift: courseShift as never, division },
+        },
+      }),
+    onSuccess: async () => {
+      toast.success("Curso guardado.");
+      setDivision("");
+      await qc.invalidateQueries({ queryKey: ["biblioteca", "courses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removeCourse = useMutation({
+    mutationFn: async (id: string) =>
+      bibDeleteCourse({ data: { role: teacher!.role, code: teacher?.credential ?? "", id } }),
+    onSuccess: async () => {
+      toast.success("Curso eliminado.");
+      await qc.invalidateQueries({ queryKey: ["biblioteca", "courses"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -109,6 +145,85 @@ function AdministracionPage() {
         Materias disponibles y filtro de nombres para el ingreso de estudiantes.
       </p>
 
+      <section className="mt-6 rounded-xl border border-border bg-card p-4 sm:p-6">
+        <h2 className="font-display text-lg font-semibold">Cursos (turno, año y división)</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Definí acá los cursos reales de la escuela para poder dirigir comunicados y materiales
+          con precisión (turno completo, un curso puntual, o un alumno).
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,9rem)_minmax(0,9rem)_minmax(0,8rem)_auto]">
+          <select
+            aria-label="Turno"
+            value={courseShift}
+            onChange={(e) => setCourseShift(e.target.value)}
+            className="rounded-lg border border-input bg-background px-3 py-2.5"
+          >
+            {SHIFTS.map((s) => (
+              <option key={s} value={s}>
+                {SHIFT_LABELS[s]}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Año"
+            value={courseYear}
+            onChange={(e) => setCourseYear(Number(e.target.value))}
+            className="rounded-lg border border-input bg-background px-3 py-2.5"
+          >
+            {YEARS.map((y) => (
+              <option key={y} value={y}>
+                {yearLabel(y)}
+              </option>
+            ))}
+          </select>
+          <input
+            aria-label="División"
+            value={division}
+            onChange={(e) => setDivision(e.target.value)}
+            placeholder="División (ej.: A)"
+            maxLength={10}
+            className="rounded-lg border border-input bg-background px-3 py-2.5"
+          />
+          <button
+            type="button"
+            onClick={() => saveCourse.mutate()}
+            disabled={!division.trim() || saveCourse.isPending}
+            className="rounded-lg bg-primary px-4 py-2.5 font-medium text-primary-foreground disabled:opacity-60"
+          >
+            Guardar
+          </button>
+        </div>
+
+        {coursesError && (
+          <p className="mt-4 flex flex-wrap items-center gap-2 text-sm text-destructive">
+            No pudimos cargar los cursos existentes.
+            <button
+              type="button"
+              onClick={() => refetchCourses()}
+              className="font-medium underline underline-offset-2"
+            >
+              Reintentar
+            </button>
+          </p>
+        )}
+        <ul className="mt-5 divide-y divide-border">
+          {courses.map((c) => (
+            <li key={c.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+              <span className="min-w-0 truncate">{courseLabel(c)}</span>
+              <button
+                type="button"
+                onClick={() => removeCourse.mutate(c.id)}
+                className="shrink-0 rounded-md px-2 py-1 text-destructive hover:bg-secondary"
+              >
+                Eliminar
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {teacher.role === "profesor" ? (
+        <>
       <section className="mt-6 rounded-xl border border-border bg-card p-4 sm:p-6">
         <h2 className="font-display text-lg font-semibold">Materias</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)_minmax(0,8rem)_auto]">
@@ -215,6 +330,8 @@ function AdministracionPage() {
           Guardar filtro
         </button>
       </section>
+        </>
+      ) : null}
     </AppShell>
   );
 }

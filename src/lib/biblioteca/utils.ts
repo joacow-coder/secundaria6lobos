@@ -259,6 +259,22 @@ export function toEmbedUrl(url: string): string | null {
 export const YEARS = [1, 2, 3, 4, 5, 6];
 export const yearLabel = (year: number) => `${year}° Año`;
 
+export const SHIFTS = ["manana", "tarde", "vespertino"] as const;
+export const SHIFT_LABELS: Record<string, string> = {
+  manana: "Turno Mañana",
+  tarde: "Turno Tarde",
+  vespertino: "Turno Vespertino",
+};
+
+export function courseLabel(course: { year: number; shift: string; division: string }): string {
+  return `${yearLabel(course.year)} · ${SHIFT_LABELS[course.shift] ?? course.shift} · ${course.division}`;
+}
+
+/** El "año lectivo" de un recurso/comunicado es el año calendario en que se creó. */
+export function isCurrentSchoolYear(createdAt: string): boolean {
+  return new Date(createdAt).getFullYear() === new Date().getFullYear();
+}
+
 export const IMPORTANCE: Record<string, { label: string; className: string }> = {
   normal: { label: "Normal", className: "bg-secondary text-secondary-foreground" },
   importante: { label: "Importante", className: "bg-warning/20 text-warning-foreground" },

@@ -13,6 +13,7 @@ const resourceSchema = z.object({
   description: z.string().max(5000),
   subject_code: z.string().max(20),
   year: z.number().int(),
+  course_id: z.string().uuid().nullable().optional(),
   unit: z.string().max(200).nullable(),
   topic: z.string().max(200).nullable(),
   tags: z.array(z.string().max(50)).max(50),
@@ -240,6 +241,7 @@ export const bibUploadFile = createServerFn({ method: "POST" })
       code: z.string().min(1).max(200),
       category: z.enum(["recursos", "mensajes"]),
       subjectCode: z.string().max(20).nullable().optional(),
+      shift: z.string().max(20).nullable().optional(),
       filename: z.string().min(1).max(255),
       contentType: z.string().max(100),
       base64: z.string().min(1),
@@ -247,11 +249,10 @@ export const bibUploadFile = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await assertStaff(data.role, data.code);
-    const path = buildStoragePath(
-      data.category,
-      data.filename,
-      ...(data.category === "recursos" && data.subjectCode ? [data.subjectCode] : []),
-    );
+    const path = buildStoragePath(data.category, data.filename, {
+      shift: data.shift,
+      segments: data.category === "recursos" && data.subjectCode ? [data.subjectCode] : [],
+    });
     const binary = atob(data.base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);

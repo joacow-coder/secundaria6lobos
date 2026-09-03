@@ -13,7 +13,8 @@ import {
 import type { StaffRole, TargetInput } from "@/lib/biblioteca/messages.functions";
 import { bibUploadFile } from "@/lib/biblioteca/teacher.functions";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { formatDate, formatFileSize } from "@/lib/biblioteca/utils";
+import { coursesQuery } from "@/lib/biblioteca/data";
+import { courseLabel, formatDate, formatFileSize, SHIFT_LABELS, SHIFTS } from "@/lib/biblioteca/utils";
 import { fileToBase64 } from "@/lib/file-to-base64";
 import { optimizeImageFile } from "@/lib/optimize-image";
 
@@ -53,9 +54,12 @@ function ComunicadosPage() {
   const [toAll, setToAll] = useState(false);
   const [roles, setRoles] = useState<string[]>([]);
   const [years, setYears] = useState<number[]>([]);
+  const [shifts, setShifts] = useState<string[]>([]);
+  const [courseIds, setCourseIds] = useState<string[]>([]);
   const [person, setPerson] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: courses = [] } = useQuery(coursesQuery);
 
   function pickAttachment(file: File | undefined) {
     if (!file) return;
@@ -126,6 +130,8 @@ function ComunicadosPage() {
       setToAll(false);
       setRoles([]);
       setYears([]);
+      setShifts([]);
+      setCourseIds([]);
       setPerson("");
       setAttachment(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -145,23 +151,31 @@ function ComunicadosPage() {
   }
 
   function buildTargets(): TargetInput[] {
+    const EMPTY = {
+      target_role: null,
+      target_year: null,
+      target_shift: null,
+      target_course_id: null,
+      target_person: null,
+    };
     if (toAll) {
-      return [{ target_type: "all", target_role: null, target_year: null, target_person: null }];
+      return [{ target_type: "all", ...EMPTY }];
     }
     const list: TargetInput[] = [];
     for (const year of years) {
-      list.push({ target_type: "year", target_role: "alumno", target_year: year, target_person: null });
+      list.push({ target_type: "year", ...EMPTY, target_role: "alumno", target_year: year });
+    }
+    for (const s of shifts) {
+      list.push({ target_type: "shift", ...EMPTY, target_shift: s });
+    }
+    for (const courseId of courseIds) {
+      list.push({ target_type: "course", ...EMPTY, target_course_id: courseId });
     }
     for (const role of roles) {
-      list.push({ target_type: "role", target_role: role, target_year: null, target_person: null });
+      list.push({ target_type: "role", ...EMPTY, target_role: role });
     }
     if (person.trim()) {
-      list.push({
-        target_type: "person",
-        target_role: null,
-        target_year: null,
-        target_person: person.trim(),
-      });
+      list.push({ target_type: "person", ...EMPTY, target_person: person.trim() });
     }
     return list;
   }
@@ -253,6 +267,52 @@ function ComunicadosPage() {
                 </button>
               ))}
             </div>
+
+            {courses.length > 0 ? (
+              <>
+                <p className="mt-4 text-xs tracking-wide text-muted-foreground uppercase">
+                  Por turno
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {SHIFTS.filter((s) => courses.some((c) => c.shift === s)).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={toAll}
+                      onClick={() => toggle(shifts, s, setShifts)}
+                      className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+                        shifts.includes(s)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/70"
+                      }`}
+                    >
+                      {SHIFT_LABELS[s] ?? s}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="mt-4 text-xs tracking-wide text-muted-foreground uppercase">
+                  Por curso (salón puntual)
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {courses.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      disabled={toAll}
+                      onClick={() => toggle(courseIds, c.id, setCourseIds)}
+                      className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+                        courseIds.includes(c.id)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/70"
+                      }`}
+                    >
+                      {courseLabel(c)}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : null}
 
             <p className="mt-4 text-xs tracking-wide text-muted-foreground uppercase">Por perfil</p>
             <div className="mt-1.5 flex flex-wrap gap-2">

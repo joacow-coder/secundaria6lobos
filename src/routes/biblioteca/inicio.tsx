@@ -7,7 +7,14 @@ import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { ResourceCard } from "@/components/biblioteca/ResourceCard";
 import { resourcesQuery, subjectsQuery, type Resource } from "@/lib/biblioteca/data";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { KIND_FILTERS, KIND_LABELS, YEARS, scoreResource, yearLabel } from "@/lib/biblioteca/utils";
+import {
+  isCurrentSchoolYear,
+  KIND_FILTERS,
+  KIND_LABELS,
+  YEARS,
+  scoreResource,
+  yearLabel,
+} from "@/lib/biblioteca/utils";
 
 export const Route = createFileRoute("/biblioteca/inicio")({
   head: () => ({
@@ -42,6 +49,7 @@ function InicioAlumno() {
   const [query, setQuery] = useState("");
   const [year, setYear] = useState<number | null>(null);
   const [kind, setKind] = useState<string | null>(null);
+  const [showHistorical, setShowHistorical] = useState(false);
 
   /** Los estudiantes quedan fijos en el año que eligieron al ingresar; solo docentes/personal ven todos. */
   const lockedYear = student?.year ?? null;
@@ -49,9 +57,17 @@ function InicioAlumno() {
 
   const subjectByCode = useMemo(() => new Map(subjects.map((s) => [s.code, s])), [subjects]);
 
+  // Por defecto solo se ve el material del año lectivo actual, para que la
+  // Biblioteca no se sature a medida que se acumulan años — "Ver material de
+  // años anteriores" lo destapa sin mover ni borrar nada.
+  const scopedResources = useMemo(
+    () => (showHistorical ? resources : resources.filter((r) => isCurrentSchoolYear(r.created_at))),
+    [resources, showHistorical],
+  );
+
   const searchResults = useMemo(() => {
     if (!query.trim()) return [];
-    return resources
+    return scopedResources
       .map((r) => ({
         resource: r,
         score: scoreResource(r, query, subjectByCode.get(r.subject_code)?.name),
@@ -65,11 +81,14 @@ function InicioAlumno() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 24)
       .map((x) => x.resource);
-  }, [resources, query, effectiveYear, kind, subjectByCode]);
+  }, [scopedResources, query, effectiveYear, kind, subjectByCode]);
 
   const yearScopedResources = useMemo(
-    () => (lockedYear === null ? resources : resources.filter((r) => r.year === lockedYear)),
-    [resources, lockedYear],
+    () =>
+      lockedYear === null
+        ? scopedResources
+        : scopedResources.filter((r) => r.year === lockedYear),
+    [scopedResources, lockedYear],
   );
   const featured = useMemo(
     () => yearScopedResources.filter((r) => r.featured).slice(0, 6),
@@ -195,6 +214,16 @@ function InicioAlumno() {
             </div>
           </div>
         </section>
+
+        <label className="flex w-fit items-center gap-2 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={showHistorical}
+            onChange={(e) => setShowHistorical(e.target.checked)}
+            className="size-4"
+          />
+          Ver material de años anteriores
+        </label>
 
         {query.trim() ? (
           <section>

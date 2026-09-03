@@ -47,6 +47,7 @@ import { Route as BibliotecaPanelComunicadosRouteImport } from './routes/bibliot
 import { Route as BibliotecaPanelConfiguracionRouteImport } from './routes/biblioteca/panel/configuracion'
 import { Route as BibliotecaPanelNovedadesRouteImport } from './routes/biblioteca/panel/novedades'
 import { Route as BibliotecaPanelRecursosRouteImport } from './routes/biblioteca/panel/recursos'
+import { Route as BibliotecaPanelResumenRouteImport } from './routes/biblioteca/panel/resumen'
 import { Route as BibliotecaRecursoIdRouteImport } from './routes/biblioteca/recurso.$id'
 import { Route as TuFuturoInstitucionesIndexRouteImport } from './routes/tu-futuro/instituciones.index'
 import { Route as TuFuturoInstitucionesIdRouteImport } from './routes/tu-futuro/instituciones.$id'
@@ -250,6 +251,11 @@ const BibliotecaPanelRecursosRoute = BibliotecaPanelRecursosRouteImport.update({
   path: '/panel/recursos',
   getParentRoute: () => BibliotecaRouteRoute,
 } as any)
+const BibliotecaPanelResumenRoute = BibliotecaPanelResumenRouteImport.update({
+  id: '/panel/resumen',
+  path: '/panel/resumen',
+  getParentRoute: () => BibliotecaRouteRoute,
+} as any)
 const BibliotecaRecursoIdRoute = BibliotecaRecursoIdRouteImport.update({
   id: '/recurso/$id',
   path: '/recurso/$id',
@@ -321,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/biblioteca/panel/configuracion': typeof BibliotecaPanelConfiguracionRoute
   '/biblioteca/panel/novedades': typeof BibliotecaPanelNovedadesRoute
   '/biblioteca/panel/recursos': typeof BibliotecaPanelRecursosRoute
+  '/biblioteca/panel/resumen': typeof BibliotecaPanelResumenRoute
   '/biblioteca/recurso/$id': typeof BibliotecaRecursoIdRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/biblioteca/panel/': typeof BibliotecaPanelIndexRoute
@@ -365,6 +372,7 @@ export interface FileRoutesByTo {
   '/biblioteca/panel/configuracion': typeof BibliotecaPanelConfiguracionRoute
   '/biblioteca/panel/novedades': typeof BibliotecaPanelNovedadesRoute
   '/biblioteca/panel/recursos': typeof BibliotecaPanelRecursosRoute
+  '/biblioteca/panel/resumen': typeof BibliotecaPanelResumenRoute
   '/biblioteca/recurso/$id': typeof BibliotecaRecursoIdRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/biblioteca/panel': typeof BibliotecaPanelIndexRoute
@@ -412,6 +420,7 @@ export interface FileRoutesById {
   '/biblioteca/panel/configuracion': typeof BibliotecaPanelConfiguracionRoute
   '/biblioteca/panel/novedades': typeof BibliotecaPanelNovedadesRoute
   '/biblioteca/panel/recursos': typeof BibliotecaPanelRecursosRoute
+  '/biblioteca/panel/resumen': typeof BibliotecaPanelResumenRoute
   '/biblioteca/recurso/$id': typeof BibliotecaRecursoIdRoute
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/biblioteca/panel/': typeof BibliotecaPanelIndexRoute
@@ -460,6 +469,7 @@ export interface FileRouteTypes {
     | '/biblioteca/panel/configuracion'
     | '/biblioteca/panel/novedades'
     | '/biblioteca/panel/recursos'
+    | '/biblioteca/panel/resumen'
     | '/biblioteca/recurso/$id'
     | '/tu-futuro/instituciones/$id'
     | '/biblioteca/panel/'
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/biblioteca/panel/configuracion'
     | '/biblioteca/panel/novedades'
     | '/biblioteca/panel/recursos'
+    | '/biblioteca/panel/resumen'
     | '/biblioteca/recurso/$id'
     | '/tu-futuro/instituciones/$id'
     | '/biblioteca/panel'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/biblioteca/panel/configuracion'
     | '/biblioteca/panel/novedades'
     | '/biblioteca/panel/recursos'
+    | '/biblioteca/panel/resumen'
     | '/biblioteca/recurso/$id'
     | '/tu-futuro/instituciones/$id'
     | '/biblioteca/panel/'
@@ -840,6 +852,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BibliotecaPanelRecursosRouteImport
       parentRoute: typeof BibliotecaRouteRoute
     }
+    '/biblioteca/panel/resumen': {
+      id: '/biblioteca/panel/resumen'
+      path: '/panel/resumen'
+      fullPath: '/biblioteca/panel/resumen'
+      preLoaderRoute: typeof BibliotecaPanelResumenRouteImport
+      parentRoute: typeof BibliotecaRouteRoute
+    }
     '/biblioteca/recurso/$id': {
       id: '/biblioteca/recurso/$id'
       path: '/recurso/$id'
@@ -904,6 +923,7 @@ interface BibliotecaRouteRouteChildren {
   BibliotecaPanelConfiguracionRoute: typeof BibliotecaPanelConfiguracionRoute
   BibliotecaPanelNovedadesRoute: typeof BibliotecaPanelNovedadesRoute
   BibliotecaPanelRecursosRoute: typeof BibliotecaPanelRecursosRoute
+  BibliotecaPanelResumenRoute: typeof BibliotecaPanelResumenRoute
   BibliotecaRecursoIdRoute: typeof BibliotecaRecursoIdRoute
   BibliotecaPanelIndexRoute: typeof BibliotecaPanelIndexRoute
 }
@@ -927,6 +947,7 @@ const BibliotecaRouteRouteChildren: BibliotecaRouteRouteChildren = {
   BibliotecaPanelConfiguracionRoute: BibliotecaPanelConfiguracionRoute,
   BibliotecaPanelNovedadesRoute: BibliotecaPanelNovedadesRoute,
   BibliotecaPanelRecursosRoute: BibliotecaPanelRecursosRoute,
+  BibliotecaPanelResumenRoute: BibliotecaPanelResumenRoute,
   BibliotecaRecursoIdRoute: BibliotecaRecursoIdRoute,
   BibliotecaPanelIndexRoute: BibliotecaPanelIndexRoute,
 }

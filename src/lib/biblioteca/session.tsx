@@ -45,7 +45,14 @@ export const masterCodeStrategy: TeacherAuthStrategy = {
 
 export const teacherAuth: TeacherAuthStrategy = masterCodeStrategy;
 
-export type Student = { dni: string; name: string; since: string; year: number };
+export type Student = {
+  dni: string;
+  name: string;
+  since: string;
+  year: number;
+  courseId: string | null;
+  shift: string | null;
+};
 
 type SessionState = {
   student: Student | null;
@@ -56,7 +63,12 @@ type SessionState = {
   favorites: string[];
   recents: string[];
   ready: boolean;
-  signInStudent: (input: { dni: string; name: string; year: number }) => Promise<void>;
+  signInStudent: (input: {
+    dni: string;
+    name: string;
+    year: number;
+    courseId?: string | null;
+  }) => Promise<void>;
   signInTeacher: (input: { code?: string; name?: string; role?: StaffRole }) => Promise<void>;
   signOut: () => void;
   toggleFavorite: (id: string) => void;
@@ -106,17 +118,22 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
     setReady(true);
   }, []);
 
-  const signInStudent = useCallback(async (input: { dni: string; name: string; year: number }) => {
-    const identity = await bibVerifyStudent({ data: input });
-    const value: Student = {
-      dni: identity.dni,
-      name: identity.name,
-      since: identity.since,
-      year: identity.year,
-    };
-    setStudent(value);
-    write(KEYS.student, value);
-  }, []);
+  const signInStudent = useCallback(
+    async (input: { dni: string; name: string; year: number; courseId?: string | null }) => {
+      const identity = await bibVerifyStudent({ data: input });
+      const value: Student = {
+        dni: identity.dni,
+        name: identity.name,
+        since: identity.since,
+        year: identity.year,
+        courseId: identity.courseId,
+        shift: identity.shift,
+      };
+      setStudent(value);
+      write(KEYS.student, value);
+    },
+    [],
+  );
 
   const signInTeacher = useCallback(
     async (input: { code?: string; name?: string; role?: StaffRole }) => {
@@ -156,9 +173,15 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
       teacher,
       role: teacher ? teacher.role : student ? "alumno" : null,
       audience: teacher
-        ? { role: teacher.role, name: teacher.full_name, year: null }
+        ? { role: teacher.role, name: teacher.full_name, year: null, shift: null, courseId: null }
         : student
-          ? { role: "alumno", name: student.name, year: student.year ?? null }
+          ? {
+              role: "alumno",
+              name: student.name,
+              year: student.year ?? null,
+              shift: student.shift ?? null,
+              courseId: student.courseId ?? null,
+            }
           : null,
       favorites,
       recents,

@@ -31,6 +31,8 @@ export const Route = createFileRoute("/api/private/comunicados/$id")({
         const role = url.searchParams.get("role");
         const name = url.searchParams.get("name");
         const yearParam = url.searchParams.get("year");
+        const shift = url.searchParams.get("shift");
+        const courseId = url.searchParams.get("courseId");
         const staffRole = url.searchParams.get("staffRole");
         const staffCode = url.searchParams.get("staffCode");
 
@@ -60,12 +62,14 @@ export const Route = createFileRoute("/api/private/comunicados/$id")({
         if (!authorized && role && name) {
           const { data: targets } = await db
             .from("bib_message_targets")
-            .select("target_type, target_role, target_year, target_person")
+            .select("target_type, target_role, target_year, target_shift, target_course_id, target_person")
             .eq("message_id", id);
           const audience: Audience = {
             role: role as Audience["role"],
             name,
             year: yearParam ? Number(yearParam) : null,
+            shift: shift || null,
+            courseId: courseId || null,
           };
           authorized = ((targets ?? []) as TargetInput[]).some((t) => matches(t, audience));
         }

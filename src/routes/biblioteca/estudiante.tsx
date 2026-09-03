@@ -3,9 +3,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import logoAsset from "@/assets/logo.png";
-import { blockedWordsQuery } from "@/lib/biblioteca/data";
+import { blockedWordsQuery, coursesQuery } from "@/lib/biblioteca/data";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { suggestName, toTitleCase, validateStudentName } from "@/lib/biblioteca/utils";
+import { suggestName, toTitleCase, validateStudentName, SHIFT_LABELS } from "@/lib/biblioteca/utils";
 
 export const Route = createFileRoute("/biblioteca/estudiante")({
   head: () => ({
@@ -32,13 +32,27 @@ function IngresoEstudiante() {
   const navigate = useNavigate();
   const { signInStudent } = useBibliotecaSession();
   const { data: blocked = [] } = useQuery(blockedWordsQuery);
+  const { data: courses = [] } = useQuery(coursesQuery);
   const [name, setName] = useState("");
   const [dni, setDni] = useState("");
   const [year, setYear] = useState<number | null>(null);
+  const [shift, setShift] = useState<string | null>(null);
+  const [courseId, setCourseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const suggestion = suggestName(name);
+
+  // Si todavía no hay cursos cargados (turno+división), se degrada al
+  // selector simple de año que había antes — no bloquea el ingreso.
+  const hasCourses = courses.length > 0;
+  const shifts = Array.from(new Set(courses.map((c) => c.shift)));
+  const yearsForShift = Array.from(
+    new Set(courses.filter((c) => c.shift === shift).map((c) => c.year)),
+  ).sort((a, b) => a - b);
+  const divisionsForYear = courses
+    .filter((c) => c.shift === shift && c.year === year)
+    .sort((a, b) => a.division.localeCompare(b.division));
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -57,10 +71,14 @@ function IngresoEstudiante() {
       setError("Elegí el año que estás cursando.");
       return;
     }
+    if (hasCourses && !courseId) {
+      setError("Elegí turno, año y división.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      await signInStudent({ dni: cleanDni, name: pretty, year });
+      await signInStudent({ dni: cleanDni, name: pretty, year, courseId });
       navigate({ to: "/biblioteca/inicio" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos verificar tus datos.");
@@ -133,26 +151,106 @@ function IngresoEstudiante() {
             acceso si hay otro estudiante con el mismo nombre.
           </p>
 
-          <p className="mt-5 text-sm font-medium">¿Qué año cursás?</p>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {YEARS.map((y) => (
-              <button
-                key={y}
-                type="button"
-                onClick={() => {
-                  setYear(y);
-                  setError(null);
-                }}
-                className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
-                  year === y
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-input bg-background hover:bg-secondary"
-                }`}
-              >
-                {y}.º año
-              </button>
-            ))}
-          </div>
+          {hasCourses ? (
+            <>
+              <p className="mt-5 text-sm font-medium">¿En qué turno estás?</p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {shifts.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => {
+                      setShift(s);
+                      setYear(null);
+                      setCourseId(null);
+                      setError(null);
+                    }}
+                    className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
+                      shift === s
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input bg-background hover:bg-secondary"
+                    }`}
+                  >
+                    {SHIFT_LABELS[s] ?? s}
+                  </button>
+                ))}
+              </div>
+
+              {shift ? (
+                <>
+                  <p className="mt-4 text-sm font-medium">¿Qué año cursás?</p>
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    {yearsForShift.map((y) => (
+                      <button
+                        key={y}
+                        type="button"
+                        onClick={() => {
+                          setYear(y);
+                          setCourseId(null);
+                          setError(null);
+                        }}
+                        className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
+                          year === y
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-input bg-background hover:bg-secondary"
+                        }`}
+                      >
+                        {y}.º año
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+
+              {shift && year ? (
+                <>
+                  <p className="mt-4 text-sm font-medium">¿Qué división?</p>
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    {divisionsForYear.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setCourseId(c.id);
+                          setError(null);
+                        }}
+                        className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
+                          courseId === c.id
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-input bg-background hover:bg-secondary"
+                        }`}
+                      >
+                        {c.division}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <p className="mt-5 text-sm font-medium">¿Qué año cursás?</p>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {YEARS.map((y) => (
+                  <button
+                    key={y}
+                    type="button"
+                    onClick={() => {
+                      setYear(y);
+                      setError(null);
+                    }}
+                    className={`rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
+                      year === y
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input bg-background hover:bg-secondary"
+                    }`}
+                  >
+                    {y}.º año
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
 

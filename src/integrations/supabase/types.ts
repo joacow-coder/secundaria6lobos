@@ -159,8 +159,10 @@ export type Database = {
           created_at: string
           id: string
           message_id: string
+          target_course_id: string | null
           target_person: string | null
           target_role: string | null
+          target_shift: string | null
           target_type: string
           target_year: number | null
         }
@@ -168,8 +170,10 @@ export type Database = {
           created_at?: string
           id?: string
           message_id: string
+          target_course_id?: string | null
           target_person?: string | null
           target_role?: string | null
+          target_shift?: string | null
           target_type: string
           target_year?: number | null
         }
@@ -177,8 +181,10 @@ export type Database = {
           created_at?: string
           id?: string
           message_id?: string
+          target_course_id?: string | null
           target_person?: string | null
           target_role?: string | null
+          target_shift?: string | null
           target_type?: string
           target_year?: number | null
         }
@@ -194,6 +200,10 @@ export type Database = {
       }
       bib_messages: {
         Row: {
+          attachment_mime_type: string | null
+          attachment_name: string | null
+          attachment_path: string | null
+          attachment_size: number | null
           body: string
           created_at: string
           id: string
@@ -203,6 +213,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attachment_mime_type?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_size?: number | null
           body?: string
           created_at?: string
           id?: string
@@ -212,6 +226,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attachment_mime_type?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_size?: number | null
           body?: string
           created_at?: string
           id?: string
@@ -222,8 +240,33 @@ export type Database = {
         }
         Relationships: []
       }
+      bib_courses: {
+        Row: {
+          created_at: string
+          division: string
+          id: string
+          shift: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          division: string
+          id?: string
+          shift: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          division?: string
+          id?: string
+          shift?: string
+          year?: number
+        }
+        Relationships: []
+      }
       bib_resources: {
         Row: {
+          course_id: string | null
           created_at: string
           deleted_at: string | null
           description: string
@@ -248,6 +291,7 @@ export type Database = {
           year: number
         }
         Insert: {
+          course_id?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string
@@ -272,6 +316,7 @@ export type Database = {
           year: number
         }
         Update: {
+          course_id?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string
@@ -299,6 +344,7 @@ export type Database = {
       }
       bib_students: {
         Row: {
+          course_id: string | null
           created_at: string
           dni: string
           full_name: string
@@ -306,6 +352,7 @@ export type Database = {
           year: number
         }
         Insert: {
+          course_id?: string | null
           created_at?: string
           dni: string
           full_name: string
@@ -313,6 +360,7 @@ export type Database = {
           year: number
         }
         Update: {
+          course_id?: string | null
           created_at?: string
           dni?: string
           full_name?: string

@@ -18,7 +18,7 @@ function sanitizeSegment(segment: string): string {
 export function buildStoragePath(
   category: StorageCategory,
   filename: string,
-  ...extraSegments: string[]
+  opts?: { shift?: string | null; segments?: string[] },
 ): string {
   const schoolYear = new Date().getFullYear();
   const cleanFilename = filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-70);
@@ -26,7 +26,8 @@ export function buildStoragePath(
   const segments = [
     category,
     String(schoolYear),
-    ...extraSegments.filter(Boolean).map(sanitizeSegment),
+    ...(opts?.shift ? [sanitizeSegment(opts.shift)] : []),
+    ...(opts?.segments ?? []).filter(Boolean).map(sanitizeSegment),
     `${uniquePrefix}-${cleanFilename}`,
   ];
   return segments.join("/");

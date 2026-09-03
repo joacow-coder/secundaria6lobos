@@ -17,6 +17,7 @@ const STUDENT_NAV = [
 const TEACHER_NAV = [
   { to: "/biblioteca/panel", label: "Panel" },
   { to: "/biblioteca/panel/recursos", label: "Mis materiales" },
+  { to: "/biblioteca/panel/resumen", label: "Resumen del año" },
   { to: "/biblioteca/panel/comunicados", label: "Comunicados" },
   { to: "/biblioteca/notificaciones", label: "Notificaciones" },
   { to: "/biblioteca/panel/novedades", label: "Novedades" },
@@ -28,10 +29,12 @@ const TEACHER_NAV = [
 
 const STAFF_NAV = [
   { to: "/biblioteca/panel/recursos", label: "Mis materiales" },
+  { to: "/biblioteca/panel/resumen", label: "Resumen del año" },
   { to: "/biblioteca/panel/comunicados", label: "Comunicados" },
   { to: "/biblioteca/notificaciones", label: "Notificaciones" },
   { to: "/biblioteca/novedades", label: "Novedades" },
   { to: "/biblioteca/calendario", label: "Calendario" },
+  { to: "/biblioteca/panel/administracion", label: "Administración" },
 ] as const;
 
 export function AppShell({

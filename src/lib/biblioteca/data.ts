@@ -3,6 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Subject = { code: string; name: string; year: number };
 
+export type Shift = "manana" | "tarde" | "vespertino";
+export type Course = { id: string; year: number; shift: Shift; division: string };
+
 export type Resource = {
   id: string;
   title: string;
@@ -23,6 +26,7 @@ export type Resource = {
   downloads: number;
   teacher_id: string | null;
   teacher_name: string;
+  course_id: string | null;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -54,7 +58,7 @@ export type CalendarEvent = {
 };
 
 const RESOURCE_COLUMNS =
-  "id, title, description, subject_code, year, unit, topic, tags, kind, file_path, file_size, mime_type, external_url, provider, featured, views, downloads, teacher_id, teacher_name, deleted_at, created_at, updated_at";
+  "id, title, description, subject_code, year, unit, topic, tags, kind, file_path, file_size, mime_type, external_url, provider, featured, views, downloads, teacher_id, teacher_name, course_id, deleted_at, created_at, updated_at";
 
 export const subjectsQuery = queryOptions({
   queryKey: ["biblioteca", "subjects"],
@@ -66,6 +70,21 @@ export const subjectsQuery = queryOptions({
       .order("name");
     if (error) throw error;
     return (data ?? []) as Subject[];
+  },
+});
+
+export const coursesQuery = queryOptions({
+  queryKey: ["biblioteca", "courses"],
+  staleTime: 1000 * 60 * 30,
+  queryFn: async (): Promise<Course[]> => {
+    const { data, error } = await supabase
+      .from("bib_courses")
+      .select("id, year, shift, division")
+      .order("year")
+      .order("shift")
+      .order("division");
+    if (error) throw error;
+    return (data ?? []) as Course[];
   },
 });
 
