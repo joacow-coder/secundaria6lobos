@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 import { assertStaff } from "@/lib/biblioteca/staff-auth.server";
 import { matches, type Audience, type TargetInput } from "@/lib/biblioteca/messages.functions";
+import { canRenderInline, sanitizeHeaderFilename } from "@/lib/biblioteca/upload-safety.server";
 
 type MessageRow = {
   sender_role: string;
@@ -70,6 +71,7 @@ export const Route = createFileRoute("/api/private/comunicados/$id")({
             year: yearParam ? Number(yearParam) : null,
             shift: shift || null,
             courseId: courseId || null,
+            dni: null,
           };
           authorized = ((targets ?? []) as TargetInput[]).some((t) => matches(t, audience));
         }
@@ -79,14 +81,20 @@ export const Route = createFileRoute("/api/private/comunicados/$id")({
         const { data, error } = await db.storage.from("biblioteca").download(row.attachment_path);
         if (error || !data) return new Response("Not found", { status: 404 });
 
+        const contentType = row.attachment_mime_type || data.type || "application/octet-stream";
         const download = url.searchParams.has("descargar");
-        const filename = row.attachment_name ?? row.attachment_path.split("/").pop() ?? "archivo";
+        const filename = sanitizeHeaderFilename(
+          row.attachment_name ?? row.attachment_path.split("/").pop() ?? "archivo",
+        );
+        const forceDownload = download || !canRenderInline(contentType);
 
         return new Response(await data.arrayBuffer(), {
           headers: {
-            "content-type": row.attachment_mime_type || data.type || "application/octet-stream",
+            "content-type": contentType,
             "cache-control": "private, no-store",
-            ...(download ? { "content-disposition": `attachment; filename="${filename}"` } : {}),
+            ...(forceDownload
+              ? { "content-disposition": `attachment; filename="${filename}"` }
+              : {}),
           },
         });
       },

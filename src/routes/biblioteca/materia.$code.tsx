@@ -39,6 +39,7 @@ function MateriaPage() {
   const { data: subjects = [] } = useQuery(subjectsQuery);
   const {
     data: resources = [],
+    isLoading: resourcesLoading,
     isError: resourcesError,
     refetch: refetchResources,
   } = useQuery(resourcesQuery);
@@ -187,7 +188,9 @@ function MateriaPage() {
           Ver material de años anteriores
         </label>
 
-        {groups.length === 0 ? (
+        {resourcesLoading ? (
+          <div className="h-40 animate-pulse rounded-xl bg-secondary" />
+        ) : groups.length === 0 ? (
           <EmptyState
             icon={BookOpen}
             title="No hay materiales disponibles"

@@ -139,7 +139,6 @@ const EXTENSION_KIND: Record<string, string> = {
   jpg: "imagen",
   jpeg: "imagen",
   webp: "imagen",
-  svg: "imagen",
   gif: "imagen",
   mp4: "video",
   mov: "video",

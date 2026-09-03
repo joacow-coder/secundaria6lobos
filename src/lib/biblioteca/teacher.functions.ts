@@ -4,6 +4,8 @@ import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 import { getSecret } from "@/lib/secrets.server";
 import { assertStaff, timingSafeEqual } from "@/lib/biblioteca/staff-auth.server";
 import { buildStoragePath } from "@/lib/biblioteca/storage-path.server";
+import { assertSafeUploadContentType } from "@/lib/biblioteca/upload-safety.server";
+import { validateUrl } from "@/lib/biblioteca/utils";
 
 const staffRoleSchema = z.enum(["profesor", "preceptor", "directivo"]);
 
@@ -96,6 +98,14 @@ export const bibSaveResource = createServerFn({ method: "POST" })
     const db = await admin();
     const { id, ...values } = data.resource;
     if (!values.title?.trim()) throw new Error("El título es obligatorio.");
+    if (values.external_url) {
+      // El cliente ya valida esto (solo https, sin caracteres raros) pero
+      // eso es evitable llamando a la función directamente — sin este
+      // check server-side, un enlace "javascript:" quedaría guardado y se
+      // ejecutaría al tocarlo (XSS vía <a href>).
+      const check = validateUrl(values.external_url);
+      if (!check.ok) throw new Error(check.warning ?? "El enlace no es válido.");
+    }
     const row = { ...values, title: values.title.trim() };
     const { error } = id
       ? await db
@@ -249,6 +259,7 @@ export const bibUploadFile = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await assertStaff(data.role, data.code);
+    assertSafeUploadContentType(data.contentType);
     const path = buildStoragePath(data.category, data.filename, {
       shift: data.shift,
       segments: data.category === "recursos" && data.subjectCode ? [data.subjectCode] : [],
@@ -270,6 +281,7 @@ export const bibUploadFile = createServerFn({ method: "POST" })
 export const bibTrackMetric = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string().uuid(), metric: z.enum(["views", "downloads"]) }))
   .handler(async ({ data }) => {
+    checkRateLimit(clientKey("track-metric"));
     const db = await admin();
     const { data: row } = await db
       .from("bib_resources")

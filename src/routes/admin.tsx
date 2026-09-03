@@ -580,6 +580,11 @@ function Image({
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
+                if (file.size > 25 * 1024 * 1024) {
+                  setError(`Ese archivo pesa ${(file.size / 1024 / 1024).toFixed(1)} MB, el máximo es 25 MB.`);
+                  e.target.value = "";
+                  return;
+                }
                 setBusy(true);
                 setError("");
                 try {

@@ -30,6 +30,7 @@ function FavoritosPage() {
 
   const {
     data: resources = [],
+    isLoading: resourcesLoading,
     isError: resourcesError,
     refetch: refetchResources,
   } = useQuery(resourcesQuery);
@@ -79,7 +80,9 @@ function FavoritosPage() {
           </p>
         </div>
 
-        {favoriteResources.length === 0 ? (
+        {resourcesLoading ? (
+          <div className="h-40 animate-pulse rounded-xl bg-secondary" />
+        ) : favoriteResources.length === 0 ? (
           <EmptyState
             icon={Heart}
             title="Todavía no guardaste favoritos"

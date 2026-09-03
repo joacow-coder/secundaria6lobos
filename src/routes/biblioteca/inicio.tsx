@@ -42,6 +42,7 @@ function InicioAlumno() {
   const { data: subjects = [], isError: subjectsError } = useQuery(subjectsQuery);
   const {
     data: resources = [],
+    isLoading: resourcesLoading,
     isError: resourcesError,
     refetch: refetchResources,
   } = useQuery(resourcesQuery);
@@ -254,7 +255,9 @@ function InicioAlumno() {
               <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
                 <Sparkles className="size-5 text-primary" /> Destacados
               </h2>
-              {featured.length === 0 ? (
+              {resourcesLoading ? (
+                <div className="mt-3 h-32 animate-pulse rounded-xl bg-secondary" />
+              ) : featured.length === 0 ? (
                 <p className="mt-2 text-sm text-muted-foreground">
                   Todavía no hay materiales destacados.
                 </p>
@@ -273,7 +276,9 @@ function InicioAlumno() {
 
             <section>
               <h2 className="font-display text-lg font-semibold">Recientes</h2>
-              {recent.length === 0 ? (
+              {resourcesLoading ? (
+                <div className="mt-3 h-32 animate-pulse rounded-xl bg-secondary" />
+              ) : recent.length === 0 ? (
                 <p className="mt-2 text-sm text-muted-foreground">
                   Todavía no hay materiales cargados.
                 </p>

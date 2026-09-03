@@ -173,7 +173,14 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
       teacher,
       role: teacher ? teacher.role : student ? "alumno" : null,
       audience: teacher
-        ? { role: teacher.role, name: teacher.full_name, year: null, shift: null, courseId: null }
+        ? {
+            role: teacher.role,
+            name: teacher.full_name,
+            year: null,
+            shift: null,
+            courseId: null,
+            dni: null,
+          }
         : student
           ? {
               role: "alumno",
@@ -181,6 +188,7 @@ export function BibliotecaSessionProvider({ children }: { children: ReactNode })
               year: student.year ?? null,
               shift: student.shift ?? null,
               courseId: student.courseId ?? null,
+              dni: student.dni ?? null,
             }
           : null,
       favorites,

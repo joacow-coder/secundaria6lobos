@@ -19,6 +19,7 @@ import { fileToBase64 } from "@/lib/file-to-base64";
 import { optimizeImageFile } from "@/lib/optimize-image";
 
 const PDF_WARNING_BYTES = 15 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 40 * 1024 * 1024;
 
 export const Route = createFileRoute("/biblioteca/panel/comunicados")({
   head: () => ({
@@ -63,6 +64,11 @@ function ComunicadosPage() {
 
   function pickAttachment(file: File | undefined) {
     if (!file) return;
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast.error(`Ese archivo pesa ${formatFileSize(file.size)}, el máximo es 40 MB.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
     if (file.type === "application/pdf" && file.size > PDF_WARNING_BYTES) {
       toast.warning(
         "Ese PDF es bastante pesado. Si son páginas escaneadas, considerá subirlas como imágenes sueltas para que se optimicen automáticamente.",
@@ -270,26 +276,30 @@ function ComunicadosPage() {
 
             {courses.length > 0 ? (
               <>
-                <p className="mt-4 text-xs tracking-wide text-muted-foreground uppercase">
-                  Por turno
-                </p>
-                <div className="mt-1.5 flex flex-wrap gap-2">
-                  {SHIFTS.filter((s) => courses.some((c) => c.shift === s)).map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      disabled={toAll}
-                      onClick={() => toggle(shifts, s, setShifts)}
-                      className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
-                        shifts.includes(s)
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/70"
-                      }`}
-                    >
-                      {SHIFT_LABELS[s] ?? s}
-                    </button>
-                  ))}
-                </div>
+                {teacher.role === "directivo" ? (
+                  <>
+                    <p className="mt-4 text-xs tracking-wide text-muted-foreground uppercase">
+                      Por turno
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap gap-2">
+                      {SHIFTS.filter((s) => courses.some((c) => c.shift === s)).map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          disabled={toAll}
+                          onClick={() => toggle(shifts, s, setShifts)}
+                          className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+                            shifts.includes(s)
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-secondary text-secondary-foreground hover:bg-secondary/70"
+                          }`}
+                        >
+                          {SHIFT_LABELS[s] ?? s}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
 
                 <p className="mt-4 text-xs tracking-wide text-muted-foreground uppercase">
                   Por curso (salón puntual)

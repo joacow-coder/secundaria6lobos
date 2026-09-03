@@ -9,6 +9,9 @@ export type Audience = {
   year: number | null;
   shift: string | null;
   courseId: string | null;
+  /** DNI del alumno — identidad real para el estado de leído/archivado, ya
+   * que dos alumnos pueden compartir nombre y año. null para personal. */
+  dni: string | null;
 };
 export type TargetInput = {
   target_type: "all" | "role" | "year" | "shift" | "course" | "person";
@@ -26,6 +29,7 @@ const audienceSchema = z.object({
   year: z.number().int().nullable(),
   shift: z.string().max(20).nullable(),
   courseId: z.string().uuid().nullable(),
+  dni: z.string().max(20).nullable(),
 });
 const targetSchema = z.object({
   target_type: z.enum(["all", "role", "year", "shift", "course", "person"]),
@@ -90,9 +94,12 @@ async function admin() {
 
 export function readerKeyOf(audience: Audience): string {
   const name = audience.name.trim().toLowerCase();
-  return audience.role === "alumno"
-    ? `alumno:${audience.year ?? 0}:${name}`
-    : `${audience.role}:${name}`;
+  if (audience.role === "alumno") {
+    // DNI identifica al alumno real; año+nombre queda solo de respaldo por
+    // si algún llamador viejo todavía no manda dni.
+    return audience.dni ? `alumno:dni:${audience.dni}` : `alumno:${audience.year ?? 0}:${name}`;
+  }
+  return `${audience.role}:${name}`;
 }
 
 export function matches(target: TargetInput, audience: Audience): boolean {
@@ -145,6 +152,9 @@ export const bibSendMessage = createServerFn({ method: "POST" })
     if (!data.targets.length) throw new Error("Elegí al menos un destinatario.");
     if (role !== "directivo" && data.targets.some((t) => t.target_type === "all")) {
       throw new Error("Solo la dirección puede enviar a toda la institución.");
+    }
+    if (role !== "directivo" && data.targets.some((t) => t.target_type === "shift")) {
+      throw new Error("Solo la dirección puede enviar a un turno completo.");
     }
 
     const db = await admin();

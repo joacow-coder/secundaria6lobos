@@ -74,6 +74,8 @@ type FormState = {
   mime_type: string | null;
 };
 
+const MAX_UPLOAD_BYTES = 40 * 1024 * 1024;
+
 const EMPTY_FORM: FormState = {
   title: "",
   description: "",
@@ -577,7 +579,17 @@ function PanelRecursos() {
                     type="file"
                     accept={ACCEPTED_EXTENSIONS}
                     className="sr-only"
-                    onChange={(e) => setPendingFile(e.target.files?.[0] ?? null)}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      if (file && file.size > MAX_UPLOAD_BYTES) {
+                        toast.error(
+                          `Ese archivo pesa ${formatFileSize(file.size)}, el máximo es 40 MB.`,
+                        );
+                        e.target.value = "";
+                        return;
+                      }
+                      setPendingFile(file);
+                    }}
                   />
                   {form.file_path && !pendingFile && (
                     <p className="mt-1 text-xs text-muted-foreground">Archivo actual: {formatFileSize(form.file_size)}</p>

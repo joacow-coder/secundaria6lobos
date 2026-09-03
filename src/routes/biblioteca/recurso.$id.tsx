@@ -42,6 +42,7 @@ function RecursoDetalle() {
 
   const {
     data: resources = [],
+    isLoading: resourcesLoading,
     isError: resourcesError,
     refetch: refetchResources,
   } = useQuery(resourcesQuery);
@@ -95,6 +96,14 @@ function RecursoDetalle() {
             </button>
           }
         />
+      </AppShell>
+    );
+  }
+
+  if (resourcesLoading) {
+    return (
+      <AppShell area="alumno">
+        <div className="h-40 animate-pulse rounded-xl bg-secondary" />
       </AppShell>
     );
   }
