@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { futuroNav, futuroSite } from "@/lib/futuro/site";
 import { registrarVisita, setUltimaSeccion } from "@/lib/futuro/store";
+import { IntroWelcome } from "@/components/futuro/IntroWelcome";
 
 function useTracking() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -156,6 +157,7 @@ export function FuturoLayout({ children }: { children: ReactNode }) {
   useTracking();
   return (
     <div className="flex min-h-screen flex-col">
+      <IntroWelcome />
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />

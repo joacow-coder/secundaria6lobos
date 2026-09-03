@@ -19,6 +19,8 @@ export type Memoria = {
   preferencias: Record<string, unknown> | null;
   visitas: number;
   ultimaVisita: string | null;
+  nombre: string | null;
+  rol: string | null;
 };
 
 const EMPTY: Memoria = {
@@ -34,6 +36,8 @@ const EMPTY: Memoria = {
   preferencias: null,
   visitas: 0,
   ultimaVisita: null,
+  nombre: null,
+  rol: null,
 };
 
 let cache: Memoria | null = null;
@@ -129,3 +133,6 @@ export const guardarPreferencias = (prefs: Record<string, unknown>) =>
 
 export const registrarVisita = () =>
   update((m) => ({ ...m, visitas: m.visitas + 1, ultimaVisita: new Date().toISOString() }));
+
+export const guardarNombre = (nombre: string, rol: string | null = null) =>
+  update((m) => ({ ...m, nombre: nombre.trim() || null, rol }));

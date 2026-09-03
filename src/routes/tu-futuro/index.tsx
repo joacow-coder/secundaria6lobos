@@ -482,7 +482,9 @@ function HomePage() {
         <div className="border-b border-border bg-accent/40">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
             <p className="text-sm text-accent-foreground">
-              ¡Bienvenido nuevamente! Continuá explorando donde lo dejaste.
+              {memoria.nombre
+                ? `¡Bienvenido de nuevo, ${memoria.nombre.trim().split(/\s+/)[0]}! Continuá explorando donde lo dejaste.`
+                : "¡Bienvenido nuevamente! Continuá explorando donde lo dejaste."}
             </p>
             <button
               type="button"
