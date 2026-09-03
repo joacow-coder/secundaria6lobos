@@ -7,13 +7,23 @@ import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 import { bestFaqMatch, lastUserMessage, normalize, type FaqEntry } from "@/lib/faq-search";
 import { getSecret } from "@/lib/secrets.server";
 
-// Carga el contenido público directamente desde Supabase en el cliente
+// Carga el contenido público directamente desde Supabase en el cliente.
+// Es el loader de la ruta "/": en una navegación SPA corre en el navegador,
+// así que nunca debe dejar escapar una excepción (ni de la query ni de crear
+// el cliente de Supabase) — eso tira abajo toda la ruta con la pantalla de
+// error genérica del router en vez de mostrar el sitio con contenido default.
 export async function loadSiteContent(): Promise<SiteContent> {
-  const { data, error } = await supabase.from("site_content").select("section, data");
-  if (error) {
+  try {
+    const { data, error } = await supabase.from("site_content").select("section, data");
+    if (error) {
+      console.error("Error al cargar contenido del sitio:", error);
+      return buildContent([]);
+    }
+    return buildContent((data ?? []) as { section: string; data: unknown }[]);
+  } catch (error) {
     console.error("Error al cargar contenido del sitio:", error);
+    return buildContent([]);
   }
-  return buildContent((data ?? []) as { section: string; data: unknown }[]);
 }
 
 const siteChatSchema = z.object({
