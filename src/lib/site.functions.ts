@@ -6,6 +6,7 @@ import { buildContent, visible, type SiteContent } from "@/lib/site-content";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 import { bestFaqMatch, lastUserMessage, normalize, type FaqEntry } from "@/lib/faq-search";
 import { getSecret } from "@/lib/secrets.server";
+import { buildStoragePath } from "@/lib/biblioteca/storage-path.server";
 
 // Carga el contenido público directamente desde Supabase en el cliente.
 // Es el loader de la ruta "/": en una navegación SPA corre en el navegador,
@@ -175,8 +176,7 @@ export const adminUploadMedia = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await assertSiteAdmin(data.code);
 
-    const clean = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-60);
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${clean}`;
+    const path = buildStoragePath("sitio", data.filename);
 
     const binary = atob(data.base64);
     const bytes = new Uint8Array(binary.length);

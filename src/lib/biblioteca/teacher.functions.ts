@@ -2,6 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
 import { getSecret } from "@/lib/secrets.server";
+import { assertStaff, timingSafeEqual } from "@/lib/biblioteca/staff-auth.server";
+import { buildStoragePath } from "@/lib/biblioteca/storage-path.server";
+
+const staffRoleSchema = z.enum(["profesor", "preceptor", "directivo"]);
 
 const resourceSchema = z.object({
   id: z.string().uuid().optional(),
@@ -51,13 +55,6 @@ type EventInput = z.infer<typeof eventSchema>;
 const codeSchema = z.object({ code: z.string().min(1).max(200) });
 const codeIdSchema = z.object({ code: z.string().min(1).max(200), id: z.string().uuid() });
 
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
-
 /**
  * Único punto de verificación del acceso docente de toda la plataforma.
  * Hoy valida el código maestro institucional. El día que se migre a usuarios
@@ -86,9 +83,15 @@ export const bibVerifyCode = createServerFn({ method: "POST" })
   });
 
 export const bibSaveResource = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ code: z.string().min(1).max(200), resource: resourceSchema }))
+  .inputValidator(
+    z.object({
+      role: staffRoleSchema,
+      code: z.string().min(1).max(200),
+      resource: resourceSchema,
+    }),
+  )
   .handler(async ({ data }) => {
-    await assertTeacher(data.code);
+    await assertStaff(data.role, data.code);
     const db = await admin();
     const { id, ...values } = data.resource;
     if (!values.title?.trim()) throw new Error("El título es obligatorio.");
@@ -104,9 +107,11 @@ export const bibSaveResource = createServerFn({ method: "POST" })
   });
 
 export const bibDeleteResource = createServerFn({ method: "POST" })
-  .inputValidator(codeIdSchema)
+  .inputValidator(
+    z.object({ role: staffRoleSchema, code: z.string().min(1).max(200), id: z.string().uuid() }),
+  )
   .handler(async ({ data }) => {
-    await assertTeacher(data.code);
+    await assertStaff(data.role, data.code);
     const db = await admin();
     const { error } = await db
       .from("bib_resources")
@@ -231,16 +236,22 @@ export const bibSaveBlockedWords = createServerFn({ method: "POST" })
 export const bibUploadFile = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
+      role: staffRoleSchema,
       code: z.string().min(1).max(200),
+      category: z.enum(["recursos", "mensajes"]),
+      subjectCode: z.string().max(20).nullable().optional(),
       filename: z.string().min(1).max(255),
       contentType: z.string().max(100),
       base64: z.string().min(1),
     }),
   )
   .handler(async ({ data }) => {
-    await assertTeacher(data.code);
-    const clean = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-70);
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${clean}`;
+    await assertStaff(data.role, data.code);
+    const path = buildStoragePath(
+      data.category,
+      data.filename,
+      ...(data.category === "recursos" && data.subjectCode ? [data.subjectCode] : []),
+    );
     const binary = atob(data.base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);

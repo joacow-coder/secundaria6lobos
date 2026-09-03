@@ -50,6 +50,7 @@ import { Route as BibliotecaPanelRecursosRouteImport } from './routes/biblioteca
 import { Route as BibliotecaRecursoIdRouteImport } from './routes/biblioteca/recurso.$id'
 import { Route as TuFuturoInstitucionesIndexRouteImport } from './routes/tu-futuro/instituciones.index'
 import { Route as TuFuturoInstitucionesIdRouteImport } from './routes/tu-futuro/instituciones.$id'
+import { Route as ApiPrivateComunicadosIdRouteImport } from './routes/api/private/comunicados/$id'
 import { Route as ApiPublicBibliotecaSplatRouteImport } from './routes/api/public/biblioteca/$'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 
@@ -265,6 +266,11 @@ const TuFuturoInstitucionesIdRoute = TuFuturoInstitucionesIdRouteImport.update({
   path: '/instituciones/$id',
   getParentRoute: () => TuFuturoRouteRoute,
 } as any)
+const ApiPrivateComunicadosIdRoute = ApiPrivateComunicadosIdRouteImport.update({
+  id: '/api/private/comunicados/$id',
+  path: '/api/private/comunicados/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBibliotecaSplatRoute =
   ApiPublicBibliotecaSplatRouteImport.update({
     id: '/api/public/biblioteca/$',
@@ -319,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/biblioteca/panel/': typeof BibliotecaPanelIndexRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
+  '/api/private/comunicados/$id': typeof ApiPrivateComunicadosIdRoute
   '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
@@ -362,6 +369,7 @@ export interface FileRoutesByTo {
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/biblioteca/panel': typeof BibliotecaPanelIndexRoute
   '/tu-futuro/instituciones': typeof TuFuturoInstitucionesIndexRoute
+  '/api/private/comunicados/$id': typeof ApiPrivateComunicadosIdRoute
   '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
@@ -408,6 +416,7 @@ export interface FileRoutesById {
   '/tu-futuro/instituciones/$id': typeof TuFuturoInstitucionesIdRoute
   '/biblioteca/panel/': typeof BibliotecaPanelIndexRoute
   '/tu-futuro/instituciones/': typeof TuFuturoInstitucionesIndexRoute
+  '/api/private/comunicados/$id': typeof ApiPrivateComunicadosIdRoute
   '/api/public/biblioteca/$': typeof ApiPublicBibliotecaSplatRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
@@ -455,6 +464,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/instituciones/$id'
     | '/biblioteca/panel/'
     | '/tu-futuro/instituciones/'
+    | '/api/private/comunicados/$id'
     | '/api/public/biblioteca/$'
     | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
@@ -498,6 +508,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/instituciones/$id'
     | '/biblioteca/panel'
     | '/tu-futuro/instituciones'
+    | '/api/private/comunicados/$id'
     | '/api/public/biblioteca/$'
     | '/api/public/media/$'
   id:
@@ -543,6 +554,7 @@ export interface FileRouteTypes {
     | '/tu-futuro/instituciones/$id'
     | '/biblioteca/panel/'
     | '/tu-futuro/instituciones/'
+    | '/api/private/comunicados/$id'
     | '/api/public/biblioteca/$'
     | '/api/public/media/$'
   fileRoutesById: FileRoutesById
@@ -555,6 +567,7 @@ export interface RootRouteChildren {
   HistoriaRoute: typeof HistoriaRoute
   InstitucionRoute: typeof InstitucionRoute
   MasRoute: typeof MasRoute
+  ApiPrivateComunicadosIdRoute: typeof ApiPrivateComunicadosIdRoute
   ApiPublicBibliotecaSplatRoute: typeof ApiPublicBibliotecaSplatRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
@@ -848,6 +861,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TuFuturoInstitucionesIdRouteImport
       parentRoute: typeof TuFuturoRouteRoute
     }
+    '/api/private/comunicados/$id': {
+      id: '/api/private/comunicados/$id'
+      path: '/api/private/comunicados/$id'
+      fullPath: '/api/private/comunicados/$id'
+      preLoaderRoute: typeof ApiPrivateComunicadosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/biblioteca/$': {
       id: '/api/public/biblioteca/$'
       path: '/api/public/biblioteca/$'
@@ -961,6 +981,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoriaRoute: HistoriaRoute,
   InstitucionRoute: InstitucionRoute,
   MasRoute: MasRoute,
+  ApiPrivateComunicadosIdRoute: ApiPrivateComunicadosIdRoute,
   ApiPublicBibliotecaSplatRoute: ApiPublicBibliotecaSplatRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }

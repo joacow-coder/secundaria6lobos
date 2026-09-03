@@ -21,6 +21,8 @@ import {
   bibSaveResource,
   bibUploadFile,
 } from "@/lib/biblioteca/teacher.functions";
+import { fileToBase64 } from "@/lib/file-to-base64";
+import { optimizeImageFile } from "@/lib/optimize-image";
 import {
   ACCEPTED_EXTENSIONS,
   KIND_FILTERS,
@@ -85,18 +87,6 @@ const EMPTY_FORM: FormState = {
   file_size: null,
   mime_type: null,
 };
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      resolve(result.split(",")[1] ?? "");
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 
 function PanelRecursos() {
   const navigate = useNavigate();
@@ -176,19 +166,23 @@ function PanelRecursos() {
       if (form.sourceMode === "archivo") {
         if (pendingFile) {
           setUploading(true);
-          const base64 = await fileToBase64(pendingFile);
+          const optimized = await optimizeImageFile(pendingFile);
+          const base64 = await fileToBase64(optimized);
           const result = await bibUploadFile({
             data: {
+              role: teacher.role,
               code: teacher.credential,
-              filename: pendingFile.name,
-              contentType: pendingFile.type,
+              category: "recursos",
+              subjectCode: form.subject_code || null,
+              filename: optimized.name,
+              contentType: optimized.type,
               base64,
             },
           });
           filePath = result.path;
           fileSize = result.size;
-          mimeType = pendingFile.type || null;
-          kind = kindFromFilename(pendingFile.name);
+          mimeType = optimized.type || null;
+          kind = kindFromFilename(optimized.name);
           setUploading(false);
         }
         if (!filePath) throw new Error("Subí un archivo o cambiá a modo enlace.");
@@ -206,6 +200,7 @@ function PanelRecursos() {
 
       await bibSaveResource({
         data: {
+          role: teacher.role,
           code: teacher.credential,
           resource: {
             id: form.id,
@@ -245,7 +240,7 @@ function PanelRecursos() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       if (!teacher) throw new Error("Sesión inválida.");
-      await bibDeleteResource({ data: { code: teacher.credential, id } });
+      await bibDeleteResource({ data: { role: teacher.role, code: teacher.credential, id } });
     },
     onSuccess: () => {
       toast.success("Material eliminado.");

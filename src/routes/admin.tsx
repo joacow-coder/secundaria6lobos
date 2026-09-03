@@ -26,6 +26,8 @@ import {
   type SectionName,
   type SiteContent,
 } from "@/lib/site-content";
+import { fileToBase64 } from "@/lib/file-to-base64";
+import { optimizeImageFile } from "@/lib/optimize-image";
 
 // El plugin de TanStack Router extrae automáticamente el `component` de esta
 // ruta a un chunk JS separado, cargado con dynamic import() solo cuando se
@@ -166,14 +168,10 @@ function Panel({
   }
 
   const upload = async (file: File) => {
-    const base64 = await new Promise<string>((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result).split(",")[1] ?? "");
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
+    const optimized = await optimizeImageFile(file);
+    const base64 = await fileToBase64(optimized);
     const res = await adminUploadMedia({
-      data: { code, filename: file.name, contentType: file.type, base64 },
+      data: { code, filename: optimized.name, contentType: optimized.type, base64 },
     });
     return res.url;
   };

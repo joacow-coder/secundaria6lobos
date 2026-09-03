@@ -1,13 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Archive, Bell, Check, Inbox, WifiOff } from "lucide-react";
+import { Archive, Bell, Check, Download, Inbox, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
 import { bibInbox, bibUpdateInboxState } from "@/lib/biblioteca/messages.functions";
 import type { Audience, InboxMessage } from "@/lib/biblioteca/messages.functions";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { formatDate } from "@/lib/biblioteca/utils";
+import { formatDate, formatFileSize } from "@/lib/biblioteca/utils";
+
+function attachmentUrl(message: InboxMessage, audience: Audience): string {
+  const params = new URLSearchParams({
+    role: audience.role,
+    name: audience.name,
+    descargar: "1",
+  });
+  if (audience.year != null) params.set("year", String(audience.year));
+  return `/api/private/comunicados/${message.id}?${params.toString()}`;
+}
 
 export const Route = createFileRoute("/biblioteca/notificaciones")({
   head: () => ({
@@ -147,6 +157,15 @@ function NotificacionesPage() {
                   ) : null}
                 </div>
                 {m.body ? <p className="mt-2 text-sm whitespace-pre-line">{m.body}</p> : null}
+                {m.attachment_name && audience ? (
+                  <a
+                    href={attachmentUrl(m, audience)}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/70"
+                  >
+                    <Download className="size-4" /> {m.attachment_name}
+                    {m.attachment_size ? ` (${formatFileSize(m.attachment_size)})` : ""}
+                  </a>
+                ) : null}
                 <p className="mt-2 text-xs text-muted-foreground">Para: {targetsLabel(m)}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button

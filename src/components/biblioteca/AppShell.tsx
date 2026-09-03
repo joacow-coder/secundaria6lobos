@@ -27,6 +27,7 @@ const TEACHER_NAV = [
 ] as const;
 
 const STAFF_NAV = [
+  { to: "/biblioteca/panel/recursos", label: "Mis materiales" },
   { to: "/biblioteca/panel/comunicados", label: "Comunicados" },
   { to: "/biblioteca/notificaciones", label: "Notificaciones" },
   { to: "/biblioteca/novedades", label: "Novedades" },

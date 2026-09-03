@@ -1,14 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Megaphone, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Megaphone, Paperclip, Send, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/biblioteca/AppShell";
 import { EmptyState } from "@/components/biblioteca/EmptyState";
-import { bibSendMessage, bibSentMessages } from "@/lib/biblioteca/messages.functions";
+import {
+  bibSendMessage,
+  bibSentMessages,
+  type MessageAttachment,
+} from "@/lib/biblioteca/messages.functions";
 import type { StaffRole, TargetInput } from "@/lib/biblioteca/messages.functions";
+import { bibUploadFile } from "@/lib/biblioteca/teacher.functions";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
-import { formatDate } from "@/lib/biblioteca/utils";
+import { formatDate, formatFileSize } from "@/lib/biblioteca/utils";
+import { fileToBase64 } from "@/lib/file-to-base64";
+import { optimizeImageFile } from "@/lib/optimize-image";
+
+const PDF_WARNING_BYTES = 15 * 1024 * 1024;
 
 export const Route = createFileRoute("/biblioteca/panel/comunicados")({
   head: () => ({
@@ -45,6 +54,18 @@ function ComunicadosPage() {
   const [roles, setRoles] = useState<string[]>([]);
   const [years, setYears] = useState<number[]>([]);
   const [person, setPerson] = useState("");
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function pickAttachment(file: File | undefined) {
+    if (!file) return;
+    if (file.type === "application/pdf" && file.size > PDF_WARNING_BYTES) {
+      toast.warning(
+        "Ese PDF es bastante pesado. Si son páginas escaneadas, considerá subirlas como imágenes sueltas para que se optimicen automáticamente.",
+      );
+    }
+    setAttachment(file);
+  }
 
   useEffect(() => {
     if (ready && !teacher) navigate({ to: "/biblioteca" });
@@ -64,8 +85,29 @@ function ComunicadosPage() {
   });
 
   const send = useMutation({
-    mutationFn: (targets: TargetInput[]) =>
-      bibSendMessage({
+    mutationFn: async (targets: TargetInput[]) => {
+      let uploaded: MessageAttachment | null = null;
+      if (attachment) {
+        const optimized = await optimizeImageFile(attachment);
+        const base64 = await fileToBase64(optimized);
+        const result = await bibUploadFile({
+          data: {
+            role: teacher!.role,
+            code: teacher!.credential,
+            category: "mensajes",
+            filename: optimized.name,
+            contentType: optimized.type,
+            base64,
+          },
+        });
+        uploaded = {
+          path: result.path,
+          name: optimized.name,
+          size: result.size,
+          mimeType: optimized.type || "application/octet-stream",
+        };
+      }
+      return bibSendMessage({
         data: {
           role: teacher!.role,
           code: teacher!.credential,
@@ -73,8 +115,10 @@ function ComunicadosPage() {
           body,
           senderName: teacher!.full_name,
           targets,
+          attachment: uploaded,
         },
-      }),
+      });
+    },
     onSuccess: () => {
       toast.success("Comunicado enviado.");
       setTitle("");
@@ -83,6 +127,8 @@ function ComunicadosPage() {
       setRoles([]);
       setYears([]);
       setPerson("");
+      setAttachment(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       queryClient.invalidateQueries({ queryKey: ["bib-sent"] });
       queryClient.invalidateQueries({ queryKey: ["bib-inbox"] });
     },
@@ -240,6 +286,31 @@ function ComunicadosPage() {
             />
           </fieldset>
 
+          <div className="mt-5">
+            <label className="block text-sm font-medium">Adjunto (opcional)</label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={(e) => pickAttachment(e.target.files?.[0])}
+              className="mt-1.5 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-2 file:text-sm file:font-medium file:text-secondary-foreground"
+            />
+            {attachment ? (
+              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Paperclip className="size-3.5" /> {attachment.name} ({formatFileSize(attachment.size)})
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAttachment(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="ml-1 inline-flex items-center text-destructive hover:underline"
+                >
+                  <X className="size-3.5" /> Quitar
+                </button>
+              </p>
+            ) : null}
+          </div>
+
           <button
             type="submit"
             disabled={send.isPending}
@@ -267,6 +338,11 @@ function ComunicadosPage() {
                   <p className="text-xs text-muted-foreground">
                     {m.sender_name} · {formatDate(m.created_at)}
                   </p>
+                  {m.attachment_name ? (
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Paperclip className="size-3.5" /> {m.attachment_name}
+                    </p>
+                  ) : null}
                 </li>
               ))}
             </ul>

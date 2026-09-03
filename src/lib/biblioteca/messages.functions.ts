@@ -1,9 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { checkRateLimit, clientKey } from "@/lib/rate-limit.server";
-import { getSecret } from "@/lib/secrets.server";
+import { assertStaff, type StaffRole } from "@/lib/biblioteca/staff-auth.server";
 
-export type StaffRole = "profesor" | "preceptor" | "directivo";
+export type { StaffRole };
 export type Audience = { role: "alumno" | StaffRole; name: string; year: number | null };
 export type TargetInput = {
   target_type: "all" | "role" | "year" | "person";
@@ -25,6 +24,22 @@ const targetSchema = z.object({
   target_person: z.string().max(120).nullable(),
 });
 
+export type MessageAttachment = {
+  path: string;
+  name: string;
+  size: number;
+  mimeType: string;
+};
+const attachmentSchema = z
+  .object({
+    path: z.string().min(1).max(500),
+    name: z.string().min(1).max(255),
+    size: z.number().int().nonnegative(),
+    mimeType: z.string().max(150),
+  })
+  .nullable()
+  .optional();
+
 export type InboxMessage = {
   id: string;
   title: string;
@@ -35,34 +50,26 @@ export type InboxMessage = {
   targets: TargetInput[];
   read_at: string | null;
   archived: boolean;
+  attachment_path: string | null;
+  attachment_name: string | null;
+  attachment_size: number | null;
+  attachment_mime_type: string | null;
 };
 
-function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
-
-const CODE_ENV: Record<StaffRole, string> = {
-  profesor: "TEACHER_MASTER_CODE",
-  preceptor: "PRECEPTOR_MASTER_CODE",
-  directivo: "DIRECTOR_MASTER_CODE",
+type MessageRow = {
+  id: string;
+  title: string;
+  body: string;
+  sender_role: string;
+  sender_name: string;
+  created_at: string;
+  attachment_path: string | null;
+  attachment_name: string | null;
+  attachment_size: number | null;
+  attachment_mime_type: string | null;
 };
-
-/** Verificación central de credenciales del personal (docente, preceptor, directivo). */
-async function assertStaff(role: unknown, code: unknown): Promise<StaffRole> {
-  checkRateLimit(clientKey("staff"));
-  const value = String(role ?? "") as StaffRole;
-  const envName = CODE_ENV[value];
-  if (!envName) throw new Error("Perfil no válido.");
-  const expected = await getSecret(envName);
-  if (!expected) throw new Error("Este acceso todavía no está configurado.");
-  if (typeof code !== "string" || !safeEqual(code.trim(), expected.trim())) {
-    throw new Error("El código de acceso no es correcto.");
-  }
-  return value;
-}
+const MESSAGE_COLUMNS =
+  "id, title, body, sender_role, sender_name, created_at, attachment_path, attachment_name, attachment_size, attachment_mime_type";
 
 async function admin() {
   const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -76,7 +83,7 @@ export function readerKeyOf(audience: Audience): string {
     : `${audience.role}:${name}`;
 }
 
-function matches(target: TargetInput, audience: Audience): boolean {
+export function matches(target: TargetInput, audience: Audience): boolean {
   const name = audience.name.trim().toLowerCase();
   switch (target.target_type) {
     case "all":
@@ -112,6 +119,7 @@ export const bibSendMessage = createServerFn({ method: "POST" })
       body: z.string().max(5000),
       senderName: z.string().max(120),
       targets: z.array(targetSchema).max(60),
+      attachment: attachmentSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -131,6 +139,10 @@ export const bibSendMessage = createServerFn({ method: "POST" })
         sender_name: data.senderName.trim() || "Equipo institucional",
         title,
         body: data.body.trim(),
+        attachment_path: data.attachment?.path ?? null,
+        attachment_name: data.attachment?.name ?? null,
+        attachment_size: data.attachment?.size ?? null,
+        attachment_mime_type: data.attachment?.mimeType ?? null,
       } as never)
       .select("id")
       .single();
@@ -158,19 +170,12 @@ export const bibInbox = createServerFn({ method: "POST" })
 
     const { data: messages, error } = await db
       .from("bib_messages")
-      .select("id, title, body, sender_role, sender_name, created_at")
+      .select(MESSAGE_COLUMNS)
       .order("created_at", { ascending: false })
       .limit(300);
     if (error) throw new Error(error.message);
 
-    const list = (messages ?? []) as {
-      id: string;
-      title: string;
-      body: string;
-      sender_role: string;
-      sender_name: string;
-      created_at: string;
-    }[];
+    const list = (messages ?? []) as MessageRow[];
     if (list.length === 0) return [];
 
     const ids = list.map((m) => m.id);
@@ -242,19 +247,12 @@ export const bibSentMessages = createServerFn({ method: "POST" })
     const db = await admin();
     const { data: messages, error } = await db
       .from("bib_messages")
-      .select("id, title, body, sender_role, sender_name, created_at")
+      .select(MESSAGE_COLUMNS)
       .eq("sender_role", role)
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw new Error(error.message);
-    const list = (messages ?? []) as {
-      id: string;
-      title: string;
-      body: string;
-      sender_role: string;
-      sender_name: string;
-      created_at: string;
-    }[];
+    const list = (messages ?? []) as MessageRow[];
     if (list.length === 0) return [];
     const { data: targets } = await db
       .from("bib_message_targets")
