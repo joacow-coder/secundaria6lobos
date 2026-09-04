@@ -25,6 +25,45 @@ const BASE_BLOCKED = [
   "jaja",
   "lorem ipsum",
   "john doe",
+  // Insultos y garabatos comunes en Argentina, para que no queden expuestos
+  // en saludos o listados públicos (nombre visible por otros usuarios).
+  "boludo",
+  "boluda",
+  "pelotudo",
+  "pelotuda",
+  "forro",
+  "forra",
+  "gil",
+  "imbecil",
+  "idiota",
+  "estupido",
+  "estupida",
+  "tarado",
+  "tarada",
+  "puto",
+  "puta",
+  "putazo",
+  "mierda",
+  "carajo",
+  "concha",
+  "conchudo",
+  "cornudo",
+  "maricon",
+  "trolo",
+  "trola",
+  "chupapija",
+  "cagon",
+  "cagona",
+  "verga",
+  "pija",
+  "garcha",
+  "orto",
+  "culiao",
+  "culiado",
+  "hijodeputa",
+  "hdp",
+  "ctm",
+  "csm",
 ];
 
 export function normalize(value: string): string {
@@ -83,11 +122,45 @@ export function validateStudentName(
     words.some((w) => w.replace(/[-']/g, "").length < 2) ||
     /(.)\1{2,}/i.test(flat.replace(/\s/g, "")) ||
     new Set(words.map((w) => normalize(w))).size < words.length ||
-    [...BASE_BLOCKED, ...extraBlocked.map(normalize)].some(
-      (w) => w.length > 2 && flat.includes(w),
-    );
+    [...BASE_BLOCKED, ...extraBlocked.map(normalize)].some((w) => w.length > 2 && flat.includes(w));
 
   return invalid ? { ok: false, message: NAME_ERROR } : { ok: true };
+}
+
+const DISPLAY_NAME_ERROR = "Ingresá un nombre real, sin insultos ni caracteres raros.";
+
+/**
+ * Validación liviana para nombres de pila sueltos (por ejemplo, la bienvenida
+ * de "Tu Futuro", que solo pide "¿Cómo te llamás?"). A diferencia de
+ * `validateStudentName` no exige nombre y apellido, pero igual bloquea
+ * texto vacío, números, símbolos, insultos y relleno tipo "aaaa"/"asdf".
+ */
+export function validateDisplayName(
+  raw: string,
+  extraBlocked: string[] = [],
+): { ok: boolean; message?: string } {
+  const pretty = toTitleCase(raw).trim();
+  const flat = normalize(pretty);
+
+  if (
+    pretty.length < 2 ||
+    pretty.length > 40 ||
+    // Admite abreviaturas con punto (p. ej. "Prof." o "Lic.") además de letras.
+    !/^[a-záéíóúüñ'. -]+$/i.test(flat) ||
+    /[0-9]/.test(pretty) ||
+    /[^\p{L}\s'.-]/u.test(pretty)
+  ) {
+    return { ok: false, message: DISPLAY_NAME_ERROR };
+  }
+
+  const words = pretty.split(" ").filter(Boolean);
+  const invalid =
+    words.length > 5 ||
+    words.some((w) => w.replace(/[-'.]/g, "").length < 2 && !w.endsWith(".")) ||
+    /(.)\1{2,}/i.test(flat.replace(/[\s.]/g, "")) ||
+    [...BASE_BLOCKED, ...extraBlocked.map(normalize)].some((w) => w.length > 2 && flat.includes(w));
+
+  return invalid ? { ok: false, message: DISPLAY_NAME_ERROR } : { ok: true };
 }
 
 export function suggestName(raw: string): string | null {
@@ -194,17 +267,17 @@ export const PROVIDERS: Provider[] = [
 export function detectProvider(url: string): Provider | null {
   try {
     const host = new URL(url).hostname.replace(/^www\./, "");
-    return (
-      PROVIDERS.find((p) => p.hosts.some((h) => host === h || host.endsWith(`.${h}`))) ?? null
-    );
+    return PROVIDERS.find((p) => p.hosts.some((h) => host === h || host.endsWith(`.${h}`))) ?? null;
   } catch {
     return null;
   }
 }
 
-export function validateUrl(
-  raw: string,
-): { ok: boolean; warning?: string; provider?: string | undefined } {
+export function validateUrl(raw: string): {
+  ok: boolean;
+  warning?: string;
+  provider?: string | undefined;
+} {
   const value = raw.trim();
   if (!value) return { ok: false, warning: "Ingresá un enlace." };
   let parsed: URL;
@@ -341,11 +414,7 @@ type Searchable = {
 };
 
 /** Puntaje de relevancia (0 = no coincide). Tolera errores de tipeo. */
-export function scoreResource(
-  resource: Searchable,
-  query: string,
-  subjectName?: string,
-): number {
+export function scoreResource(resource: Searchable, query: string, subjectName?: string): number {
   const terms = normalize(query).split(/\s+/).filter(Boolean);
   if (terms.length === 0) return 1;
 

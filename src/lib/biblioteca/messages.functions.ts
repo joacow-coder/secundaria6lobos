@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { assertStaff, type StaffRole } from "@/lib/biblioteca/staff-auth.server";
+import { validateDisplayName } from "@/lib/biblioteca/utils";
 
 export type { StaffRole };
 export type Audience = {
@@ -149,6 +150,11 @@ export const bibSendMessage = createServerFn({ method: "POST" })
     const role = await assertStaff(data.role, data.code);
     const title = data.title.trim();
     if (!title) throw new Error("El título es obligatorio.");
+    const senderName = data.senderName.trim();
+    if (senderName) {
+      const nameCheck = validateDisplayName(senderName);
+      if (!nameCheck.ok) throw new Error(nameCheck.message ?? "Revisá el nombre del remitente.");
+    }
     if (!data.targets.length) throw new Error("Elegí al menos un destinatario.");
     if (role !== "directivo" && data.targets.some((t) => t.target_type === "all")) {
       throw new Error("Solo la dirección puede enviar a toda la institución.");
@@ -209,7 +215,9 @@ export const bibInbox = createServerFn({ method: "POST" })
     const ids = list.map((m) => m.id);
     const { data: targets } = await db
       .from("bib_message_targets")
-      .select("message_id, target_type, target_role, target_year, target_shift, target_course_id, target_person")
+      .select(
+        "message_id, target_type, target_role, target_year, target_shift, target_course_id, target_person",
+      )
       .in("message_id", ids);
     const { data: reads } = await db
       .from("bib_message_reads")
@@ -284,7 +292,9 @@ export const bibSentMessages = createServerFn({ method: "POST" })
     if (list.length === 0) return [];
     const { data: targets } = await db
       .from("bib_message_targets")
-      .select("message_id, target_type, target_role, target_year, target_shift, target_course_id, target_person")
+      .select(
+        "message_id, target_type, target_role, target_year, target_shift, target_course_id, target_person",
+      )
       .in(
         "message_id",
         list.map((m) => m.id),

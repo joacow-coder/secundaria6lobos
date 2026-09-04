@@ -4,6 +4,7 @@ import { Sparkles } from "lucide-react";
 import { futuroSite } from "@/lib/futuro/site";
 import { useMemoria, guardarNombre } from "@/lib/futuro/store";
 import { readBibliotecaIdentity } from "@/lib/futuro/identity";
+import { toTitleCase, validateDisplayName } from "@/lib/biblioteca/utils";
 
 const SESSION_FLAG = "ees6-futuro-intro-v1";
 // El equipo que administra contenidos entra por acá, no es la experiencia
@@ -25,6 +26,7 @@ export function IntroWelcome() {
   const [stage, setStage] = useState<Stage>("hidden");
   const [visible, setVisible] = useState(true);
   const [nombreInput, setNombreInput] = useState("");
+  const [nombreError, setNombreError] = useState<string | null>(null);
 
   useEffect(() => {
     if (skip || typeof window === "undefined") return;
@@ -57,14 +59,12 @@ export function IntroWelcome() {
     return () => window.clearTimeout(timer);
     // Solo debe correr una vez por montaje real de la sección (cuando deja
     // de estar en una ruta de staff), no en cada cambio de memoria.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip]);
 
   useEffect(() => {
     if (stage !== "greet") return;
     const timer = window.setTimeout(() => dismiss(), 2200);
     return () => window.clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
   function dismiss() {
@@ -86,7 +86,12 @@ export function IntroWelcome() {
       dismiss();
       return;
     }
-    guardarNombre(limpio, "visitante");
+    const check = validateDisplayName(limpio);
+    if (!check.ok) {
+      setNombreError(check.message ?? "Ingresá un nombre real.");
+      return;
+    }
+    guardarNombre(toTitleCase(limpio), "visitante");
     setStage("greet");
   }
 
@@ -142,11 +147,20 @@ export function IntroWelcome() {
             <input
               autoFocus
               value={nombreInput}
-              onChange={(e) => setNombreInput(e.target.value)}
-              placeholder="Ej.: Joaquín"
-              maxLength={60}
+              onChange={(e) => {
+                setNombreInput(e.target.value);
+                setNombreError(null);
+              }}
+              placeholder="Ej.: Ana"
+              maxLength={40}
+              aria-invalid={nombreError ? true : undefined}
               className="mt-3 w-full rounded-lg border border-white/30 bg-white/10 px-4 py-3 text-center text-sm text-white placeholder:text-white/50 outline-none focus:border-white focus:ring-2 focus:ring-white/30"
             />
+            {nombreError ? (
+              <p className="mt-2 text-xs text-red-200" role="alert">
+                {nombreError}
+              </p>
+            ) : null}
             <div className="mt-4 flex justify-center gap-3">
               <button
                 type="submit"

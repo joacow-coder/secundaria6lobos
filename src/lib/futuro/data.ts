@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { futuro } from "./client";
+import { SEED_BECAS, SEED_CARRERAS, SEED_INSTITUCIONES } from "./seed-content";
 
 export type Institucion = {
   id: string;
@@ -89,36 +90,51 @@ function unwrap<T>(res: { data: T[] | null; error: { message: string } | null })
   return res.data ?? [];
 }
 
+/**
+ * A cada listado de "Tu Futuro" se le suma un contenido institucional real de
+ * base (`seed-content.ts`) para que la sección nunca arranque vacía, incluso
+ * antes de que el equipo directivo cargue sus propios datos desde el panel
+ * de administración. Si Supabase falla, el error se sigue propagando como
+ * antes (las páginas ya muestran su propio estado de error con reintentar).
+ */
 export const institucionesQuery = queryOptions({
   queryKey: ["futuro", "instituciones"],
-  queryFn: async () =>
-    unwrap<Institucion>(
+  queryFn: async () => {
+    const rows = unwrap<Institucion>(
       (await futuro
         .from("instituciones")
         .select("*")
         .eq("archivado", false)
         .order("distancia_km", { ascending: true })) as never,
-    ),
+    );
+    return [...rows, ...SEED_INSTITUCIONES].sort(
+      (a, b) => (a.distancia_km ?? Infinity) - (b.distancia_km ?? Infinity),
+    );
+  },
 });
 
 export const carrerasQuery = queryOptions({
   queryKey: ["futuro", "carreras"],
-  queryFn: async () =>
-    unwrap<Carrera>(
+  queryFn: async () => {
+    const rows = unwrap<Carrera>(
       (await futuro
         .from("carreras")
         .select("*, instituciones(id, nombre, ciudad, distancia_km, tipo)")
         .eq("archivado", false)
         .order("nombre")) as never,
-    ),
+    );
+    return [...rows, ...SEED_CARRERAS].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  },
 });
 
 export const becasQuery = queryOptions({
   queryKey: ["futuro", "becas"],
-  queryFn: async () =>
-    unwrap<Beca>(
+  queryFn: async () => {
+    const rows = unwrap<Beca>(
       (await futuro.from("becas").select("*").eq("archivado", false).order("nombre")) as never,
-    ),
+    );
+    return [...rows, ...SEED_BECAS].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  },
 });
 
 export const noticiasQuery = queryOptions({

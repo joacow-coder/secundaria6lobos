@@ -4,6 +4,7 @@ import { useState } from "react";
 import logoAsset from "@/assets/logo.png";
 import type { StaffRole } from "@/lib/biblioteca/messages.functions";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
+import { validateDisplayName } from "@/lib/biblioteca/utils";
 
 export const Route = createFileRoute("/biblioteca/ingreso/$rol")({
   head: () => ({
@@ -62,10 +63,18 @@ function IngresoPersonal() {
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!profile) return;
+    const trimmedName = name.trim();
+    if (trimmedName) {
+      const check = validateDisplayName(trimmedName);
+      if (!check.ok) {
+        setError(check.message ?? "Revisá tu nombre.");
+        return;
+      }
+    }
     setLoading(true);
     setError(null);
     try {
-      await signInTeacher({ code, name, role: profile.role });
+      await signInTeacher({ code, name: trimmedName, role: profile.role });
       navigate({ to: "/biblioteca/panel/comunicados" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos verificar el código.");
@@ -87,7 +96,10 @@ function IngresoPersonal() {
           <p className="mt-1.5 text-sm opacity-85">{profile.hint}</p>
         </div>
 
-        <form onSubmit={submit} className="mt-7 rounded-2xl bg-card p-6 text-card-foreground shadow-xl">
+        <form
+          onSubmit={submit}
+          className="mt-7 rounded-2xl bg-card p-6 text-card-foreground shadow-xl"
+        >
           <label className="block text-sm font-medium" htmlFor="staff-nombre">
             Nombre para mostrar
           </label>

@@ -79,14 +79,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+      { name: "viewport", content: "width=device-width, initial-scale=1.0, viewport-fit=cover" },
       { title: "Secundaria 6 Lobos" },
       { name: "theme-color", content: "#03125b" },
+      // Safari/iOS no lee `display` del manifiesto para decidir si abre en
+      // modo standalone: sin estos meta tags, "Agregar a inicio" instala un
+      // ícono que sigue abriendo dentro de Safari con sus barras.
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Secundaria 6" },
+      { name: "mobile-web-app-capable", content: "yes" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.json" },
       { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "icon", href: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
   }),
   component: RootComponent,

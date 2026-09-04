@@ -33,7 +33,7 @@ const SUGGESTIONS = [
 type Msg = { role: "user" | "assistant"; content: string };
 
 function AsistentePage() {
-  const { teacher } = useBibliotecaSession();
+  const { student, teacher } = useBibliotecaSession();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,9 @@ function AsistentePage() {
     setInput("");
     setLoading(true);
     try {
-      const { reply } = await bibAssistantChat({ data: { messages: next } });
+      const { reply } = await bibAssistantChat({
+        data: { messages: next, dni: student?.dni ?? null },
+      });
       setMessages([...next, { role: "assistant", content: reply }]);
     } catch (err) {
       setMessages([
@@ -93,10 +95,7 @@ function AsistentePage() {
           ) : null}
 
           {messages.map((m, i) => (
-            <div
-              key={i}
-              className={m.role === "user" ? "flex justify-end" : "flex justify-start"}
-            >
+            <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
               <p
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
                   m.role === "user"

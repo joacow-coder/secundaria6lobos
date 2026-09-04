@@ -6,6 +6,11 @@ const chatSchema = z.object({
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) }))
     .max(50),
+  // DNI del alumno logueado, para acotar la respuesta a su propio año — se
+  // ignora cualquier año que el cliente mande suelto y se busca el año real
+  // guardado en `bib_students` para ese DNI. Docentes/personal no mandan DNI
+  // y ven todos los años, igual que en el resto del panel.
+  dni: z.string().trim().max(20).nullable().optional(),
 });
 
 const FALLBACK_REPLY =
@@ -47,8 +52,12 @@ function detectYear(flat: string): number | null {
  * Asistente de la Biblioteca Digital: responde por búsqueda directa sobre las
  * materias y materiales reales cargados, más una tabla de preguntas
  * frecuentes — sin IA ni claves de API externas, así nunca puede "inventar"
- * un material que no existe.
+ * un material que no existe. Cuando la consulta viene de un alumno (con
+ * DNI), la respuesta queda acotada a su propio año lectivo: nunca sugiere
+ * materias, materiales ni datos de otro año.
  */
+const dniLookupSchema = /^\d{7,8}$/;
+
 export const bibAssistantChat = createServerFn({ method: "POST" })
   .inputValidator(chatSchema)
   .handler(async ({ data }) => {
@@ -57,8 +66,30 @@ export const bibAssistantChat = createServerFn({ method: "POST" })
     const flat = normalize(question);
     const db = await admin();
 
+    // El año del alumno se resuelve siempre contra `bib_students` por DNI —
+    // nunca se confía en un año que venga suelto del cliente — así la IA
+    // queda estrictamente acotada al año que le corresponde a ese DNI, sin
+    // importar qué año detecte en el texto de la pregunta.
+    let scopeYear: number | null = null;
+    const dni = (data.dni ?? "").trim();
+    if (dni && dniLookupSchema.test(dni)) {
+      const { data: studentRow } = await db
+        .from("bib_students")
+        .select("year")
+        .eq("dni", dni)
+        .maybeSingle();
+      scopeYear = (studentRow as { year: number } | null)?.year ?? null;
+    }
+
+    const askedYear = detectYear(flat);
+    if (scopeYear !== null && askedYear !== null && askedYear !== scopeYear) {
+      return {
+        reply: `Solo puedo mostrarte materiales e información de tu propio año (${scopeYear}.º año). Para otros años, consultá con preceptoría o el equipo docente.`,
+      };
+    }
+
     if (/materia/.test(flat)) {
-      const year = detectYear(flat);
+      const year = scopeYear ?? askedYear;
       let query = db.from("bib_subjects").select("code, name, year").order("name");
       if (year) query = query.eq("year", year);
       const { data: subjects } = await query;
@@ -71,12 +102,14 @@ export const bibAssistantChat = createServerFn({ method: "POST" })
       }
     }
 
-    const { data: resources } = await db
+    let resourcesQuery = db
       .from("bib_resources")
       .select("title, subject_code, year, kind, topic")
       .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(300);
+    if (scopeYear !== null) resourcesQuery = resourcesQuery.eq("year", scopeYear);
+    const { data: resources } = await resourcesQuery;
 
     const terms = flat.split(/\s+/).filter((t) => t.length > 3);
     const matches = (

@@ -3,6 +3,7 @@ import { KeyRound, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import logoAsset from "@/assets/logo.png";
 import { useBibliotecaSession } from "@/lib/biblioteca/session";
+import { validateDisplayName } from "@/lib/biblioteca/utils";
 
 export const Route = createFileRoute("/biblioteca/acceso")({
   head: () => ({
@@ -37,10 +38,18 @@ function AccesoDocente() {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
+    const trimmedName = name.trim();
+    if (trimmedName) {
+      const check = validateDisplayName(trimmedName);
+      if (!check.ok) {
+        setError(check.message ?? "Revisá tu nombre.");
+        return;
+      }
+    }
     setLoading(true);
     setError(null);
     try {
-      await signInTeacher({ code, name });
+      await signInTeacher({ code, name: trimmedName });
       navigate({ to: "/biblioteca/panel" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos verificar el código.");
@@ -64,7 +73,10 @@ function AccesoDocente() {
           </p>
         </div>
 
-        <form onSubmit={submit} className="mt-7 rounded-2xl bg-card p-6 text-card-foreground shadow-xl">
+        <form
+          onSubmit={submit}
+          className="mt-7 rounded-2xl bg-card p-6 text-card-foreground shadow-xl"
+        >
           <label className="block text-sm font-medium" htmlFor="doc-nombre">
             Nombre para mostrar (opcional)
           </label>
