@@ -192,6 +192,34 @@ export const bibSendMessage = createServerFn({ method: "POST" })
     }));
     const { error: targetError } = await db.from("bib_message_targets").insert(rows as never);
     if (targetError) throw new Error(targetError.message);
+
+    const senderDisplayName = data.senderName.trim() || "Equipo institucional";
+    // Aviso en tiempo real (bandeja de los conectados) y push (celular en
+    // segundo plano) — ninguno de los dos debe tumbar el envío del
+    // comunicado si falla, así que van en paralelo y sin relanzar errores.
+    const [{ broadcastNewBibMessage }, { sendPushToTargets }] = await Promise.all([
+      import("@/lib/biblioteca/realtime-broadcast.server"),
+      import("@/lib/push-broadcast.server"),
+    ]);
+    await Promise.allSettled([
+      broadcastNewBibMessage({
+        id: messageId,
+        title,
+        sender_name: senderDisplayName,
+        sender_role: role,
+        created_at: new Date().toISOString(),
+        targets: data.targets,
+      }),
+      sendPushToTargets(
+        {
+          title,
+          body: data.body.trim().slice(0, 150) || "Nuevo comunicado de la escuela.",
+          url: "/biblioteca/notificaciones",
+        },
+        data.targets,
+      ),
+    ]);
+
     return { ok: true as const, id: messageId };
   });
 

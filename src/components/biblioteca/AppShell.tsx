@@ -38,13 +38,7 @@ const STAFF_NAV = [
   { to: "/biblioteca/panel/administracion", label: "Administración" },
 ] as const;
 
-export function AppShell({
-  children,
-  area,
-}: {
-  children: ReactNode;
-  area: "alumno" | "profesor";
-}) {
+export function AppShell({ children, area }: { children: ReactNode; area: "alumno" | "profesor" }) {
   const { student, teacher, signOut } = useBibliotecaSession();
   const [open, setOpen] = useState(false);
 

@@ -1,6 +1,7 @@
 import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import { pushSubscribe } from "@/lib/push.functions";
+import type { Audience } from "@/lib/biblioteca/messages.functions";
 
 const SEEN_KEY = "ees6-push-optin-seen";
 
@@ -18,8 +19,20 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
  * No es invasivo (no abre el permiso nativo solo) y nunca lo pide de forma
  * automática — solo se activa cuando `active` pasa a true (tras el paso de
  * instalación) y espera a que el usuario toque "Activar".
+ *
+ * `audience`, si se pasa (montado dentro de la Biblioteca, con la sesión de
+ * alumno/personal ya identificada), etiqueta la suscripción con
+ * rol/año/turno/curso para que el servidor pueda filtrar qué comunicados le
+ * corresponden a este dispositivo (ver `sendPushToTargets`). Sin audience
+ * (uso en el sitio general) la suscripción solo recibe noticias públicas.
  */
-export function PushOptIn({ active = true }: { active?: boolean }) {
+export function PushOptIn({
+  active = true,
+  audience = null,
+}: {
+  active?: boolean;
+  audience?: Audience | null;
+}) {
   const [visible, setVisible] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
 
@@ -58,7 +71,13 @@ export function PushOptIn({ active = true }: { active?: boolean }) {
         applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
       });
       await pushSubscribe({
-        data: subscription.toJSON() as { endpoint: string; keys: { p256dh: string; auth: string } },
+        data: {
+          ...(subscription.toJSON() as {
+            endpoint: string;
+            keys: { p256dh: string; auth: string };
+          }),
+          audience,
+        },
       });
       setStatus("done");
       dismiss();
