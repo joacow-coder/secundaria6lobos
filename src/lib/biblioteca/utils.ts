@@ -33,7 +33,6 @@ const BASE_BLOCKED = [
   "pelotuda",
   "forro",
   "forra",
-  "gil",
   "imbecil",
   "idiota",
   "estupido",
@@ -95,6 +94,20 @@ export function toTitleCase(value: string): string {
     .join(" ");
 }
 
+/**
+ * Compara contra la lista de bloqueo por palabra completa, no por substring
+ * — si no, apellidos reales como "Vergara", "Gil" o "Concha" quedarían
+ * bloqueados por contener "verga", "gil" o "concha" adentro. Las entradas de
+ * más de una palabra (p. ej. "lorem ipsum") siguen buscándose como frase
+ * dentro del nombre completo, que es la única forma en que tienen sentido.
+ */
+function hasBlockedWord(words: string[], flat: string, blocked: string[]): boolean {
+  const normalizedWords = words.map((w) => normalize(w));
+  return blocked.some((entry) =>
+    entry.includes(" ") ? flat.includes(entry) : normalizedWords.includes(entry),
+  );
+}
+
 const NAME_ERROR =
   "Por favor, ingresá tu nombre y apellido reales para acceder a la Biblioteca Digital.";
 
@@ -122,7 +135,7 @@ export function validateStudentName(
     words.some((w) => w.replace(/[-']/g, "").length < 2) ||
     /(.)\1{2,}/i.test(flat.replace(/\s/g, "")) ||
     new Set(words.map((w) => normalize(w))).size < words.length ||
-    [...BASE_BLOCKED, ...extraBlocked.map(normalize)].some((w) => w.length > 2 && flat.includes(w));
+    hasBlockedWord(words, flat, [...BASE_BLOCKED, ...extraBlocked.map(normalize)]);
 
   return invalid ? { ok: false, message: NAME_ERROR } : { ok: true };
 }
@@ -158,7 +171,7 @@ export function validateDisplayName(
     words.length > 5 ||
     words.some((w) => w.replace(/[-'.]/g, "").length < 2 && !w.endsWith(".")) ||
     /(.)\1{2,}/i.test(flat.replace(/[\s.]/g, "")) ||
-    [...BASE_BLOCKED, ...extraBlocked.map(normalize)].some((w) => w.length > 2 && flat.includes(w));
+    hasBlockedWord(words, flat, [...BASE_BLOCKED, ...extraBlocked.map(normalize)]);
 
   return invalid ? { ok: false, message: DISPLAY_NAME_ERROR } : { ok: true };
 }
